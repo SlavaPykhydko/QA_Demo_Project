@@ -1,7 +1,7 @@
 import json
 import jmespath
 import requests
-import logging
+from common.logger import get_logger
 from requests import Response, HTTPError
 
 
@@ -10,13 +10,7 @@ class BaseClient:
         self.base_url = base_url
         self.session = session if session else requests.Session()
 
-        self.logger = logging.getLogger("API_Client")
-        if not self.logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-        self.logger.setLevel(logging.INFO)
+        self.logger = get_logger(self.__class__.__name__)
 
     def _request(self, method, endpoint, **kwargs):
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
