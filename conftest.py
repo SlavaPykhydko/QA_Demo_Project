@@ -17,7 +17,7 @@ def api_session():
     })
 
     login_data = {"login": config.USER_PHONE_NUMBER, "password": config.USER_PASSWORD}
-    login_res = session.post(f"{config.BASE_URL}/api/v2/auth/basic", json=login_data)
+    login_res = session.post(f"{config.BASE_URL}{config.API_VERSION}/auth/basic", json=login_data)
     if login_res.status_code != 200:
         logger.error(f"Login failed! Status: {login_res.status_code}, Response: {login_res.text}")
         login_res.raise_for_status()
@@ -26,7 +26,7 @@ def api_session():
     refresh_token = login_res.json().get("refreshToken")
     session.headers.update({"Authorization": f"Bearer {access_token}"})
 
-    info_res = session.get(f"{config.BASE_URL}/api/v2/auth/info/site-user")
+    info_res = session.get(f"{config.BASE_URL}{config.API_VERSION}/auth/info/site-user")
 
     if info_res.status_code != 200:
         logger.error(f"Failed to get user info! Status: {info_res.status_code}, Response: {info_res.text}")

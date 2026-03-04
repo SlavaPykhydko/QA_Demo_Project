@@ -25,9 +25,12 @@ class BaseClient:
             params["session_id"] = self.session.api_session_id
             kwargs["params"] = params
 
+            self.logger.info(f"Sending {method} to {url} with params: {kwargs.get('params')}")
+
         try:
             response = self.session.request(method, url, **kwargs)
             response.raise_for_status()
+            self.logger.info(f"Response JSON: {response.json()}")
             return response
 
         except HTTPError:
@@ -37,14 +40,18 @@ class BaseClient:
     def _log_error(self, method, url, response, kwargs):
 
         status = response.status_code if response is not None else "NO RESPONSE"
-        text = response.text if response is not None else "Connection Error / Timeout"
+        # trying to make a good-looking JSON with indentation in text for logging errors
+        try:
+            error_body = json.dumps(response.json(), indent=4, ensure_ascii=False)
+        except Exception:
+            error_body = response.text if response is not None else "Connection Error"
 
         error_msg = (
             f"\n{'=' * 40} API ERROR {'=' * 40}\n"
             f"URL: {method} {url}\n"
             f"REQUEST KWARGS: {kwargs}\n"
             f"STATUS CODE: {status}\n"
-            f"RESPONSE: {text}\n"
+            f"RESPONSE: {error_body}\n"
             f"{'=' * 91}"
         )
         self.logger.error(error_msg)
