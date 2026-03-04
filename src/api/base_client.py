@@ -2,7 +2,8 @@ import json
 import jmespath
 import requests
 from common.logger import get_logger
-from requests import Response, HTTPError, Session
+from requests import Response, Session
+from requests.exceptions import HTTPError
 
 
 class BaseClient:
