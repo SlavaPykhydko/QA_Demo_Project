@@ -1,16 +1,36 @@
 import pytest
 import pytest_check as check
 
-def test_check_orders_list(online_orders_api):
+# Defining test data (input parameters, expected results)
+test_data = [
+    # 1. All orders in one page
+    (
+        {"page": 0, "limit": 40, "status": "ALL"},
+        {"totalCount": 21, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+    ),
+    # 2. The first page with limit=10
+    (
+        {"page": 0, "limit": 10, "status": "ALL"},
+        {"totalCount": 21, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
+    ),
+    # 3. The last page with limit=10
+    (
+        {"page": 2, "limit": 10, "status": "ALL"},
+        {"totalCount": 21, "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
+    )
+]
 
+# Generating good-looking names for reports
+test_ids = [f"limit_{d[0]['limit']}_page_{d[0]['page']}" for d in test_data]
 
-    response = online_orders_api.get_online_orders(page=0, limit=40, status="ALL")
-    expected_total_count = 21
-    expected_page_index = 0
-    expected_total_pages = 1
-    expected_has_previous_page = False
-    expected_has_next_page = False
+@pytest.mark.parametrize("inputs, expected", test_data, ids=test_ids)
+def test_check_orders_list(online_orders_api, inputs, expected):
 
+    response = online_orders_api.get_online_orders(
+        page=inputs["page"],
+        limit=inputs["limit"],
+        status=inputs["status"]
+    )
 
     total_count = online_orders_api._get_json_value(response, "totalCount")
     page_index = online_orders_api._get_json_value(response, "pageIndex")
@@ -18,8 +38,8 @@ def test_check_orders_list(online_orders_api):
     has_previous_page = online_orders_api._get_json_value(response, "hasPreviousPage")
     has_next_page = online_orders_api._get_json_value(response, "hasNextPage")
 
-    check.equal(total_count, expected_total_count, "Total count is wrong")
-    check.equal(page_index, expected_page_index, "Page index is wrong")
-    check.equal(total_pages, expected_total_pages, "Total pages is wrong")
-    check.equal(has_previous_page, expected_has_previous_page, "Has previous page is wrong")
-    check.equal(has_next_page, expected_has_next_page, "Has next page is wrong")
+    check.equal(total_count, expected["totalCount"], "Total count is wrong")
+    check.equal(page_index, expected["pageIndex"], "Page index is wrong")
+    check.equal(total_pages, expected["totalPages"], "Total pages is wrong")
+    check.equal(has_previous_page, expected["hasPreviousPage"], "Has previous page is wrong")
+    check.equal(has_next_page, expected["hasNextPage"], "Has next page is wrong")
