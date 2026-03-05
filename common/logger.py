@@ -1,5 +1,7 @@
 import logging
+import os
 import sys
+from logging.handlers import TimedRotatingFileHandler
 
 
 def get_logger(name):
@@ -13,8 +15,27 @@ def get_logger(name):
             datefmt='%Y-%m-%d %H:%M:%S'
         )
 
+        #set up output in stdout
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
+
+        #set up output in file
+        log_dir = "logs"
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+        # 4. Handler with date rotation
+        file_handler = TimedRotatingFileHandler(
+            filename=f"{log_dir}/automation.log",
+            when="midnight",
+            interval=1,
+            backupCount=7,
+            encoding='utf-8'
+            )
+
+        file_handler.suffix = "%Y-%m-%d"
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
     return logger

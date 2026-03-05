@@ -1,21 +1,26 @@
 import json
 import jmespath
-import requests
 from common.logger import get_logger
 from requests import Response, Session
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, JSONDecodeError
 
 
 class BaseClient:
     def __init__(self, base_url: str, session: Session = None):
         self.base_url = base_url
         self.session = session if session else Session()
-
         self.logger = get_logger(self.__class__.__name__)
+
+    def _format_json(self, data):
+        """Auxiliary method for transformation dict in good-looking string"""
+        try:
+            return json.dumps(data, indent=4, ensure_ascii=False)
+        except (TypeError, ValueError):
+            return str(data)
+
 
     def _request(self, method, endpoint, **kwargs):
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        response = None
 
         # Adding session_id in all requests if it there is in session
         if hasattr(self.session, "api_session_id"):
@@ -25,24 +30,31 @@ class BaseClient:
             params["session_id"] = self.session.api_session_id
             kwargs["params"] = params
 
-            self.logger.info(f"Sending {method} to {url} with params: {kwargs.get('params')}")
+        self.logger.info(f"Sending {method} to {url} | Params: {kwargs.get('params')} | Body: {kwargs.get('json')}")
 
+        response = None
         try:
             response = self.session.request(method, url, **kwargs)
+            # Trying to make the successful response looks good-looking
+            try:
+                res_json = response.json()
+                self.logger.info(f"Response JSON:\n{self._format_json(res_json)}")
+            except (JSONDecodeError, ValueError):
+                self.logger.info(f"Response is not JSON. Text: {response.text[:200]}...")
+
             response.raise_for_status()
-            self.logger.info(f"Response JSON: {response.json()}")
             return response
 
         except HTTPError:
             self._log_error(method, url, response, kwargs)
             raise
 
-    def _log_error(self, method, url, response, kwargs):
 
+    def _log_error(self, method, url, response, kwargs):
         status = response.status_code if response is not None else "NO RESPONSE"
-        # trying to make a good-looking JSON with indentation in text for logging errors
+        #Trying to make the Unsuccessful response (4xx, 5xx) looks good-looking
         try:
-            error_body = json.dumps(response.json(), indent=4, ensure_ascii=False)
+            error_body = self._format_json(response.json())
         except Exception:
             error_body = response.text if response is not None else "Connection Error"
 
@@ -51,7 +63,7 @@ class BaseClient:
             f"URL: {method} {url}\n"
             f"REQUEST KWARGS: {kwargs}\n"
             f"STATUS CODE: {status}\n"
-            f"RESPONSE: {error_body}\n"
+            f"RESPONSE BODY: {error_body}\n"
             f"{'=' * 91}"
         )
         self.logger.error(error_msg)
@@ -71,14 +83,8 @@ class BaseClient:
         return response.headers[header_name]
 
     def _get_json_value(self, response: Response, path: str):
-        # try except block was commented because we have already checked it in _request method
-        # try:
         data = response.json()
-        # except json.decoder.JSONDecodeError:
-        #     assert False, f"Response is NOT a json. Response text is  {response.text[:100]}..."
-
         value = jmespath.search(path, data)
 
         assert value is not None, f"Path '{path}' not found in JSON: {data}"
-
         return value
