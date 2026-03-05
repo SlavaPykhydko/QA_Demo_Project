@@ -5,26 +5,41 @@ import pytest_check as check
 test_data = [
     # 1. All orders in one page
     (
-        {"page": 0, "limit": 40, "status": "ALL"},
+        {"page": 0, "limit": 40, "status": "All"},
         {"totalCount": 21, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     ),
     # 2. The first page with limit=10
     (
-        {"page": 0, "limit": 10, "status": "ALL"},
+        {"page": 0, "limit": 10, "status": "All"},
         {"totalCount": 21, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
     ),
     # 3. The last page with limit=10
     (
-        {"page": 2, "limit": 10, "status": "ALL"},
+        {"page": 2, "limit": 10, "status": "All"},
         {"totalCount": 21, "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
+    ),
+    # 4. Some middle page with limit=1
+    (
+        {"page": 10, "limit": 1, "status": "All"},
+        {"totalCount": 21, "totalPages": 21, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True}
+    ),
+    # 5. Done orders in one page
+    (
+        {"page": 0, "limit": 40, "status": "Done"},
+        {"totalCount": 19, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+    ),
+    # 6. Cancel orders in one page
+    (
+        {"page": 0, "limit": 40, "status": "Cancel"},
+        {"totalCount": 2, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     )
 ]
 
 # Generating good-looking names for reports
-test_ids = [f"limit_{d[0]['limit']}_page_{d[0]['page']}" for d in test_data]
+test_ids = [f"limit_{d[0]['limit']}_page_{d[0]['page']}_status_{d[0]['status']}" for d in test_data]
 
 @pytest.mark.parametrize("inputs, expected", test_data, ids=test_ids)
-def test_check_orders_list(online_orders_api, inputs, expected):
+def test_counts_and_navigation_parameters_positive_test_data(online_orders_api, inputs, expected):
 
     response = online_orders_api.get_online_orders(
         page=inputs["page"],
