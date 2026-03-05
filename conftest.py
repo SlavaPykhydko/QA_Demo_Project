@@ -15,13 +15,26 @@ def pytest_runtest_makereport(item, call):
 
     # If test failed at the beginning
     if report.when == "call" and report.failed:
-        # Logging test's name and error (including errors which pytest-check found)
-        report_logger.error(f" TEST FAILED: {item.nodeid} ")
+        # 1. Получаем параметры теста (если есть параметризация)
+        params = item.callspec.params if hasattr(item, 'callspec') else "No params"
+
+        # 2. Формируем "красивую рамку" для ошибки
+        error_separator = "!" * 80
+        report_logger.error(f"\n{error_separator}")
+        report_logger.error(f"TEST FAILED: {item.nodeid}")
+        report_logger.error(f"PARAMS: {params}")
 
         # Adding error text (longrepr - it's what we see in the console)
         if report.longrepr:
-            # Transformation error's object into text and log into file
-            report_logger.error(f"FAILURE DETAILS:\n{report.longreprtext}")
+            # 3. Мы берем только самое важное из ошибки (reprcrash)
+            # или весь текст, если это мягкие проверки (pytest-check)
+            error_details = report.longreprtext
+
+            # Если лог слишком длинный, можно оставить только последние N строк
+            # (где обычно и сидит ошибка pytest-check)
+            report_logger.error(f"FAILURE REASON:\n{error_details}")
+
+        report_logger.error(f"{error_separator}\n")
 
 @pytest.fixture(scope="session")
 def api_session():
