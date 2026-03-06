@@ -1,5 +1,5 @@
 import pytest_check as check
-from conftest import db_counts
+from tests.conftest import db_counts
 
 def test_sum_done_and_cancel_orders(online_orders_api, db_counts):
 

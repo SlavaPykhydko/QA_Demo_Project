@@ -1,8 +1,8 @@
 import pytest
 from requests import Session
-from common import config
+from src.common import config
 
-from common.logger import get_logger
+from src.common.logger import get_logger
 from src.api.orders_list_online import OnlineOrdersAPI
 
 # Creating logger for fixture/reports

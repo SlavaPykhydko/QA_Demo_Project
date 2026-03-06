@@ -1,6 +1,6 @@
 import json
 import jmespath
-from common.logger import get_logger
+from src.common.logger import get_logger
 from requests import Response, Session
 from requests.exceptions import HTTPError, JSONDecodeError
 

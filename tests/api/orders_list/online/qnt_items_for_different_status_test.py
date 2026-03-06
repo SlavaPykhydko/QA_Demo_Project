@@ -1,7 +1,7 @@
 import pytest
 import pytest_check as check
 
-from src.models.online_orders_list import OrdersResponse
+from src.models.orders.online_orders_history import OrdersResponse
 
 test_data = [
     ({"page": 0, "limit": 40, "status": "All"}),
