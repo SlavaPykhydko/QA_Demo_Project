@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 from logging.handlers import TimedRotatingFileHandler
+from datetime import datetime
 
 
 def get_logger(name):
@@ -25,16 +26,11 @@ def get_logger(name):
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 
-        # 4. Handler with date rotation
-        file_handler = TimedRotatingFileHandler(
-            filename=f"{log_dir}/automation.log",
-            when="midnight",
-            interval=1,
-            backupCount=7,
-            encoding='utf-8'
-            )
+        # 4. Handler for logging into file
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        log_file_name = f"{log_dir}/automation_{current_date}.log"
+        file_handler = logging.FileHandler(log_file_name, encoding='utf-8')
 
-        file_handler.suffix = "%Y-%m-%d"
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
