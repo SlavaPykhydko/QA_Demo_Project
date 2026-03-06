@@ -1,6 +1,6 @@
 from src.api.base_client import BaseClient
 
-class OnlineOrdersAPI(BaseClient):
+class OnlineOrdersHistoryAPI(BaseClient):
     def __init__(self, base_url, session):
         super().__init__(base_url, session)
         self.endpoint = "/api/v2/sales/orders/online"
