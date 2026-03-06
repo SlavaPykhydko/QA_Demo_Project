@@ -1,39 +1,41 @@
 import pytest
 import pytest_check as check
 
-from conftest import db_counts
+count_all_orders_from_db = 21
+count_done_orders_from_db = 19
+count_cancel_orders_from_db = 2
 
 # Defining test data (input parameters, expected results)
 test_data = [
     # 1. All orders in one page
     (
         {"page": 0, "limit": 40, "status": "All"},
-        {"totalCount": db_counts["all"], "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+        {"totalCount": count_all_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     ),
     # 2. The first page with limit=10
     (
         {"page": 0, "limit": 10, "status": "All"},
-        {"totalCount": db_counts["all"], "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
+        {"totalCount": count_all_orders_from_db, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
     ),
     # 3. The last page with limit=10
     (
         {"page": 2, "limit": 10, "status": "All"},
-        {"totalCount": db_counts["all"], "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
+        {"totalCount": count_all_orders_from_db, "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
     ),
     # 4. Some middle page with limit=1
     (
         {"page": 10, "limit": 1, "status": "All"},
-        {"totalCount": db_counts["all"], "totalPages": db_counts["all"], "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True}
+        {"totalCount": count_all_orders_from_db, "totalPages": count_all_orders_from_db, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True}
     ),
     # 5. Done orders_list in one page
     (
         {"page": 0, "limit": 40, "status": "Done"},
-        {"totalCount": db_counts["done"], "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+        {"totalCount": count_done_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     ),
     # 6. Cancel orders in one page
     (
         {"page": 0, "limit": 40, "status": "Cancel"},
-        {"totalCount": db_counts["cancel"], "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+        {"totalCount": count_cancel_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     )
 ]
 
