@@ -1,37 +1,43 @@
 import pytest
 import pytest_check as check
 
+# We need to get this data from db,
+# but we don't have this opportunity now, so we just use data from response
+count_all_orders_from_db = 21
+count_done_orders_from_db = 19
+count_cancel_orders_from_db = 2
+
 # Defining test data (input parameters, expected results)
 test_data = [
     # 1. All orders in one page
     (
         {"page": 0, "limit": 40, "status": "All"},
-        {"totalCount": 21, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+        {"totalCount": count_all_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     ),
     # 2. The first page with limit=10
     (
         {"page": 0, "limit": 10, "status": "All"},
-        {"totalCount": 21, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
+        {"totalCount": count_all_orders_from_db, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
     ),
     # 3. The last page with limit=10
     (
         {"page": 2, "limit": 10, "status": "All"},
-        {"totalCount": 21, "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
+        {"totalCount": count_all_orders_from_db, "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
     ),
     # 4. Some middle page with limit=1
     (
         {"page": 10, "limit": 1, "status": "All"},
-        {"totalCount": 21, "totalPages": 21, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True}
+        {"totalCount": count_all_orders_from_db, "totalPages": 21, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True}
     ),
     # 5. Done orders in one page
     (
         {"page": 0, "limit": 40, "status": "Done"},
-        {"totalCount": 19, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+        {"totalCount": count_done_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     ),
     # 6. Cancel orders in one page
     (
         {"page": 0, "limit": 40, "status": "Cancel"},
-        {"totalCount": 2, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+        {"totalCount": count_cancel_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     )
 ]
 
@@ -58,3 +64,21 @@ def test_counts_and_navigation_parameters_positive_test_data(online_orders_api, 
     check.equal(total_pages, expected["totalPages"], "Total pages is wrong")
     check.equal(has_previous_page, expected["hasPreviousPage"], "Has previous page is wrong")
     check.equal(has_next_page, expected["hasNextPage"], "Has next page is wrong")
+
+def test_sum_done_and_cancel_orders(online_orders_api):
+
+    response_all_orders = online_orders_api.get_online_orders(page=0, limit=40, status="All")
+    total_count_all_orders = online_orders_api._get_json_value(response_all_orders, "totalCount")
+
+    response_done_orders = online_orders_api.get_online_orders(page=0, limit=40, status="Done")
+    total_count_done_orders = online_orders_api._get_json_value(response_done_orders, "totalCount")
+
+    response_cancel_orders = online_orders_api.get_online_orders(page=0, limit=40, status="Cancel")
+    total_count_cancel_orders = online_orders_api._get_json_value(response_cancel_orders, "totalCount")
+
+    check.equal(count_all_orders_from_db,
+                count_done_orders_from_db + count_cancel_orders_from_db, "Some of the count from db is wrong")
+    check.equal(total_count_all_orders,
+                total_count_done_orders + total_count_cancel_orders, "Some of the count from response is wrong")
+
+
