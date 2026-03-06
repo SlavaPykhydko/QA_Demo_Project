@@ -2,3 +2,6 @@ pytest
 pytest_check
 requests
 allure-pytest
+pydantic
+jmespath
+python-dotenv

@@ -5,7 +5,7 @@ from conftest import db_counts
 
 # Defining test data (input parameters, expected results)
 test_data = [
-    # 1. All orders_list in one page
+    # 1. All orders in one page
     (
         {"page": 0, "limit": 40, "status": "All"},
         {"totalCount": db_counts["all"], "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
@@ -23,14 +23,14 @@ test_data = [
     # 4. Some middle page with limit=1
     (
         {"page": 10, "limit": 1, "status": "All"},
-        {"totalCount": db_counts["all"], "totalPages": 21, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True}
+        {"totalCount": db_counts["all"], "totalPages": db_counts["all"], "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True}
     ),
     # 5. Done orders_list in one page
     (
         {"page": 0, "limit": 40, "status": "Done"},
         {"totalCount": db_counts["done"], "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     ),
-    # 6. Cancel orders_list in one page
+    # 6. Cancel orders in one page
     (
         {"page": 0, "limit": 40, "status": "Cancel"},
         {"totalCount": db_counts["cancel"], "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}

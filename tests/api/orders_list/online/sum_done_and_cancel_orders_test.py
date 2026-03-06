@@ -1,4 +1,3 @@
-import pytest
 import pytest_check as check
 from conftest import db_counts
 
