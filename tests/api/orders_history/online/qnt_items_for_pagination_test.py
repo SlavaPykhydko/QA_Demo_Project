@@ -1,6 +1,6 @@
 import pytest_check as check
 
-from src.models.orders.online_orders_history import OrdersResponse
+from src.models.orders_history.online_orders_history import OrdersResponse
 
 
 

@@ -1,5 +1,5 @@
 import pytest
-from src.models.orders.online_orders_history import OrdersResponse
+from src.models.orders_history.online_orders_history import OrdersResponse
 
 test_data = [
     ({"status": "All"}),

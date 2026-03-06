@@ -7,7 +7,7 @@ count_cancel_orders_from_db = 2
 
 # Defining test data (input parameters, expected results)
 test_data = [
-    # 1. All orders in one page
+    # 1. All orders_history in one page
     (
         {"page": 0, "limit": 40, "status": "All"},
         {"totalCount": count_all_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
@@ -32,7 +32,7 @@ test_data = [
         {"page": 0, "limit": 40, "status": "Done"},
         {"totalCount": count_done_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     ),
-    # 6. Cancel orders in one page
+    # 6. Cancel orders_history in one page
     (
         {"page": 0, "limit": 40, "status": "Cancel"},
         {"totalCount": count_cancel_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}

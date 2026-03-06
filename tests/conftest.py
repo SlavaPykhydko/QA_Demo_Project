@@ -3,7 +3,7 @@ from requests import Session
 from src.common import config
 
 from src.common.logger import get_logger
-from src.api.orders_list_online import OnlineOrdersAPI
+from src.api.orders_history.online_orders_history import OnlineOrdersAPI
 
 # Creating logger for fixture/reports
 report_logger = get_logger("TestReport")
