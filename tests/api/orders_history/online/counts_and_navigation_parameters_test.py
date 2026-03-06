@@ -27,7 +27,7 @@ test_data = [
         {"page": 10, "limit": 1, "status": "All"},
         {"totalCount": count_all_orders_from_db, "totalPages": count_all_orders_from_db, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True}
     ),
-    # 5. Done orders_list in one page
+    # 5. Done orders_history in one page
     (
         {"page": 0, "limit": 40, "status": "Done"},
         {"totalCount": count_done_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
