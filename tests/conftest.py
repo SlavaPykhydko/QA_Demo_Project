@@ -4,6 +4,7 @@ from src.common import config
 
 from src.common.logger import get_logger
 from src.api.sales.orders.online.online_orders import OnlineOrdersAPI
+from src.common.online_orders_data import OnlineOrderData as Data
 
 # Creating logger for fixture/reports
 report_logger = get_logger("TestReport")
@@ -12,9 +13,9 @@ report_logger = get_logger("TestReport")
 def db_counts():
     # Now it's just a dict but later this data will be given from db
     return {
-        "all": 21,
-        "done": 19,
-        "cancel": 2
+        "all": Data.count_all_orders_from_db,
+        "done": Data.count_done_orders_from_db,
+        "cancel": Data.count_cancel_orders_from_db
     }
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
