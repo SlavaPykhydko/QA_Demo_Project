@@ -1,7 +1,7 @@
 import pytest
 import pytest_check as check
 
-from src.common.online_orders_history_data import OnlineOrdersHistoryData
+from src.common.online_orders_data import OnlineOrderData as Data
 
 
 # Defining test data (input parameters, expected results)
@@ -9,32 +9,32 @@ test_data = [
     # 1. All orders in one page
     (
         {"page": 0, "limit": 40, "status": "All"},
-        {"totalCount": OnlineOrdersHistoryData.count_all_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+        {"totalCount": Data.count_all_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     ),
     # 2. The first page with limit=10
     (
         {"page": 0, "limit": 10, "status": "All"},
-        {"totalCount": OnlineOrdersHistoryData.count_all_orders_from_db, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
+        {"totalCount": Data.count_all_orders_from_db, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
     ),
     # 3. The last page with limit=10
     (
         {"page": 2, "limit": 10, "status": "All"},
-        {"totalCount": OnlineOrdersHistoryData.count_all_orders_from_db, "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
+        {"totalCount": Data.count_all_orders_from_db, "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
     ),
     # 4. Some middle page with limit=1
     (
         {"page": 10, "limit": 1, "status": "All"},
-        {"totalCount": OnlineOrdersHistoryData.count_all_orders_from_db, "totalPages": OnlineOrdersHistoryData.count_all_orders_from_db, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True}
+        {"totalCount": Data.count_all_orders_from_db, "totalPages": Data.count_all_orders_from_db, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True}
     ),
     # 5. Done orders in one page
     (
         {"page": 0, "limit": 40, "status": "Done"},
-        {"totalCount": OnlineOrdersHistoryData.count_done_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+        {"totalCount": Data.count_done_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     ),
     # 6. Cancel orders in one page
     (
         {"page": 0, "limit": 40, "status": "Cancel"},
-        {"totalCount": OnlineOrdersHistoryData.count_cancel_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+        {"totalCount": Data.count_cancel_orders_from_db, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
     )
 ]
 
