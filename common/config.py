@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_URL = "https://mobile-api.epicentrk.ua/"
+BASE_URL = "https://mobile-api.epicentrk.ua"
 API_VERSION = "/api/v2"
 PLATFORM = "ios"
 MOBILE_VERSION = "4.9.2122"

@@ -1,11 +1,20 @@
 import pytest
 from requests import Session
 from common import config
-from src.api.online_orders import OnlineOrdersAPI
+from src.api.orders_list_online import OnlineOrdersAPI
 from common.logger import get_logger
 
 # Creating logger for fixture/reports
 report_logger = get_logger("TestReport")
+
+@pytest.fixture(scope="session")
+def db_counts():
+    # Now it's just a dict but later this data will be given from db
+    return {
+        "all": 21,
+        "done": 19,
+        "cancel": 2
+    }
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
