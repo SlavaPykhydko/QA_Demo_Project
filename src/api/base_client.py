@@ -3,11 +3,14 @@ import jmespath
 from src.common.logger import get_logger
 from requests import Response, Session
 from requests.exceptions import HTTPError, JSONDecodeError
+from src.common.config import config
 
 
 class BaseClient:
-    def __init__(self, base_url: str, session: Session = None):
-        self.base_url = base_url
+    def __init__(self, session: Session = None):
+        self.base_url = config.BASE_URL
+        self.api_version = config.API_VERSION
+        self.full_url = f"{self.base_url}{self.api_version}"
         self.session = session if session else Session()
         self.logger = get_logger(self.__class__.__name__)
 
@@ -20,7 +23,7 @@ class BaseClient:
 
 
     def _request(self, method, endpoint, **kwargs):
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        url = f"{self.full_url}/{endpoint.lstrip('/')}"
 
         # Adding session_id in all requests if it there is in session
         if hasattr(self.session, "api_session_id"):

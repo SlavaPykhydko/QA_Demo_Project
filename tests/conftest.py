@@ -1,6 +1,6 @@
 import pytest
 from requests import Session
-from src.common import config
+from src.common.config import config
 
 from src.common.logger import get_logger
 from src.api.sales.orders.online.online_orders import OnlineOrdersAPI
@@ -84,4 +84,4 @@ def api_session():
 
 @pytest.fixture
 def online_orders_api(api_session):
-    return OnlineOrdersAPI(base_url=config.BASE_URL, session=api_session)
+    return OnlineOrdersAPI(session=api_session)
