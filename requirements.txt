@@ -5,3 +5,4 @@ allure-pytest
 pydantic
 jmespath
 python-dotenv
+sqlalchemy

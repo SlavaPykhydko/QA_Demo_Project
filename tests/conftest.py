@@ -4,19 +4,15 @@ from src.common.config import config
 
 from src.common.logger import get_logger
 from src.api.sales.orders.online.online_orders import OnlineOrdersAPI
-from src.common.online_orders_data import OnlineOrderData as Data
+from src.database.db_client import db_client
 
 # Creating logger for fixture/reports
 report_logger = get_logger("TestReport")
 
 @pytest.fixture(scope="session")
-def db_counts():
-    # Now it's just a dict but later this data will be given from db
-    return {
-        "all": Data.count_all_orders_from_db,
-        "done": Data.count_done_orders_from_db,
-        "cancel": Data.count_cancel_orders_from_db
-    }
+def db_orders_counts():
+    counts = db_client.get_online_orders_counts()
+    return counts
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):

@@ -1,5 +1,16 @@
+from src.database.db_client import db_client
 
-class OnlineOrderData:
-    count_all_orders_from_db = 21
-    count_done_orders_from_db = 19
-    count_cancel_orders_from_db = 2
+
+class OnlineOrdersData:
+
+    @property
+    def ALL(self):
+        return db_client.get_online_orders_counts()["all"]
+    @property
+    def DONE(self):
+        return db_client.get_online_orders_counts()["done"]
+    @property
+    def CANCEL(self):
+        return db_client.get_online_orders_counts()["cancel"]
+
+Data = OnlineOrdersData()
