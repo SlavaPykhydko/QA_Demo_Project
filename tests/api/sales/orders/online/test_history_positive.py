@@ -119,7 +119,7 @@ class TestOnlineOrdersType:
             for item in items:
                 check.is_in(item.type.lower(),
                             expected_types,
-                            f"Page {page_num}: Item ID {item.id} has wrong status '{item.type} Expected one of: {expected_type}")
+                            f"Page {page_num}: Item ID {item.id} has wrong status '{item.type} Expected one of: {expected_types}")
 
         check_item_on_page(parsed_data.items, 0)
 
