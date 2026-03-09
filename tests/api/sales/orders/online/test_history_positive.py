@@ -99,7 +99,7 @@ class TestOnlineOrdersListInfo:
                     total_count_done_orders + total_count_cancel_orders,
                     "Some of the count from response is wrong")
 
-class TestOnlineOrdersQntItemsForDiffStatus:
+class TestOnlineOrdersFilterStatus:
     test_data = [
         ({"page": 0, "limit": 40, "status": "All"}),
         ({"page": 0, "limit": 40, "status": "Done"}),
@@ -110,7 +110,7 @@ class TestOnlineOrdersQntItemsForDiffStatus:
     test_ids = [f"limit_{d['limit']}_page_{d['page']}_status_{d['status']}" for d in test_data]
 
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
-    def test_quantity_items_for_different_status(self, online_orders_api, inputs):
+    def test_quantity_items_for_each_status(self, online_orders_api, inputs):
         response = online_orders_api.get_online_orders(
             page=inputs["page"],
             limit=inputs["limit"],
@@ -121,7 +121,64 @@ class TestOnlineOrdersQntItemsForDiffStatus:
         check.equal(len(parsed_data.items), parsed_data.totalCount,
                     "The number of items is not equal totalCount from response")
 
-class TestOnlineOrdersSumQntItemsForPagination:
+
+        # Creating mapping: what status is requested -> the list available statuses in the response
+    status_mapping = [
+        ("All", ["received", "canceled"]),  # For All are allowed both
+        ("Done", ["received"]),
+        ("Cancel", ["canceled"]),
+    ]
+
+    @pytest.mark.parametrize("requested_status, allowed_statuses", status_mapping)
+    def test_each_item_has_correct_status(self, online_orders_api, requested_status, allowed_statuses):
+        response = online_orders_api.get_online_orders(page=0, limit=10, status=requested_status)
+        parsed_data = OrdersResponse(**response.json())
+        total_pages = parsed_data.totalPages
+
+        if not parsed_data.items:
+            pytest.skip(f"No items found for status: {requested_status}")
+
+        status_ua = ["отримано", "скасовано"]
+
+        def check_items_on_page(items, page_num):
+            for item in items:
+                check.is_in(
+                    item.orderStatus.lower(),
+                    allowed_statuses,
+                    f"Page {page_num}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
+                    f"Expected one of: {allowed_statuses}"
+                )
+                check.is_in(
+                    item.statusGroup.lower(),
+                    allowed_statuses,
+                    f"Page {page_num}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
+                    f"Expected one of: {allowed_statuses}"
+                )
+                check.is_in(
+                    item.status.lower(),
+                    status_ua,
+                    f"Page {page_num}: Item ID {item.id} has wrong status '{item.status}'. "
+                    f"Expected one of: {status_ua}"
+                )
+
+        # Check the first gotten page
+        check_items_on_page(parsed_data.items, 0)
+
+        if total_pages > 1:
+            for page in range(1, total_pages):
+                next_response = online_orders_api.get_online_orders(
+                    page=page,
+                    limit=10,
+                    status=requested_status
+                )
+                next_data = OrdersResponse(**next_response.json())
+
+                # Checking items on the current page of the cycle
+                check_items_on_page(next_data.items, page)
+
+
+
+class TestOnlineOrdersPagination:
     def test_sum_qnt_items_from_all_pages(self, online_orders_api, db_orders_counts):
         all_items = []
         response = online_orders_api.get_online_orders(page=0, limit=10, status="All")
