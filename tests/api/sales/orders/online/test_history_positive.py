@@ -102,7 +102,7 @@ class TestOnlineOrdersListInfo:
 class TestOnlineOrdersType:
 
     def test_items_type(self, online_orders_api):
-        expected_type = ["online", "marketplace"]
+        expected_types = ["online", "marketplace"]
 
         response = online_orders_api.get_online_orders(
             page=0,
@@ -118,7 +118,7 @@ class TestOnlineOrdersType:
         def check_item_on_page(items, page_num):
             for item in items:
                 check.is_in(item.type.lower(),
-                            expected_type,
+                            expected_types,
                             f"Page {page_num}: Item ID {item.id} has wrong status '{item.type} Expected one of: {expected_type}")
 
         check_item_on_page(parsed_data.items, 0)
