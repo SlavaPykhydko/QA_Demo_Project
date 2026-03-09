@@ -124,10 +124,16 @@ class TestOnlineOrdersQntItemsForDiffStatus:
 class TestOnlineOrdersSumQntItemsForPagination:
     def test_sum_qnt_items_from_all_pages(self, online_orders_api, db_orders_counts):
         all_items = []
-        for page in [0, 1, 2]:
-            response = online_orders_api.get_online_orders(page=page, limit=10, status="All")
-            parsed_data = OrdersResponse(**response.json())
-            all_items.extend(parsed_data.items)
+        response = online_orders_api.get_online_orders(page=0, limit=10, status="All")
+        first_page = OrdersResponse(**response.json())
+        total_pages = first_page.totalPages
+        all_items.extend(first_page.items)
+
+        if total_pages > 1:
+            for page in range(1, total_pages):
+                response = online_orders_api.get_online_orders(page=page, limit=10, status="All")
+                parsed_data = OrdersResponse(**response.json())
+                all_items.extend(parsed_data.items)
 
         check.equal(len(all_items), db_orders_counts["all"],
                     "The number of items is not equal the quantity from db")
