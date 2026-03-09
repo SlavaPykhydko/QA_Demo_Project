@@ -99,6 +99,39 @@ class TestOnlineOrdersListInfo:
                     total_count_done_orders + total_count_cancel_orders,
                     "Some of the count from response is wrong")
 
+class TestOnlineOrdersType:
+
+    def test_items_type(self, online_orders_api):
+        expected_type = ["online", "marketplace"]
+
+        response = online_orders_api.get_online_orders(
+            page=0,
+            limit=40,
+            status="All"
+        )
+        parsed_data = OrdersResponse(**response.json())
+        total_pages = parsed_data.totalPages
+
+        if not parsed_data.items:
+            pytest.skip(f"No items found for status: All")
+
+        def check_item_on_page(items, page_num):
+            for item in items:
+                check.is_in(item.type.lower(),
+                            expected_type,
+                            f"Page {page_num}: Item ID {item.id} has wrong status '{item.type} Expected one of: {expected_type}")
+
+        check_item_on_page(parsed_data.items, 0)
+
+        if total_pages > 0:
+            for page_num in range(1, total_pages):
+                next_response = online_orders_api.get_online_orders(
+                    page=page_num,
+                    limit=10,
+                    status="All")
+                next_data = OrdersResponse(**next_response.json())
+                check_item_on_page(next_data.items, page_num)
+
 class TestOnlineOrdersFilterStatus:
     test_data = [
         ({"page": 0, "limit": 40, "status": "All"}),
@@ -122,7 +155,7 @@ class TestOnlineOrdersFilterStatus:
                     "The number of items is not equal totalCount from response")
 
 
-        # Creating mapping: what status is requested -> the list available statuses in the response
+    # Creating mapping: what status is requested -> the list available statuses in the response
     status_mapping = [
         ("All", ["received", "canceled"]),  # For All are allowed both
         ("Done", ["received"]),
@@ -161,7 +194,7 @@ class TestOnlineOrdersFilterStatus:
                     f"Expected one of: {status_ua}"
                 )
 
-        # Check the first gotten page
+        # Check on the first gotten page
         check_items_on_page(parsed_data.items, 0)
 
         if total_pages > 1:
