@@ -39,5 +39,5 @@ class FakeDBClient(BaseDBClient):
         # Imitation reply from DB
         return {"all": 21, "done": 19, "cancel": 2}
 
-# When we don't have access to real DB, importing Fake DB client
+# Unless we have access to real DB, importing Fake DB client
 db_client = FakeDBClient()
