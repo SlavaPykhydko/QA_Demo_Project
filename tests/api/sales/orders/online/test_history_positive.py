@@ -296,3 +296,34 @@ class TestOnlineOrdersDateSorting:
             expected_dates,
             "Orders are not sorted by date (newest first)!"
         )
+
+class TestOnlineOrdersImageUrl:
+    def _check_each_image_url(self, items, page_num):
+        for item in items:
+            for url in item.goods:
+                check.is_true(
+                    url.startswith(Data.URL_PREFIX),
+                    f"Page {page_num}: Item ID {item.id} has invalid image prefix!\n"
+                    f"URL: {url}\n"
+                    f"Expected prefix: {Data.URL_PREFIX}"
+                )
+                check.is_true(
+                    url.lower().endswith(Data.ALLOWED_URL_SUFFIXES),
+                    f"Page {page_num}: Item ID {item.id} has invalid extension. "
+                    f"URL: {url}. Expected one of: {Data.ALLOWED_URL_SUFFIXES}"
+                )
+
+    def test_each_image_url(self, online_orders_api):
+        page = 0
+        total_pages = 1
+
+        while page < total_pages:
+            response = online_orders_api.get_online_orders(page=page, limit=10, status="All")
+            parsed_data = OrdersResponse(**response.json())
+
+            total_pages = parsed_data.totalPages
+
+            self._check_each_image_url(parsed_data.items, page)
+            page += 1
+
+
