@@ -309,3 +309,14 @@ class TestOnlineOrdersImage(BaseOnlineOrders):
 
             self._check_each_image(data.items, page)
             page += 1
+
+class TestOnlineOrdersPrice(BaseOnlineOrders):
+    def test_order_prices(self, online_orders_api):
+        page = 0
+        total_pages = 1
+        while page < total_pages:
+            data = self._get_orders(online_orders_api, page=page, limit=10, status="All")
+            total_pages = data.totalPages
+            for item in data.items:
+                 check.greater(item.price, 0, f"Item {item.id} has invalid price: {item.price}")
+            page += 1
