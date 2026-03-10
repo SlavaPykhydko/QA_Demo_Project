@@ -320,3 +320,14 @@ class TestOnlineOrdersPrice(BaseOnlineOrders):
             for item in data.items:
                  check.greater(item.price, 0, f"Item {item.id} has invalid price: {item.price}")
             page += 1
+
+class TestOnlineOrdersQuantity(BaseOnlineOrders):
+    def test_order_quantity(self, online_orders_api):
+        page = 0
+        total_pages = 1
+        while page < total_pages:
+            data = self._get_orders(online_orders_api, page=page, limit=10, status="All")
+            total_pages = data.totalPages
+            for item in data.items:
+                check.greater(item.quantity, 0, f"Item {item.id} has invalid quantity: {item.quantity}")
+            page += 1
