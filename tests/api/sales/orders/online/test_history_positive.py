@@ -104,11 +104,7 @@ class TestOnlineOrdersType:
     def test_items_type(self, online_orders_api):
         expected_types = ["online", "marketplace"]
 
-        response = online_orders_api.get_online_orders(
-            page=0,
-            limit=40,
-            status="All"
-        )
+        response = online_orders_api.get_online_orders(page=0, limit=40, status="All")
         parsed_data = OrdersResponse(**response.json())
         total_pages = parsed_data.totalPages
 
@@ -119,7 +115,7 @@ class TestOnlineOrdersType:
             for item in items:
                 check.is_in(item.type.lower(),
                             expected_types,
-                            f"Page {page_num}: Item ID {item.id} has wrong status '{item.type} Expected one of: {expected_types}")
+                            f"Page {page_num}: Item ID {item.id} has wrong type '{item.type} Expected one of: {expected_types}")
 
         check_item_on_page(parsed_data.items, 0)
 
@@ -227,3 +223,34 @@ class TestOnlineOrdersPagination:
 
         check.equal(len(all_items), db_orders_counts["all"],
                     "The number of items is not equal the quantity from db")
+
+class TestOnlineOrdersSellerConsistency:
+    def test_seller_and_type_consistency(self, online_orders_api):
+
+        expected_types = ["online", "marketplace"]
+
+        limit = 10
+        status = "All"
+
+        response = online_orders_api.get_online_orders(page=0, limit=limit, status=status)
+        parsed_data = OrdersResponse(**response.json())
+        total_pages = parsed_data.totalPages
+
+        def check_each_item(items, page_num):
+            for item in items:
+                if item.seller.lower() == "епіцентр к":
+                    (check.equal(item.type.lower(), expected_types[0]),
+                     f"For page='{page_num}' item type '{item.type}'or seller '{item.seller}' is wrong")
+                else:
+                    (check.equal(item.type.lower(), expected_types[1]),
+                     f"For page='{page_num}' item type  '{item.type}'or seller '{item.seller}' is wrong")
+
+        # check for the first page
+        check_each_item(parsed_data.items, 0)
+
+        if total_pages > 1:
+            for page in range(1, total_pages):
+                next_response = online_orders_api.get_online_orders(page=page, limit=limit, status=status)
+                next_data = OrdersResponse(**next_response.json())
+                #check on the next pages
+                check_each_item(next_data.items, page)
