@@ -5,6 +5,7 @@ from src.common.config import config
 from src.common.logger import get_logger
 from src.api.sales.orders.online.online_orders import OnlineOrdersAPI
 from src.database.db_client import db_client
+from src.models.orders.online_orders import OrderItem
 
 # Creating logger for fixture/reports
 report_logger = get_logger("TestReport")
@@ -13,6 +14,17 @@ report_logger = get_logger("TestReport")
 def db_orders_counts():
     counts = db_client.get_online_orders_counts()
     return counts
+
+@pytest.fixture(scope="session")
+def db_online_orders_map():
+    # 1. Получаем "сырые" данные (список словарей)
+    raw_data = db_client.get_online_orders_from_history_table()
+
+    # 2. Сразу превращаем их в карту объектов OrderItem
+    # Теперь это не просто список, а быстрый справочник {id: объект}
+    orders_map = {item['id']: OrderItem(**item) for item in raw_data}
+
+    return orders_map
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):

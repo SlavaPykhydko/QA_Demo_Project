@@ -1,8 +1,9 @@
 import pytest
 import pytest_check as check
-from src.models.orders.online_orders import OrdersResponse
+from src.models.orders.online_orders import OrdersResponse, OrderItem
 from src.common.online_orders_data import Data
 from .base import BaseOnlineOrders
+from src.database.db_client import db_client
 
 class TestOnlineOrdersScheme:
     test_data = [
@@ -355,9 +356,29 @@ class TestOnlineOrdersIdAndNameConsistency(BaseOnlineOrders):
         total_pages = 1
 
         while page < total_pages:
-            data = self._get_orders(online_orders_api, page=page, limit=10, status="All")
+            data = self._get_orders(online_orders_api, page=page, limit=10, status="Cancel")
             total_pages = data.totalPages
 
             for item in data.items:
                 check.equal(str(item.id), item.name, f"Item {item.id} has invalid name: {item.name}")
+            page += 1
+
+class TestOnlineOrdersOrderDataEqualDataFromDB(BaseOnlineOrders):
+    def test_order_data_equal_data_from_db(self, online_orders_api, db_online_orders_map):
+        page = 0
+        total_pages = 1
+        while page < total_pages:
+            data = self._get_orders(online_orders_api, page=page, limit=10, status="Cancel")
+
+            for api_item in data.items:
+                db_item = db_online_orders_map[api_item.id]
+
+                # Проверяем, что заказ вообще есть в базе
+                check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!")
+
+                if db_item:
+                    # Сравниваем объекты целиком (Pydantic это умеет)
+                    check.equal(api_item, db_item, f"Data mismatch for Order {api_item.id}")
+
+            total_pages = data.totalPages
             page += 1

@@ -39,5 +39,47 @@ class FakeDBClient(BaseDBClient):
         # Imitation reply from DB
         return {"all": 21, "done": 19, "cancel": 2}
 
+    def get_online_orders_from_history_table(self):
+        # It's a temporary mock unless we have access to real DB
+        return [
+            {
+                "id": 49105259,
+                "name": "49105259",
+                "price": 487.57,
+                "totalBonus": 0.0,
+                "createdOn": "2025-06-20T00:00:00",
+                "orderStatus": "Canceled",
+                "status": "Скасовано",
+                "statusGroup": "canceled",
+                "seller": "Епіцентр К",
+                "quantity": 2,
+                "type": "Online",
+                "deliveryId": 46,
+                "goods": [
+                    "https://cdn.27.ua/190/93/11/6853393_2.jpeg",
+                    "https://cdn.27.ua/190/1a/fb/137979_4.jpeg"
+                ]
+            },
+            {
+                "id": 47250679,
+                "name": "47250679",
+                "price": 2837.0,
+                "totalBonus": 0.0,
+                "createdOn": "2025-04-15T00:00:00",
+                "orderStatus": "Canceled",
+                "status": "Скасовано",
+                "statusGroup": "canceled",
+                "seller": "Епіцентр К",
+                "quantity": 3,
+                "type": "Online",
+                "deliveryId": 45,
+                "goods": [
+                    "https://cdn.27.ua/190/b0/c3/7844035_1.jpeg",
+                    "https://cdn.27.ua/190/9e/e3/6921955_2.jpeg",
+                    "https://cdn.27.ua/190/de/09/122377_2.jpeg"
+                ]
+            }
+        ]
+
 # Unless we have access to real DB, importing Fake DB client
 db_client = FakeDBClient()
