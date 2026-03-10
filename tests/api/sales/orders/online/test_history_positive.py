@@ -2,6 +2,7 @@ import pytest
 import pytest_check as check
 from src.models.orders.online_orders import OrdersResponse
 from src.common.online_orders_data import Data
+from .base import BaseOnlineOrders
 
 class TestOnlineOrdersScheme:
     test_data = [
@@ -297,7 +298,18 @@ class TestOnlineOrdersDateSorting:
             "Orders are not sorted by date (newest first)!"
         )
 
-class TestOnlineOrdersImageUrl:
+class TestOnlineOrdersImageUrl(BaseOnlineOrders):
+    def test_each_image_url(self, online_orders_api):
+        page = 0
+        total_pages = 1
+
+        while page < total_pages:
+            data = self._get_orders(online_orders_api, page=page, limit=10, status="All")
+            total_pages = data.totalPages
+
+            self._check_each_image_url(data.items, page)
+            page += 1
+
     def _check_each_image_url(self, items, page_num):
         for item in items:
             for url in item.goods:
@@ -312,18 +324,5 @@ class TestOnlineOrdersImageUrl:
                     f"Page {page_num}: Item ID {item.id} has invalid extension. "
                     f"URL: {url}. Expected one of: {Data.ALLOWED_URL_SUFFIXES}"
                 )
-
-    def test_each_image_url(self, online_orders_api):
-        page = 0
-        total_pages = 1
-
-        while page < total_pages:
-            response = online_orders_api.get_online_orders(page=page, limit=10, status="All")
-            parsed_data = OrdersResponse(**response.json())
-
-            total_pages = parsed_data.totalPages
-
-            self._check_each_image_url(parsed_data.items, page)
-            page += 1
 
 
