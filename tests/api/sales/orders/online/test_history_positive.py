@@ -250,3 +250,25 @@ class TestOnlineOrdersSellerConsistency:
                 next_data = OrdersResponse(**next_response.json())
                 #check on the next pages
                 check_each_item(next_data.items, page)
+
+class TestOnlineOrdersIdsUniqueness:
+    def test_ids_uniqueness_across_all_pages(self, online_orders_api):
+        all_collected_ids = []
+        page = 0
+        total_pages = 1
+
+        while page < total_pages:
+            response = online_orders_api.get_online_orders(page=page, limit=10, status="All")
+            data = OrdersResponse(**response.json())
+
+            # Adding ID from the current page to common list
+            all_collected_ids.extend([item.id for item in data.items])
+
+            total_pages = data.totalPages
+            page += 1
+
+        # Final check for uniqueness all gathered ID
+        duplicates = set([x for x in all_collected_ids if all_collected_ids.count(x) > 1])
+
+        assert len(all_collected_ids) == len(set(all_collected_ids)), \
+            f"Pagination bug! These IDs appear on multiple pages: {duplicates}"
