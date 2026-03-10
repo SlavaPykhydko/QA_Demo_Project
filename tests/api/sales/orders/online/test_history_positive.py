@@ -259,12 +259,12 @@ class TestOnlineOrdersIdsUniqueness:
 
         while page < total_pages:
             response = online_orders_api.get_online_orders(page=page, limit=10, status="All")
-            data = OrdersResponse(**response.json())
+            parsed_data = OrdersResponse(**response.json())
 
             # Adding ID from the current page to common list
-            all_collected_ids.extend([item.id for item in data.items])
+            all_collected_ids.extend([item.id for item in parsed_data.items])
 
-            total_pages = data.totalPages
+            total_pages = parsed_data.totalPages
             page += 1
 
         # Final check for uniqueness all gathered ID
@@ -272,3 +272,27 @@ class TestOnlineOrdersIdsUniqueness:
 
         assert len(all_collected_ids) == len(set(all_collected_ids)), \
             f"Pagination bug! These IDs appear on multiple pages: {duplicates}"
+
+class TestOnlineOrdersDateSorting:
+    def test_date_sorting(self, online_orders_api):
+        actual_dates = []
+        page = 0
+        total_pages = 1
+
+        while page < total_pages:
+            response = online_orders_api.get_online_orders(page=page, limit=10, status="All")
+            parsed_data = OrdersResponse(**response.json())
+
+            actual_dates.extend([item.createdOn for item in parsed_data.items])
+
+            total_pages = parsed_data.totalPages
+            page += 1
+
+        # from new item to old one
+        expected_dates = sorted(actual_dates, reverse=True)
+
+        check.equal(
+            actual_dates,
+            expected_dates,
+            "Orders are not sorted by date (newest first)!"
+        )

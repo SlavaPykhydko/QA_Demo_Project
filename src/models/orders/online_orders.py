@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from typing import List, Annotated
+from datetime import datetime
 
 class OrderItem(BaseModel):
     #Allow to ignore fields which aren't described
@@ -9,7 +10,7 @@ class OrderItem(BaseModel):
     name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
     price: float
     totalBonus: float
-    createdOn: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
+    createdOn: datetime
     orderStatus: str = Field(min_length=1)
     status: str = Field(min_length=1)
     statusGroup: str = Field(min_length=1)
