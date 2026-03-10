@@ -348,3 +348,16 @@ class TestOnlineOrdersGoodsAndImageConsistency(BaseOnlineOrders):
                     f"Item {item.id} has invalid qnt: {item.quantity} or invalid qnt of pictures: {item.goods}"
                 )
             page += 1
+
+class TestOnlineOrdersIdAndNameConsistency(BaseOnlineOrders):
+    def test_id_and_name_consistency(self, online_orders_api):
+        page = 0
+        total_pages = 1
+
+        while page < total_pages:
+            data = self._get_orders(online_orders_api, page=page, limit=10, status="All")
+            total_pages = data.totalPages
+
+            for item in data.items:
+                check.equal(str(item.id), item.name, f"Item {item.id} has invalid name: {item.name}")
+            page += 1
