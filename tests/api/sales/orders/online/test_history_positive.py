@@ -11,12 +11,14 @@ class TestOnlineOrdersScheme:
     ]
 
     # Generating good-looking names for reports
-    test_ids = [f"limit=40_page=0_status_{d['status']}" for d in test_data]
+    test_ids = [f"limit=40_page=1_status_{d['status']}" for d in test_data]
 
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
     def test_scheme(self, online_orders_api, inputs):
-        response = online_orders_api.get_online_orders(page=0, limit=40, status=inputs["status"])
-        OrdersResponse(**response.json())
+        response = online_orders_api.get_online_orders(page=1, limit=40, status=inputs["status"])
+        parsed_data = OrdersResponse(**response.json())
+
+        assert len(parsed_data.items) >= 1
 
 class TestOnlineOrdersListInfo:
     # Defining test data (input parameters, expected results)
@@ -108,9 +110,6 @@ class TestOnlineOrdersType:
         parsed_data = OrdersResponse(**response.json())
         total_pages = parsed_data.totalPages
 
-        if not parsed_data.items:
-            pytest.skip(f"No items found for status: All")
-
         def check_item_on_page(items, page_num):
             for item in items:
                 check.is_in(item.type.lower(),
@@ -163,9 +162,6 @@ class TestOnlineOrdersFilterStatus:
         response = online_orders_api.get_online_orders(page=0, limit=10, status=requested_status)
         parsed_data = OrdersResponse(**response.json())
         total_pages = parsed_data.totalPages
-
-        if not parsed_data.items:
-            pytest.skip(f"No items found for status: {requested_status}")
 
         status_ua = ["отримано", "скасовано"]
 
