@@ -21,17 +21,3 @@ class BaseOnlineOrders:
             total_pages = data.totalPages
             page += 1
 
-    def _check_each_image(self, items, page_num):
-        for item in items:
-            for url in item.goods:
-                check.is_true(
-                    url.startswith(Data.URL_PREFIX),
-                    f"Page {page_num}: Item ID {item.id} has invalid image prefix!\n"
-                    f"URL: {url}\n"
-                    f"Expected prefix: {Data.URL_PREFIX}"
-                )
-                check.is_true(
-                    url.lower().endswith(Data.ALLOWED_URL_SUFFIXES),
-                    f"Page {page_num}: Item ID {item.id} has invalid extension. "
-                    f"URL: {url}. Expected one of: {Data.ALLOWED_URL_SUFFIXES}"
-                )

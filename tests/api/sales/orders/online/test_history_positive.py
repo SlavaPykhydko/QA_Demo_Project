@@ -1,8 +1,11 @@
 import pytest
 import pytest_check as check
+import requests
+
 from src.models.orders.online_orders import OrdersResponse, OrderItem
 from src.common.online_orders_data import Data
 from .base import BaseOnlineOrders
+from concurrent.futures import ThreadPoolExecutor
 
 class TestOnlineOrdersScheme(BaseOnlineOrders):
     test_data = [
@@ -221,16 +224,37 @@ class TestOnlineOrdersDateSorting(BaseOnlineOrders):
         )
 
 class TestOnlineOrdersImage(BaseOnlineOrders):
-    def test_each_image(self, online_orders_api):
-        page = 0
-        total_pages = 1
+    def test_each_image_parallel(self, online_orders_api):
+        # # The 'with' construct will wait for all threads to complete before exiting.
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+                for url in item.goods:
+                    if not url.startswith(Data.URL_PREFIX):
+                        check.is_true(
+                            False,
+                            f"Page {page}: Item ID {item.id} has invalid image prefix!\n"
+                            f"URL: {url}\n"
+                            f"Expected prefix: {Data.URL_PREFIX}")
+                        continue
+                    if not url.lower().endswith(Data.ALLOWED_URL_SUFFIXES):
+                        check.is_true(
+                            False,
+                            f"Page {page}: Item ID {item.id} has invalid extension. "
+                            f"URL: {url}. Expected one of: {Data.ALLOWED_URL_SUFFIXES}")
+                        continue
+                    # We send a heavy network check to the thread
+                    executor.submit(self._check_single_url, url, item.id, page)
 
-        while page < total_pages:
-            data = self._get_orders(online_orders_api, page=page, limit=10, status="All")
-            total_pages = data.totalPages
-
-            self._check_each_image(data.items, page)
-            page += 1
+    def _check_single_url(self, url, item_id, page):
+        """ Function-worker for 1 thread """
+        try:
+            response = requests.head(url, timeout=5, allow_redirects=True)
+            check.equal(
+                response.status_code, 200,
+                f"Page {page}: ID {item_id} - URL {url} returned {response.status_code}"
+            )
+        except Exception as e:
+            check.is_true(False, f"Page {page}: Item ID {item_id} URL unreachable: {url}. Error: {e}")
 
 class TestOnlineOrdersPrice(BaseOnlineOrders):
     def test_order_prices(self, online_orders_api):
