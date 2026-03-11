@@ -264,14 +264,9 @@ class TestOnlineOrdersPrice(BaseOnlineOrders):
 
 class TestOnlineOrdersGoodsQuantity(BaseOnlineOrders):
     def test_order_goods_quantity(self, online_orders_api):
-        page = 0
-        total_pages = 1
-        while page < total_pages:
-            data = self._get_orders(online_orders_api, page=page, limit=10, status="All")
-            total_pages = data.totalPages
-            for item in data.items:
-                check.greater(item.quantity, 0, f"Item {item.id} has invalid quantity: {item.quantity}")
-            page += 1
+        for item, page  in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+            check.greater(item.quantity, 0, f"Item {item.id} has invalid quantity: {item.quantity}")
+
 
 class TestOnlineOrdersGoodsAndImageConsistency(BaseOnlineOrders):
     def test_goods_qnt_equal_image_qnt(self, online_orders_api):
