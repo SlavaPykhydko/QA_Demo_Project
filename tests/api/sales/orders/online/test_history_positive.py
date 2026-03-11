@@ -116,26 +116,25 @@ class TestOnlineOrdersType(BaseOnlineOrders):
                         f"Page {page}: Item ID {item.id} has wrong type '{item.type} Expected one of: {expected_types}")
 
 
-class TestOnlineOrdersFilterStatus:
+class TestOnlineOrdersFilterStatus(BaseOnlineOrders):
     test_data = [
-        ({"page": 0, "limit": 40, "status": "All"}),
-        ({"page": 0, "limit": 40, "status": "Done"}),
-        ({"page": 0, "limit": 40, "status": "Cancel"})
+        ({"status": "All"}),
+        ({"status": "Done"}),
+        ({"status": "Cancel"})
     ]
 
     # Generating good-looking names for reports
-    test_ids = [f"limit_{d['limit']}_page_{d['page']}_status_{d['status']}" for d in test_data]
+    test_ids = [f"limit=40_page_=0_status_{d['status']}" for d in test_data]
 
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
     def test_quantity_items_for_each_status(self, online_orders_api, inputs):
-        response = online_orders_api.get_online_orders(
-            page=inputs["page"],
-            limit=inputs["limit"],
-            status=inputs["status"]
-        )
-        parsed_data = OrdersResponse(**response.json())
+        data = self._get_orders(
+            online_orders_api,
+            page=0,
+            limit=40,
+            status=inputs["status"])
 
-        check.equal(len(parsed_data.items), parsed_data.totalCount,
+        check.equal(len(data.items), data.totalCount,
                     "The number of items is not equal totalCount from response")
 
 
@@ -148,47 +147,27 @@ class TestOnlineOrdersFilterStatus:
 
     @pytest.mark.parametrize("requested_status, allowed_statuses", status_mapping)
     def test_each_item_has_correct_status(self, online_orders_api, requested_status, allowed_statuses):
-        response = online_orders_api.get_online_orders(page=0, limit=10, status=requested_status)
-        parsed_data = OrdersResponse(**response.json())
-        total_pages = parsed_data.totalPages
-
         status_ua = ["отримано", "скасовано"]
 
-        def check_items_on_page(items, page_num):
-            for item in items:
-                check.is_in(
-                    item.orderStatus.lower(),
-                    allowed_statuses,
-                    f"Page {page_num}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
-                    f"Expected one of: {allowed_statuses}"
-                )
-                check.is_in(
-                    item.statusGroup.lower(),
-                    allowed_statuses,
-                    f"Page {page_num}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
-                    f"Expected one of: {allowed_statuses}"
-                )
-                check.is_in(
-                    item.status.lower(),
-                    status_ua,
-                    f"Page {page_num}: Item ID {item.id} has wrong status '{item.status}'. "
-                    f"Expected one of: {status_ua}"
-                )
-
-        # Check on the first gotten page
-        check_items_on_page(parsed_data.items, 0)
-
-        if total_pages > 1:
-            for page in range(1, total_pages):
-                next_response = online_orders_api.get_online_orders(
-                    page=page,
-                    limit=10,
-                    status=requested_status
-                )
-                next_data = OrdersResponse(**next_response.json())
-
-                # Checking items on the current page of the cycle
-                check_items_on_page(next_data.items, page)
+        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status=requested_status):
+            check.is_in(
+                item.orderStatus.lower(),
+                allowed_statuses,
+                f"Page {page}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
+                f"Expected one of: {allowed_statuses}"
+            )
+            check.is_in(
+                item.statusGroup.lower(),
+                allowed_statuses,
+                f"Page {page}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
+                f"Expected one of: {allowed_statuses}"
+            )
+            check.is_in(
+                item.status.lower(),
+                status_ua,
+                f"Page {page}: Item ID {item.id} has wrong status '{item.status}'. "
+                f"Expected one of: {status_ua}"
+            )
 
 
 
