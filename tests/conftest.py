@@ -17,11 +17,11 @@ def db_orders_counts():
 
 @pytest.fixture(scope="session")
 def db_online_orders_map():
-    # 1. Получаем "сырые" данные (список словарей)
+    # 1. Getting raw data (list dicts)
     raw_data = db_client.get_online_orders_from_history_table()
 
-    # 2. Сразу превращаем их в карту объектов OrderItem
-    # Теперь это не просто список, а быстрый справочник {id: объект}
+    # 2. Transform them into map OrderItem's object
+    # Now it's not just a list it's a quick reference book{id: object}
     orders_map = {item['id']: OrderItem(**item) for item in raw_data}
 
     return orders_map
@@ -34,10 +34,10 @@ def pytest_runtest_makereport(item, call):
 
     # If test failed at the beginning
     if report.when == "call" and report.failed:
-        # 1. Получаем параметры теста (если есть параметризация)
+        # 1. Getting tests params (if there is a parametrization)
         params = item.callspec.params if hasattr(item, 'callspec') else "No params"
 
-        # 2. Формируем "красивую рамку" для ошибки
+        # 2. Forming a good-looking frame for errors
         error_separator = "!" * 80
         report_logger.error(f"\n{error_separator}")
         report_logger.error(f"TEST FAILED: {item.nodeid}")
@@ -45,12 +45,12 @@ def pytest_runtest_makereport(item, call):
 
         # Adding error text (longrepr - it's what we see in the console)
         if report.longrepr:
-            # 3. Мы берем только самое важное из ошибки (reprcrash)
-            # или весь текст, если это мягкие проверки (pytest-check)
+            # 3. We get only the most important from the error (reprcrash)
+            # or all text if it's a soft checks (pytest-check)
             error_details = report.longreprtext
 
-            # Если лог слишком длинный, можно оставить только последние N строк
-            # (где обычно и сидит ошибка pytest-check)
+            # If the log is too long, we can leave only the last N strings
+            # where usually there is an error pytest-check
             report_logger.error(f"FAILURE REASON:\n{error_details}")
 
         report_logger.error(f"{error_separator}\n")

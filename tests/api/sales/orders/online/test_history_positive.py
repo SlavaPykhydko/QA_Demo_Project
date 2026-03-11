@@ -4,7 +4,7 @@ from src.models.orders.online_orders import OrdersResponse, OrderItem
 from src.common.online_orders_data import Data
 from .base import BaseOnlineOrders
 
-class TestOnlineOrdersScheme:
+class TestOnlineOrdersScheme(BaseOnlineOrders):
     test_data = [
         ({"status": "All"}),
         ({"status": "Done"}),
@@ -16,8 +16,11 @@ class TestOnlineOrdersScheme:
 
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
     def test_scheme(self, online_orders_api, inputs):
-        response = online_orders_api.get_online_orders(page=1, limit=40, status=inputs["status"])
-        parsed_data = OrdersResponse(**response.json())
+        parsed_data = self._get_orders(
+            online_orders_api,
+            page=0,
+            limit=40,
+            status=inputs["status"])
 
         assert len(parsed_data.items) >= 1
 
@@ -364,25 +367,23 @@ class TestOnlineOrdersIdAndNameConsistency(BaseOnlineOrders):
 
 class TestOnlineOrdersOrderDataEqualDataFromDB(BaseOnlineOrders):
     def test_order_data_equal_data_from_db(self, online_orders_api, db_online_orders_map):
-        page = 0
-        total_pages = 1
-        while page < total_pages:
-            data = self._get_orders(online_orders_api, page=page, limit=10, status="Cancel")
+        for api_item, page in self._get_items_from_pages(
+                online_orders_api,
+                limit=10,
+                status="Cancel"):
 
-            for api_item in data.items:
-                db_item = db_online_orders_map[api_item.id]
+            db_item = db_online_orders_map[api_item.id]
 
-                # Checking whether the order is in the DB
-                if check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!"):
-                    # Compare each value except EXCLUDE_FIELDS
-                    self._compare_items(api_item, db_item, page)
+            # Checking whether the order is in the DB
+            if check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!"):
+                # Compare each value except EXCLUDE_FIELDS
+                self._compare_items(api_item, db_item, page)
 
-            total_pages = data.totalPages
-            page += 1
 
     def _compare_items(self, api_item, db_item, page_num):
         EXCLUDE_FIELDS = {"createdOn", "goods"}
 
+        # .model_dump() transforms Pydantic-object to usual dict
         api_dict = api_item.model_dump()
         db_dict = db_item.model_dump()
 
