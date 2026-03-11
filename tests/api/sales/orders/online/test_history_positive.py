@@ -23,6 +23,7 @@ class TestOnlineOrdersScheme(BaseOnlineOrders):
             status=inputs["status"])
 
         assert len(parsed_data.items) >= 1
+        assert parsed_data.totalPages > 0
 
 class TestOnlineOrdersListInfo:
     # Defining test data (input parameters, expected results)
@@ -373,7 +374,6 @@ class TestOnlineOrdersOrderDataEqualDataFromDB(BaseOnlineOrders):
                 status="Cancel"):
 
             db_item = db_online_orders_map[api_item.id]
-
             # Checking whether the order is in the DB
             if check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!"):
                 # Compare each value except EXCLUDE_FIELDS
