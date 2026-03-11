@@ -204,20 +204,12 @@ class TestOnlineOrdersIdsUniqueness(BaseOnlineOrders):
         assert len(all_collected_ids) == len(set(all_collected_ids)), \
             f"Pagination bug! These IDs appear on multiple pages: {duplicates}"
 
-class TestOnlineOrdersDateSorting:
+class TestOnlineOrdersDateSorting(BaseOnlineOrders):
     def test_date_sorting(self, online_orders_api):
         actual_dates = []
-        page = 0
-        total_pages = 1
 
-        while page < total_pages:
-            response = online_orders_api.get_online_orders(page=page, limit=10, status="All")
-            parsed_data = OrdersResponse(**response.json())
-
-            actual_dates.extend([item.createdOn for item in parsed_data.items])
-
-            total_pages = parsed_data.totalPages
-            page += 1
+        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+            actual_dates.append([item.createdOn])
 
         # from new item to old one
         expected_dates = sorted(actual_dates, reverse=True)
