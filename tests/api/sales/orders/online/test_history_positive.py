@@ -5,6 +5,9 @@ from src.common.online_orders_data import Data
 from .base import BaseOnlineOrders
 from concurrent.futures import ThreadPoolExecutor
 
+# Now ALL tests in this file are automatically labeled 'positive' and 'regression'
+pytestmark = [pytest.mark.positive, pytest.mark.regression]
+
 class TestOnlineOrdersScheme(BaseOnlineOrders):
     test_data = [
         ({"status": "All"}),
@@ -15,6 +18,7 @@ class TestOnlineOrdersScheme(BaseOnlineOrders):
     # Generating good-looking names for reports
     test_ids = [f"limit=40_page=0_status_{d['status']}" for d in test_data]
 
+    @pytest.mark.smoke
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
     def test_scheme(self, online_orders_api, inputs):
         parsed_data = self._get_orders(
@@ -65,6 +69,7 @@ class TestOnlineOrdersListInfo:
     # Generating good-looking names for reports
     test_ids = [f"limit_{d[0]['limit']}_page_{d[0]['page']}_status_{d[0]['status']}" for d in test_data]
 
+    @pytest.mark.smoke
     @pytest.mark.parametrize("inputs, expected", test_data, ids=test_ids)
     def test_list_info_params(self, online_orders_api, inputs, expected, db_orders_counts):
         response = online_orders_api.get_online_orders(
@@ -108,6 +113,7 @@ class TestOnlineOrdersListInfo:
                     "Some of the count from response is wrong")
 
 class TestOnlineOrdersType(BaseOnlineOrders):
+    @pytest.mark.smoke
     def test_items_type(self, online_orders_api):
         expected_types = ["online", "marketplace"]
 
