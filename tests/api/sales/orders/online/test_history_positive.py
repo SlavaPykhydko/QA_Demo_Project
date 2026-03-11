@@ -279,24 +279,13 @@ class TestOnlineOrdersGoodsAndImageConsistency(BaseOnlineOrders):
 
 class TestOnlineOrdersIdAndNameConsistency(BaseOnlineOrders):
     def test_id_and_name_consistency(self, online_orders_api):
-        page = 0
-        total_pages = 1
+        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+            check.equal(str(item.id), item.name, f"Item {item.id} has invalid name: {item.name}")
 
-        while page < total_pages:
-            data = self._get_orders(online_orders_api, page=page, limit=10, status="Cancel")
-            total_pages = data.totalPages
-
-            for item in data.items:
-                check.equal(str(item.id), item.name, f"Item {item.id} has invalid name: {item.name}")
-            page += 1
 
 class TestOnlineOrdersOrderDataEqualDataFromDB(BaseOnlineOrders):
     def test_order_data_equal_data_from_db(self, online_orders_api, db_online_orders_map):
-        for api_item, page in self._get_items_from_pages(
-                online_orders_api,
-                limit=10,
-                status="Cancel"):
-
+        for api_item, page in self._get_items_from_pages(online_orders_api, limit=10, status="Cancel"):
             db_item = db_online_orders_map[api_item.id]
             # Checking whether the order is in the DB
             if check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!"):
@@ -318,9 +307,7 @@ class TestOnlineOrdersOrderDataEqualDataFromDB(BaseOnlineOrders):
             api_val = api_dict[key]
             db_val = db_dict[key]
 
-            check.equal(
-                api_val,
-                db_val,
+            check.equal(api_val, db_val,
                 f"Page {page_num}: Order ID {api_item.id} -> Mismatch in field '{key}'!\n"
                 f"API: {api_val}\n"
                 f"DB:  {db_val}"
