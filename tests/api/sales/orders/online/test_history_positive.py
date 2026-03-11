@@ -270,20 +270,12 @@ class TestOnlineOrdersGoodsQuantity(BaseOnlineOrders):
 
 class TestOnlineOrdersGoodsAndImageConsistency(BaseOnlineOrders):
     def test_goods_qnt_equal_image_qnt(self, online_orders_api):
-        page = 0
-        total_pages = 1
+        for item, page  in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+            check.equal(
+                len(item.goods),
+                item.quantity,
+                f"Item {item.id} has invalid qnt: {item.quantity} or invalid qnt of pictures: {item.goods}")
 
-        while page < total_pages:
-            data = self._get_orders(online_orders_api, page=page, limit=10, status="All")
-            total_pages = data.totalPages
-
-            for item in data.items:
-                check.equal(
-                    len(item.goods),
-                    item.quantity,
-                    f"Item {item.id} has invalid qnt: {item.quantity} or invalid qnt of pictures: {item.goods}"
-                )
-            page += 1
 
 class TestOnlineOrdersIdAndNameConsistency(BaseOnlineOrders):
     def test_id_and_name_consistency(self, online_orders_api):
