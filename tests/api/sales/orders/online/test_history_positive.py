@@ -190,21 +190,13 @@ class TestOnlineOrdersSellerConsistency(BaseOnlineOrders):
                  f"For page='{page}' item type  '{item.type}'or seller '{item.seller}' is wrong")
 
 
-class TestOnlineOrdersIdsUniqueness:
+class TestOnlineOrdersIdsUniqueness(BaseOnlineOrders):
     def test_ids_uniqueness_across_all_pages(self, online_orders_api):
         all_collected_ids = []
-        page = 0
-        total_pages = 1
 
-        while page < total_pages:
-            response = online_orders_api.get_online_orders(page=page, limit=10, status="All")
-            parsed_data = OrdersResponse(**response.json())
-
+        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
             # Adding ID from the current page to common list
-            all_collected_ids.extend([item.id for item in parsed_data.items])
-
-            total_pages = parsed_data.totalPages
-            page += 1
+            all_collected_ids.append(item.id)
 
         # Final check for uniqueness all gathered ID
         duplicates = set([x for x in all_collected_ids if all_collected_ids.count(x) > 1])
