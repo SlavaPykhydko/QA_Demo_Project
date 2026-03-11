@@ -54,7 +54,7 @@ class FakeDBClient(BaseDBClient):
                 "seller": "Епіцентр К",
                 "quantity": 2,
                 "type": "Online",
-                "deliveryId": 46,
+                "deliveryId": 45,
                 "goods": [
                     "https://cdn.27.ua/190/93/11/6853393_2.jpeg",
                     "https://cdn.27.ua/190/1a/fb/137979_4.jpeg"

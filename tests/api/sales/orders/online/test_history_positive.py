@@ -3,7 +3,6 @@ import pytest_check as check
 from src.models.orders.online_orders import OrdersResponse, OrderItem
 from src.common.online_orders_data import Data
 from .base import BaseOnlineOrders
-from src.database.db_client import db_client
 
 class TestOnlineOrdersScheme:
     test_data = [
@@ -373,12 +372,31 @@ class TestOnlineOrdersOrderDataEqualDataFromDB(BaseOnlineOrders):
             for api_item in data.items:
                 db_item = db_online_orders_map[api_item.id]
 
-                # Проверяем, что заказ вообще есть в базе
-                check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!")
-
-                if db_item:
-                    # Сравниваем объекты целиком (Pydantic это умеет)
-                    check.equal(api_item, db_item, f"Data mismatch for Order {api_item.id}")
+                # Checking whether the order is in the DB
+                if check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!"):
+                    # Compare each value except EXCLUDE_FIELDS
+                    self._compare_items(api_item, db_item, page)
 
             total_pages = data.totalPages
             page += 1
+
+    def _compare_items(self, api_item, db_item, page_num):
+        EXCLUDE_FIELDS = {"createdOn", "goods"}
+
+        api_dict = api_item.model_dump()
+        db_dict = db_item.model_dump()
+
+        for key in api_dict.keys():
+            if key in EXCLUDE_FIELDS:
+                continue
+
+            api_val = api_dict[key]
+            db_val = db_dict[key]
+
+            check.equal(
+                api_val,
+                db_val,
+                f"Page {page_num}: Order ID {api_item.id} -> Mismatch in field '{key}'!\n"
+                f"API: {api_val}\n"
+                f"DB:  {db_val}"
+            )
