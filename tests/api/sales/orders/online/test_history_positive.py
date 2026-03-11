@@ -12,7 +12,7 @@ class TestOnlineOrdersScheme(BaseOnlineOrders):
     ]
 
     # Generating good-looking names for reports
-    test_ids = [f"limit=40_page=1_status_{d['status']}" for d in test_data]
+    test_ids = [f"limit=40_page=0_status_{d['status']}" for d in test_data]
 
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
     def test_scheme(self, online_orders_api, inputs):
@@ -106,31 +106,15 @@ class TestOnlineOrdersListInfo:
                     total_count_done_orders + total_count_cancel_orders,
                     "Some of the count from response is wrong")
 
-class TestOnlineOrdersType:
-
+class TestOnlineOrdersType(BaseOnlineOrders):
     def test_items_type(self, online_orders_api):
         expected_types = ["online", "marketplace"]
 
-        response = online_orders_api.get_online_orders(page=0, limit=40, status="All")
-        parsed_data = OrdersResponse(**response.json())
-        total_pages = parsed_data.totalPages
+        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+            check.is_in(item.type.lower(),
+                        expected_types,
+                        f"Page {page}: Item ID {item.id} has wrong type '{item.type} Expected one of: {expected_types}")
 
-        def check_item_on_page(items, page_num):
-            for item in items:
-                check.is_in(item.type.lower(),
-                            expected_types,
-                            f"Page {page_num}: Item ID {item.id} has wrong type '{item.type} Expected one of: {expected_types}")
-
-        check_item_on_page(parsed_data.items, 0)
-
-        if total_pages > 0:
-            for page_num in range(1, total_pages):
-                next_response = online_orders_api.get_online_orders(
-                    page=page_num,
-                    limit=10,
-                    status="All")
-                next_data = OrdersResponse(**next_response.json())
-                check_item_on_page(next_data.items, page_num)
 
 class TestOnlineOrdersFilterStatus:
     test_data = [
