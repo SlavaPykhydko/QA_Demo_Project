@@ -151,39 +151,28 @@ class TestOnlineOrdersFilterStatus(BaseOnlineOrders):
 
         for item, page in self._get_items_from_pages(online_orders_api, limit=10, status=requested_status):
             check.is_in(
-                item.orderStatus.lower(),
-                allowed_statuses,
+                item.orderStatus.lower(), allowed_statuses,
                 f"Page {page}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
                 f"Expected one of: {allowed_statuses}"
             )
             check.is_in(
-                item.statusGroup.lower(),
-                allowed_statuses,
+                item.statusGroup.lower(), allowed_statuses,
                 f"Page {page}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
                 f"Expected one of: {allowed_statuses}"
             )
             check.is_in(
-                item.status.lower(),
-                status_ua,
+                item.status.lower(), status_ua,
                 f"Page {page}: Item ID {item.id} has wrong status '{item.status}'. "
                 f"Expected one of: {status_ua}"
             )
 
 
-
-class TestOnlineOrdersPagination:
+class TestOnlineOrdersPagination(BaseOnlineOrders):
     def test_sum_qnt_items_from_all_pages(self, online_orders_api, db_orders_counts):
-        all_items = []
-        response = online_orders_api.get_online_orders(page=0, limit=10, status="All")
-        first_page = OrdersResponse(**response.json())
-        total_pages = first_page.totalPages
-        all_items.extend(first_page.items)
-
-        if total_pages > 1:
-            for page in range(1, total_pages):
-                response = online_orders_api.get_online_orders(page=page, limit=10, status="All")
-                parsed_data = OrdersResponse(**response.json())
-                all_items.extend(parsed_data.items)
+        all_items = [item for item, page in self._get_items_from_pages(
+            online_orders_api,
+            limit=10,
+            status="All")]
 
         check.equal(len(all_items), db_orders_counts["all"],
                     "The number of items is not equal the quantity from db")
