@@ -1,8 +1,6 @@
 import pytest
 import pytest_check as check
 import requests
-
-from src.models.orders.online_orders import OrdersResponse, OrderItem
 from src.common.online_orders_data import Data
 from .base import BaseOnlineOrders
 from concurrent.futures import ThreadPoolExecutor
@@ -113,7 +111,7 @@ class TestOnlineOrdersType(BaseOnlineOrders):
     def test_items_type(self, online_orders_api):
         expected_types = ["online", "marketplace"]
 
-        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
             check.is_in(item.type.lower(),
                         expected_types,
                         f"Page {page}: Item ID {item.id} has wrong type '{item.type} Expected one of: {expected_types}")
@@ -152,7 +150,7 @@ class TestOnlineOrdersFilterStatus(BaseOnlineOrders):
     def test_each_item_has_correct_status(self, online_orders_api, requested_status, allowed_statuses):
         status_ua = ["отримано", "скасовано"]
 
-        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status=requested_status):
+        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status=requested_status):
             check.is_in(
                 item.orderStatus.lower(), allowed_statuses,
                 f"Page {page}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
@@ -174,7 +172,7 @@ class TestOnlineOrdersPagination(BaseOnlineOrders):
     def test_sum_qnt_items_from_all_pages(self, online_orders_api, db_orders_counts):
         all_items = [item for item, page in self._get_items_from_pages(
             online_orders_api,
-            limit=10,
+            limit=40,
             status="All")]
 
         check.equal(len(all_items), db_orders_counts["all"],
@@ -184,7 +182,7 @@ class TestOnlineOrdersSellerConsistency(BaseOnlineOrders):
     def test_seller_and_type_consistency(self, online_orders_api):
         expected_types = ["online", "marketplace"]
 
-        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
             if item.seller.lower() == "епіцентр к":
                 (check.equal(item.type.lower(), expected_types[0]),
                  f"For page='{page}' item type '{item.type}'or seller '{item.seller}' is wrong")
@@ -197,7 +195,7 @@ class TestOnlineOrdersIdsUniqueness(BaseOnlineOrders):
     def test_ids_uniqueness_across_all_pages(self, online_orders_api):
         all_collected_ids = []
 
-        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
             # Adding ID from the current page to common list
             all_collected_ids.append(item.id)
 
@@ -211,7 +209,7 @@ class TestOnlineOrdersDateSorting(BaseOnlineOrders):
     def test_date_sorting(self, online_orders_api):
         actual_dates = []
 
-        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
             actual_dates.append([item.createdOn])
 
         # from new item to old one
@@ -227,7 +225,7 @@ class TestOnlineOrdersImage(BaseOnlineOrders):
     def test_each_image_parallel(self, online_orders_api):
         # # The 'with' construct will wait for all threads to complete before exiting.
         with ThreadPoolExecutor(max_workers=10) as executor:
-            for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+            for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
                 for url in item.goods:
                     if not url.startswith(Data.URL_PREFIX):
                         check.is_true(
@@ -258,19 +256,19 @@ class TestOnlineOrdersImage(BaseOnlineOrders):
 
 class TestOnlineOrdersPrice(BaseOnlineOrders):
     def test_order_prices(self, online_orders_api):
-        for item, page  in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+        for item, page  in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
             check.greater(item.price, 0, f"Item {item.id} has invalid price: {item.price}")
 
 
 class TestOnlineOrdersGoodsQuantity(BaseOnlineOrders):
     def test_order_goods_quantity(self, online_orders_api):
-        for item, page  in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+        for item, page  in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
             check.greater(item.quantity, 0, f"Item {item.id} has invalid quantity: {item.quantity}")
 
 
 class TestOnlineOrdersGoodsAndImageConsistency(BaseOnlineOrders):
     def test_goods_qnt_equal_image_qnt(self, online_orders_api):
-        for item, page  in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+        for item, page  in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
             check.equal(
                 len(item.goods),
                 item.quantity,
@@ -279,13 +277,13 @@ class TestOnlineOrdersGoodsAndImageConsistency(BaseOnlineOrders):
 
 class TestOnlineOrdersIdAndNameConsistency(BaseOnlineOrders):
     def test_id_and_name_consistency(self, online_orders_api):
-        for item, page in self._get_items_from_pages(online_orders_api, limit=10, status="All"):
+        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
             check.equal(str(item.id), item.name, f"Item {item.id} has invalid name: {item.name}")
 
 
 class TestOnlineOrdersOrderDataEqualDataFromDB(BaseOnlineOrders):
     def test_order_data_equal_data_from_db(self, online_orders_api, db_online_orders_map):
-        for api_item, page in self._get_items_from_pages(online_orders_api, limit=10, status="Cancel"):
+        for api_item, page in self._get_items_from_pages(online_orders_api, limit=40, status="Cancel"):
             db_item = db_online_orders_map[api_item.id]
             # Checking whether the order is in the DB
             if check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!"):
