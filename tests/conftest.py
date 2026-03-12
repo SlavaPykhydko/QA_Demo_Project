@@ -4,7 +4,7 @@ from src.common.config import config
 
 from src.common.logger import get_logger
 from src.api.sales.orders.online.online_orders import OnlineOrdersAPI
-from src.common.test_users import TestUsers
+from src.common.user_accounts import UserAccounts
 from src.database.db_client import db_client
 from src.models.orders.online_orders import OrderItem
 
@@ -81,7 +81,7 @@ def user_session(base_session, request):
     """
     # 1. Выбираем юзера.
     # getattr ищет 'param' в объекте request. Если его нет — берет дефолт.
-    user_data = getattr(request, "param", TestUsers.USER_WITH_HISTORY)
+    user_data = getattr(request, "param", UserAccounts.USER_WITH_HISTORY)
 
     session = base_session
 

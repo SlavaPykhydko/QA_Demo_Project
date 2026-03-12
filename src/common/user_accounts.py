@@ -1,7 +1,7 @@
 from src.common.config import config
 
 
-class TestUser:
+class UserAccount:
     def __init__(self, login, password):
         self.login = login
         self.password = password
@@ -11,9 +11,9 @@ class TestUser:
         return (f"User(login='{self.login}', "
                 f"password='[MASKED]'")
 
-class TestUsers:
+class UserAccounts:
     # User who has a rich history (different statuses)
-    USER_WITH_HISTORY = TestUser(login=config.USER_PHONE_NUMBER, password=config.USER_PASSWORD)
+    USER_WITH_HISTORY = UserAccount(login=config.USER_PHONE_NUMBER, password=config.USER_PASSWORD)
 
     # New user without orders (empty state)
-    USER_EMPTY = TestUser(login=config.EMPTY_USER_PHONE_NUMBER, password=config.EMPTY_USER_PASSWORD)
+    USER_EMPTY = UserAccount(login=config.EMPTY_USER_PHONE_NUMBER, password=config.EMPTY_USER_PASSWORD)

@@ -2,7 +2,7 @@ import pytest
 import pytest_check as check
 import requests
 from src.common.online_orders_data import Data
-from src.common.test_users import TestUsers
+from src.common.user_accounts import UserAccounts
 from .base import BaseOnlineOrders
 from concurrent.futures import ThreadPoolExecutor
 

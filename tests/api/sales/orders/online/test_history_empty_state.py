@@ -2,13 +2,13 @@ import pytest
 import pytest_check as check
 import requests
 from src.common.online_orders_data import Data
-from src.common.test_users import TestUsers
+from src.common.user_accounts import UserAccounts
 from .base import BaseOnlineOrders
 from concurrent.futures import ThreadPoolExecutor
 
 
 pytestmark = [
-    pytest.mark.parametrize("user_session", [TestUsers.USER_EMPTY], indirect=True),
+    pytest.mark.parametrize("user_session", [UserAccounts.USER_EMPTY], indirect=True),
     pytest.mark.empty_state,
     pytest.mark.regression
 ]
