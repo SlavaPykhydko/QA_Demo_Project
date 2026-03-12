@@ -1,4 +1,6 @@
 import json
+
+import allure
 import jmespath
 from src.common.logger import get_logger
 from requests import Response, Session
@@ -72,7 +74,9 @@ class BaseClient:
         self.logger.error(error_msg)
 
     def _get(self, endpoint, **kwargs):
-        return self._request("GET", endpoint, **kwargs)
+        # Allure пометит этот метод как вложенный шаг
+        with allure.step(f"API Call: Get orders with params {kwargs}"):
+            return self._request("GET", endpoint, **kwargs)
 
     def _post(self, endpoint, json=None, **kwargs):
         return self._request("POST", endpoint, json=json,  **kwargs)
