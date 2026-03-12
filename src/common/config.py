@@ -12,9 +12,14 @@ class Config:
 class ProdConfig(Config):
     #Data for Production
     BASE_URL = os.getenv("BASE_URL_PROD")
+    X_API_KEY = os.getenv("X_API_KEY_PROD")
+    # user data
     USER_PHONE_NUMBER = os.getenv("USER_PHONE_NUMBER_PROD")
     USER_PASSWORD = os.getenv("USER_PASSWORD_PROD")
-    X_API_KEY = os.getenv("X_API_KEY_PROD")
+
+    EMPTY_USER_PHONE_NUMBER = os.getenv("EMPTY_USER_PHONE_NUMBER_PROD")
+    EMPTY_USER_PASSWORD = os.getenv("EMPTY_USER_PASSWORD_PROD")
+
     # Data for DB
     DB_HOST = os.getenv("DB_HOST_PROD")
     DB_PORT = os.getenv("DB_PORT_PROD")

@@ -1,14 +1,19 @@
-class TestUsers:
-    # Юзер с богатой историей (разные статусы)
-    USER_WITH_HISTORY = {
-        "email": "user_history@example.com",
-        "password": "Password123",
-        "expected_counts": {"Done": 19, "Cancel": 2, "All": 21}
-    }
+from src.common.config import config
 
-    # Новый юзер без заказов (пустое состояние)
-    USER_EMPTY = {
-        "email": "user_empty@example.com",
-        "password": "Password123",
-        "expected_counts": {"Done": 0, "Cancel": 0, "All": 0}
-    }
+
+class TestUser:
+    def __init__(self, login, password):
+        self.login = login
+        self.password = password
+
+    def __repr__(self):
+        """То, что будет видно в логах при падении и в отчетах"""
+        return (f"User(login='{self.login}', "
+                f"password='[MASKED]'")
+
+class TestUsers:
+    # User who has a rich history (different statuses)
+    USER_WITH_HISTORY = TestUser(login=config.USER_PHONE_NUMBER, password=config.USER_PASSWORD)
+
+    # New user without orders (empty state)
+    USER_EMPTY = TestUser(login=config.EMPTY_USER_PHONE_NUMBER, password=config.EMPTY_USER_PASSWORD)

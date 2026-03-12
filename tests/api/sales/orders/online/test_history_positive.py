@@ -31,19 +31,6 @@ class TestOnlineOrdersScheme(BaseOnlineOrders):
         assert len(parsed_data.items) >= 1
         assert parsed_data.totalPages > 0
 
-    @pytest.mark.parametrize("user_data", [
-        TestUsers.USER_WITH_HISTORY,
-        TestUsers.USER_EMPTY],
-        ids=["history_user", "empty_user"])
-    def test_scheme_2(self, online_orders_api, user_data):
-        parsed_data = self._get_orders(
-            online_orders_api,
-            page=0,
-            limit=40,
-            status="All")
-
-
-
 class TestOnlineOrdersListInfo:
     # Defining test data (input parameters, expected results)
     test_data = [
