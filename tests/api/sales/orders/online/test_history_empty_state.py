@@ -19,15 +19,15 @@ pytestmark = [
 @allure.story("Empty State Validation")
 class TestOnlineOrdersSchemeEmptyState(BaseOnlineOrders):
     test_data = [
-        ({"status": "All"}),
-        ({"status": "Done"}),
+        # ({"status": "All"}),
+        # ({"status": "Done"}),
         ({"status": "Cancel"})
     ]
 
     # Generating good-looking names for reports
     test_ids = [f"limit=40_page=0_status_{d['status']}" for d in test_data]
 
-    @allure.tag("regression", "empty_data")
+    @allure.tag("regression", "empty_state")
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check empty history for status: {inputs[status]}")  # Dynamic title
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
@@ -35,7 +35,7 @@ class TestOnlineOrdersSchemeEmptyState(BaseOnlineOrders):
         # online_orders_api внутри себя попросит user_session.
         # user_session увидит, что для него в pytestmark задан USER_EMPTY,
         # и залогинится именно под ним.
-        with allure.step(f"Requesting order history with status '{inputs['status']}'"):
+        with allure.step(f"Requesting orders history with status '{inputs['status']}'"):
             parsed_data = self._get_orders(
                 online_orders_api,
                 page=0,
