@@ -90,6 +90,17 @@ jobs:
           ref: gh-pages
           path: gh-pages
 
+        # НОВЫЙ ШАГ: Удаляем мусор, если он случайно попал в историю
+      - name: Clean history junk
+        if: always()
+        run: |
+          if [ -d "gh-pages" ]; then
+            cd gh-pages
+            # Удаляем всё, КРОМЕ папок с цифрами (отчеты) и папок history/data
+            ls | grep -vE '^[0-9]+$|history|data|index.html|last-history|favicon.ico' | xargs rm -rf || true
+            cd ..
+          fi
+
       - name: Build Allure Report
         if: always()
         uses: simple-elf/allure-report-action@master
