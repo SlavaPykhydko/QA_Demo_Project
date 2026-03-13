@@ -1,21 +1,25 @@
 name: API Smoke Tests
 
-# Описываем, когда запускать тесты
 on:
   push:
-    branches: [ main, master ] # При каждом пуше в эти ветки
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, master ] # При создании PR
-  workflow_dispatch:          # Позволяет запускать тесты вручную кнопкой в GitHub
+    branches: [ main, master ]
+  workflow_dispatch:
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
+# Глобальные настройки окружения
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   test-automation:
     runs-on: ubuntu-latest
+
+    # Права доступа внутри джобы — это стандарт безопасности
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
 
     steps:
       - name: Checkout code
@@ -32,44 +36,41 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run API Tests
-        # Связываем секреты GitHub с твоим кодом (os.getenv)
+        # Все секреты пробрасываются именно здесь, перед запуском тестов
         env:
-          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+          ENV_TYPE: ${{ secrets.ENV_TYPE }}
           BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
           X_API_KEY_PROD: ${{ secrets.X_API_KEY_PROD }}
 
-          #user with history
+          # User with history
           USER_PHONE_NUMBER_PROD: ${{ secrets.USER_PHONE_NUMBER_PROD }}
           USER_PASSWORD_PROD: ${{ secrets.USER_PASSWORD_PROD }}
 
-          # user with empty history
+          # User with empty history
           EMPTY_USER_PHONE_NUMBER_PROD: ${{ secrets.EMPTY_USER_PHONE_NUMBER_PROD }}
           EMPTY_USER_PASSWORD_PROD: ${{ secrets.EMPTY_USER_PASSWORD_PROD }}
 
-
+          # Stage Environment
           BASE_URL_STAGE: ${{ secrets.BASE_URL_STAGE }}
           X_API_KEY_STAGE: ${{ secrets.X_API_KEY_STAGE }}
-
           USER_PHONE_STAGE: ${{ secrets.USER_PHONE_STAGE }}
           USER_PASS_STAGE: ${{ secrets.USER_PASS_STAGE }}
           EMPTY_USER_PHONE_STAGE: ${{ secrets.EMPTY_USER_PHONE_STAGE }}
           EMPTY_USER_PASS_STAGE: ${{ secrets.EMPTY_USER_PASS_STAGE }}
 
-
-          ENV_TYPE: ${{ secrets.ENV_TYPE }}
-
-          # Database
+          # Database PROD
           DB_HOST_PROD: ${{ secrets.DB_HOST_PROD }}
           DB_PORT_PROD: ${{ secrets.DB_PORT_PROD }}
           DB_USER_PROD: ${{ secrets.DB_USER_PROD }}
           DB_PASSWORD_PROD: ${{ secrets.DB_PASSWORD_PROD }}
           DB_NAME_PROD: ${{ secrets.DB_NAME_PROD }}
 
+          # Database STAGE
           DB_HOST_STAGE: ${{ secrets.DB_HOST_STAGE }}
           DB_PORT_STAGE: ${{ secrets.DB_PORT_STAGE }}
           DB_USER_STAGE: ${{ secrets.DB_USER_STAGE }}
           DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
-          DB_NAME_STAGE: ${{secrets.DB_NAME_STAGE }}
+          DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
         run: |
           pytest -m smoke --alluredir=allure-results -n 2
 
