@@ -30,9 +30,14 @@ class ProdConfig(Config):
 class StageConfig(Config):
     #Data for Stage
     BASE_URL = os.getenv("BASE_URL_STAGE")
-    USER_PHONE_NUMBER = os.getenv("USER_PHONE_NUMBER_STAGE")
-    USER_PASSWORD = os.getenv("USER_PASSWORD_STAGE")
     X_API_KEY = os.getenv("X_API_KEY_STAGE")
+    # user data
+    USER_PHONE_NUMBER = os.getenv("USER_PHONE_STAGE")
+    USER_PASSWORD = os.getenv("USER_PASS_STAGE")
+
+    EMPTY_USER_PHONE_NUMBER = os.getenv("EMPTY_USER_PHONE_STAGE")
+    EMPTY_USER_PASSWORD = os.getenv("EMPTY_USER_PASS_STAGE")
+
     # Data for DB
     DB_HOST = os.getenv("DB_HOST_STAGE")
     DB_PORT = os.getenv("DB_PORT_STAGE")
