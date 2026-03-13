@@ -96,8 +96,9 @@ jobs:
         run: |
           if [ -d "gh-pages" ]; then
             cd gh-pages
-            # Удаляем всё, КРОМЕ папок с цифрами (отчеты) и папок history/data
-            ls | grep -vE '^[0-9]+$|history|data|index.html|last-history|favicon.ico' | xargs rm -rf || true
+            # Добавляем -A, чтобы видеть скрытые файлы типа .env
+            # И добавляем .nojekyll в список исключений (он нужен GitHub)
+            ls -A | grep -vE '^[0-9]+$|history|index.html|last-history|favicon.ico|.nojekyll' | xargs rm -rf || true
             cd ..
           fi
 
