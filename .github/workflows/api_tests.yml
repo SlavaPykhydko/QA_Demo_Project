@@ -7,7 +7,7 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
-# Глобальные настройки окружения
+# Global env settings
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -15,7 +15,6 @@ jobs:
   test-automation:
     runs-on: ubuntu-latest
 
-    # Права доступа внутри джобы — это стандарт безопасности
     permissions:
       contents: write
       pages: write
@@ -36,7 +35,6 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run API Tests
-        # Все секреты пробрасываются именно здесь, перед запуском тестов
         env:
           ENV_TYPE: ${{ secrets.ENV_TYPE }}
           BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
@@ -73,6 +71,9 @@ jobs:
           DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
         run: |
           pytest -m smoke --alluredir=allure-results -n 2
+          # If smoke tests failed, regression tests wouldn't be run
+          # Regression tests will exclude smoke tests because "and not smoke" 
+          pytest -m "regression and not smoke" --alluredir=allure-results -n 2
 
       - name: Upload Allure Results
         if: always()
@@ -90,14 +91,13 @@ jobs:
           ref: gh-pages
           path: gh-pages
 
-        # НОВЫЙ ШАГ: Удаляем мусор, если он случайно попал в историю
       - name: Clean history junk
         if: always()
         run: |
           if [ -d "gh-pages" ]; then
             cd gh-pages
-            # Добавляем -A, чтобы видеть скрытые файлы типа .env
-            # И добавляем .nojekyll в список исключений (он нужен GitHub)
+            # Adding -A so to see hidden files like .env
+            # Adding .nojekyll to the exception list  (GitHub needs it)
             ls -A | grep -vE '^[0-9]+$|history|index.html|last-history|favicon.ico|.nojekyll' | xargs rm -rf || true
             cd ..
           fi
@@ -120,7 +120,7 @@ jobs:
           force_orphan: true
 
       - name: Send Telegram Notification
-        if: always() # Оповещение придет в любом случае
+        if: always()
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
@@ -128,9 +128,9 @@ jobs:
           format: html
           message: |
             <b>🚀 Project: ${{ github.repository }}</b>
-            <b>Статус:</b> ${{ job.status == 'success' && '✅ Успешно' || '❌ Ошибка / Broken' }}
+            <b>Status:</b> ${{ job.status == 'success' && '✅ Success' || '❌ Error / Broken' }}
             
-            📊 <b>Отчет Allure:</b> <a href="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/">Посмотреть результаты</a>
+            📊 <b>Allure report:</b> <a href="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/">View results</a>
             
-            👤 Автор: ${{ github.actor }}
-            📝 Коммит: ${{ github.event.head_commit.message }}
+            👤 Author: ${{ github.actor }}
+            📝 Commit: ${{ github.event.head_commit.message }}
