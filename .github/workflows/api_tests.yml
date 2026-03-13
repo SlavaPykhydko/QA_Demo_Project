@@ -30,7 +30,7 @@ jobs:
         # Связываем секреты GitHub с твоим кодом (os.getenv)
         env:
             BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
-            X_API_KEY_PROD: ${{ X_API_KEY_PROD }}
+            X_API_KEY_PROD: ${{ secrets.X_API_KEY_PROD }}
             
             #user with history
             USER_PHONE_NUMBER_PROD: ${{ secrets.USER_PHONE_NUMBER_PROD }}
