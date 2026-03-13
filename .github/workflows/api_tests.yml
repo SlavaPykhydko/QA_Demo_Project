@@ -29,41 +29,42 @@ jobs:
       - name: Run API Tests
         # Связываем секреты GitHub с твоим кодом (os.getenv)
         env:
-            BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
-            X_API_KEY_PROD: ${{ secrets.X_API_KEY_PROD }}
-            
-            #user with history
-            USER_PHONE_NUMBER_PROD: ${{ secrets.USER_PHONE_NUMBER_PROD }}
-            USER_PASSWORD_PROD: ${{ secrets.USER_PASSWORD_PROD }}
-            
-            # user with empty history
-            EMPTY_USER_PHONE_NUMBER_PROD: ${{ secrets.EMPTY_USER_PHONE_NUMBER_PROD }}
-            EMPTY_USER_PASSWORD_PROD: ${{ secrets.EMPTY_USER_PASSWORD_PROD }}
-            
-            
-            BASE_URL_STAGE: ${{ secrets.BASE_URL_STAGE }}
-            X_API_KEY_STAGE: ${{ secrets.X_API_KEY_STAGE }}
-            
-            USER_PHONE_STAGE: ${{ secrets.USER_PHONE_STAGE }}
-            USER_PASS_STAGE: ${{ secrets.USER_PASS_STAGE }}
-            EMPTY_USER_PHONE_STAGE: ${{ secrets.EMPTY_USER_PHONE_STAGE }}
-            EMPTY_USER_PASS_STAGE: ${{ secrets.EMPTY_USER_PASS_STAGE }}
-            
-            
-            ENV_TYPE: ${{ secrets.ENV_TYPE }}
-            
-            # Database
-            DB_HOST_PROD: ${{ secrets.DB_HOST_PROD }}
-            DB_PORT_PROD: ${{ secrets.DB_PORT_PROD }}
-            DB_USER_PROD: ${{ secrets.DB_USER_PROD }}
-            DB_PASSWORD_PROD: ${{ secrets.DB_PASSWORD_PROD }}
-            DB_NAME_PROD: ${{ secrets.DB_NAME_PROD }}
-            
-            DB_HOST_STAGE: ${{ secrets.DB_HOST_STAGE }}
-            DB_PORT_STAGE: ${{ secrets.DB_PORT_STAGE }}
-            DB_USER_STAGE: ${{ secrets.DB_USER_STAGE }}
-            DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
-            DB_NAME_STAGE: ${{secrets.DB_NAME_STAGE }}
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+          BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
+          X_API_KEY_PROD: ${{ secrets.X_API_KEY_PROD }}
+
+          #user with history
+          USER_PHONE_NUMBER_PROD: ${{ secrets.USER_PHONE_NUMBER_PROD }}
+          USER_PASSWORD_PROD: ${{ secrets.USER_PASSWORD_PROD }}
+
+          # user with empty history
+          EMPTY_USER_PHONE_NUMBER_PROD: ${{ secrets.EMPTY_USER_PHONE_NUMBER_PROD }}
+          EMPTY_USER_PASSWORD_PROD: ${{ secrets.EMPTY_USER_PASSWORD_PROD }}
+
+
+          BASE_URL_STAGE: ${{ secrets.BASE_URL_STAGE }}
+          X_API_KEY_STAGE: ${{ secrets.X_API_KEY_STAGE }}
+
+          USER_PHONE_STAGE: ${{ secrets.USER_PHONE_STAGE }}
+          USER_PASS_STAGE: ${{ secrets.USER_PASS_STAGE }}
+          EMPTY_USER_PHONE_STAGE: ${{ secrets.EMPTY_USER_PHONE_STAGE }}
+          EMPTY_USER_PASS_STAGE: ${{ secrets.EMPTY_USER_PASS_STAGE }}
+
+
+          ENV_TYPE: ${{ secrets.ENV_TYPE }}
+
+          # Database
+          DB_HOST_PROD: ${{ secrets.DB_HOST_PROD }}
+          DB_PORT_PROD: ${{ secrets.DB_PORT_PROD }}
+          DB_USER_PROD: ${{ secrets.DB_USER_PROD }}
+          DB_PASSWORD_PROD: ${{ secrets.DB_PASSWORD_PROD }}
+          DB_NAME_PROD: ${{ secrets.DB_NAME_PROD }}
+
+          DB_HOST_STAGE: ${{ secrets.DB_HOST_STAGE }}
+          DB_PORT_STAGE: ${{ secrets.DB_PORT_STAGE }}
+          DB_USER_STAGE: ${{ secrets.DB_USER_STAGE }}
+          DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
+          DB_NAME_STAGE: ${{secrets.DB_NAME_STAGE }}
         run: |
           pytest --alluredir=allure-results -n 2
 
