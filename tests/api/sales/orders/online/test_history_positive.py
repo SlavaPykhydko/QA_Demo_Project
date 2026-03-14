@@ -327,41 +327,60 @@ class TestOnlineOrdersImage(BaseOnlineOrders):
         except Exception as e:
             check.is_true(False, f"Page {page}: Item ID {item_id} URL unreachable: {url}. Error: {e}")
 
-class TestOnlineOrdersPrice(BaseOnlineOrders):
-    def test_order_prices(self, online_orders_api):
+class TestOrderPrice(BaseOnlineOrders):
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Each order price more than 0")
+    def test_order_price(self, online_orders_api):
         for item, page  in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            check.greater(item.price, 0, f"Item {item.id} has invalid price: {item.price}")
+            with allure.step(f"Check item.price more than 0"):
+                check.greater(item.price, 0, f"Item {item.id} has invalid price: {item.price}")
 
 
-class TestOnlineOrdersGoodsQuantity(BaseOnlineOrders):
-    def test_order_goods_quantity(self, online_orders_api):
+class TestQuantityParam(BaseOnlineOrders):
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Quantity param in each item more than 0")
+    def test_qnt_param(self, online_orders_api):
         for item, page  in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            check.greater(item.quantity, 0, f"Item {item.id} has invalid quantity: {item.quantity}")
+            with allure.step(f"Check item.quantity more than 0"):
+                check.greater(item.quantity, 0, f"Item {item.id} has invalid quantity: {item.quantity}")
 
 
-class TestOnlineOrdersGoodsAndImageConsistency(BaseOnlineOrders):
-    def test_goods_qnt_equal_image_qnt(self, online_orders_api):
+class TestGoodsAndImageConsistency(BaseOnlineOrders):
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Qnt param in each item equal qnt images")
+    def test_qnt_param_equal_image_qnt(self, online_orders_api):
         for item, page  in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            check.equal(
-                len(item.goods),
-                item.quantity,
-                f"Item {item.id} has invalid qnt: {item.quantity} or invalid qnt of pictures: {item.goods}")
+            with allure.step(f"Check item.quantity equal qnt images"):
+                check.equal(
+                    len(item.goods),
+                    item.quantity,
+                    f"Item {item.id} has invalid qnt: {item.quantity} or invalid qnt of pictures: {item.goods}")
 
 
-class TestOnlineOrdersIdAndNameConsistency(BaseOnlineOrders):
+class TestIdAndNameConsistency(BaseOnlineOrders):
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Item name and id is similar")
     def test_id_and_name_consistency(self, online_orders_api):
         for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            check.equal(str(item.id), item.name, f"Item {item.id} has invalid name: {item.name}")
+            with allure.step(f"Check item.id and item.name are equal"):
+                check.equal(str(item.id), item.name, f"Item {item.id} has invalid name: {item.name}")
 
 
-class TestOnlineOrdersOrderDataEqualDataFromDB(BaseOnlineOrders):
+class TestOrderDataEqualDataFromDB(BaseOnlineOrders):
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Item Data from Response equal data from DB")
     def test_order_data_equal_data_from_db(self, online_orders_api, db_online_orders_map):
         for api_item, page in self._get_items_from_pages(online_orders_api, limit=40, status="Cancel"):
             db_item = db_online_orders_map[api_item.id]
-            # Checking whether the order is in the DB
-            if check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!"):
-                # Compare each value except EXCLUDE_FIELDS
-                self._compare_items(api_item, db_item, page)
+            with allure.step(f"Checking whether the order is in the DB"):
+                if check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!"):
+                    with allure.step("Compare each value except EXCLUDE_FIELDS"):
+                        self._compare_items(api_item, db_item, page)
 
 
     def _compare_items(self, api_item, db_item, page_num):
