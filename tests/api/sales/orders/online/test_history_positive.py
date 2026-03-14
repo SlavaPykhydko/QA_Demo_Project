@@ -43,7 +43,7 @@ class TestScheme(BaseOnlineOrders):
         with allure.step(f"Check totalPages more 0 "):
             assert parsed_data.totalPages > 0
 
-class TestOnlineOrdersListInfo:
+class TestListInfo:
     # Defining test data (input parameters, expected results)
     test_data = [
         # 1. All orders in one page
@@ -52,10 +52,10 @@ class TestOnlineOrdersListInfo:
             {"totalCount": Data.ALL, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
         ),
         # 2. The first page with limit=10
-        # (
-        #     {"page": 0, "limit": 10, "status": "All"},
-        #     {"totalCount": Data.ALL, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
-        # ),
+        (
+            {"page": 0, "limit": 10, "status": "All"},
+            {"totalCount": Data.ALL, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
+        ),
         # 3. The last page with limit=10
         (
             {"page": 2, "limit": 10, "status": "All"},
@@ -83,57 +83,78 @@ class TestOnlineOrdersListInfo:
     test_ids = [f"limit_{d[0]['limit']}_page_{d[0]['page']}_status_{d[0]['status']}" for d in test_data]
 
     @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Check list info params for online orders history with {inputs}:")
     @pytest.mark.parametrize("inputs, expected", test_data, ids=test_ids)
     def test_list_info_params(self, online_orders_api, inputs, expected, db_orders_counts):
-        response = online_orders_api.get_online_orders(
-            page=inputs["page"],
-            limit=inputs["limit"],
-            status=inputs["status"]
-        )
+        with allure.step(f"Requesting online orders history with inputs '{inputs}'"):
+            response = online_orders_api.get_online_orders(
+                page=inputs["page"],
+                limit=inputs["limit"],
+                status=inputs["status"]
+            )
 
-        total_count = online_orders_api._get_json_value(response, "totalCount")
-        page_index = online_orders_api._get_json_value(response, "pageIndex")
-        total_pages = online_orders_api._get_json_value(response, "totalPages")
-        has_previous_page = online_orders_api._get_json_value(response, "hasPreviousPage")
-        has_next_page = online_orders_api._get_json_value(response, "hasNextPage")
+            total_count = online_orders_api._get_json_value(response, "totalCount")
+            page_index = online_orders_api._get_json_value(response, "pageIndex")
+            total_pages = online_orders_api._get_json_value(response, "totalPages")
+            has_previous_page = online_orders_api._get_json_value(response, "hasPreviousPage")
+            has_next_page = online_orders_api._get_json_value(response, "hasNextPage")
 
-        check.equal(total_count, expected["totalCount"], "Total count is wrong")
-        check.equal(page_index, expected["pageIndex"], "Page index is wrong")
-        check.equal(total_pages, expected["totalPages"], "Total pages is wrong")
-        check.equal(has_previous_page, expected["hasPreviousPage"], "Has previous page is wrong")
-        check.equal(has_next_page, expected["hasNextPage"], "Has next page is wrong")
+        with allure.step(f"Check totalCount"):
+            check.equal(total_count, expected["totalCount"], "Total count is wrong")
+        with allure.step(f"Check pageIndex"):
+            check.equal(page_index, expected["pageIndex"], "Page index is wrong")
+        with allure.step(f"Check totalPages"):
+            check.equal(total_pages, expected["totalPages"], "Total pages is wrong")
+        with allure.step(f"Check hasPreviousPage"):
+            check.equal(has_previous_page, expected["hasPreviousPage"], "Has previous page is wrong")
+        with allure.step(f"Check hasNextPage"):
+            check.equal(has_next_page, expected["hasNextPage"], "Has next page is wrong")
 
-        # just for self-checking
-        check.equal(Data.ALL, db_orders_counts["all"])
-        check.equal(Data.CANCEL, db_orders_counts["cancel"])
-        check.equal(Data.DONE, db_orders_counts["done"])
+        with allure.step(f"Just for self-checking"):
+            check.equal(Data.ALL, db_orders_counts["all"])
+            check.equal(Data.CANCEL, db_orders_counts["cancel"])
+            check.equal(Data.DONE, db_orders_counts["done"])
 
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Check sum of Done and Cancel orders for online orders history:")
     def test_sum_done_and_cancel_orders(self, online_orders_api, db_orders_counts):
-        res_all_orders = online_orders_api.get_online_orders(page=0, limit=40, status="All")
-        total_count_all_orders = online_orders_api._get_json_value(res_all_orders, "totalCount")
+        with allure.step(f"Requesting online orders history with status=All"):
+            res_all_orders = online_orders_api.get_online_orders(page=0, limit=40, status="All")
+            total_count_all_orders = online_orders_api._get_json_value(res_all_orders, "totalCount")
 
-        res_done_orders = online_orders_api.get_online_orders(page=0, limit=40, status="Done")
-        total_count_done_orders = online_orders_api._get_json_value(res_done_orders, "totalCount")
+        with allure.step(f"Requesting online orders history with status=Done"):
+            res_done_orders = online_orders_api.get_online_orders(page=0, limit=40, status="Done")
+            total_count_done_orders = online_orders_api._get_json_value(res_done_orders, "totalCount")
 
-        res_cancel_orders = online_orders_api.get_online_orders(page=0, limit=40, status="Cancel")
-        total_count_cancel_orders = online_orders_api._get_json_value(res_cancel_orders, "totalCount")
+        with allure.step(f"Requesting online orders history with status=Cancel"):
+            res_cancel_orders = online_orders_api.get_online_orders(page=0, limit=40, status="Cancel")
+            total_count_cancel_orders = online_orders_api._get_json_value(res_cancel_orders, "totalCount")
 
-        check.equal(db_orders_counts["all"],
-                    db_orders_counts["done"] + db_orders_counts["cancel"],
-                    "Some of the count from db is wrong")
-        check.equal(total_count_all_orders,
-                    total_count_done_orders + total_count_cancel_orders,
-                    "Some of the count from response is wrong")
+        with allure.step(f"Check from DB all = done + cancel"):
+            check.equal(db_orders_counts["all"],
+                        db_orders_counts["done"] + db_orders_counts["cancel"],
+                        "Some of the count from db is wrong")
+        with allure.step(f"Check from response all = done + cancel"):
+            check.equal(total_count_all_orders,
+                        total_count_done_orders + total_count_cancel_orders,
+                        "Some of the count from response is wrong")
 
-class TestOnlineOrdersType(BaseOnlineOrders):
+
+
+class TestItemType(BaseOnlineOrders):
     @pytest.mark.smoke
-    def test_items_type(self, online_orders_api):
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Check each item type from items for online orders history:")
+    def test_item_type(self, online_orders_api):
         expected_types = ["online", "marketplace"]
 
-        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            check.is_in(item.type.lower(),
-                        expected_types,
-                        f"Page {page}: Item ID {item.id} has wrong type '{item.type} Expected one of: {expected_types}")
+        with allure.step(f"Requesting online orders history with status=All "
+                         f"and Check each item type is one of the expected_types '{expected_types}'"):
+            for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
+                check.is_in(item.type.lower(),
+                            expected_types,
+                            f"Page {page}: Item ID {item.id} has wrong type '{item.type} Expected one of: {expected_types}")
 
 
 class TestOnlineOrdersFilterStatus(BaseOnlineOrders):
@@ -143,19 +164,21 @@ class TestOnlineOrdersFilterStatus(BaseOnlineOrders):
         ({"status": "Cancel"})
     ]
 
-    # Generating good-looking names for reports
     test_ids = [f"limit=40_page_=0_status_{d['status']}" for d in test_data]
 
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Check quantity items for filled online orders history with status: {inputs[status]}")
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
     def test_quantity_items_for_each_status(self, online_orders_api, inputs):
-        data = self._get_orders(
-            online_orders_api,
-            page=0,
-            limit=40,
-            status=inputs["status"])
-
-        check.equal(len(data.items), data.totalCount,
-                    "The number of items is not equal totalCount from response")
+        with allure.step(f"Requesting online orders history with status='{inputs['status']}'"):
+            data = self._get_orders(
+                online_orders_api,
+                page=0,
+                limit=40,
+                status=inputs["status"])
+        with allure.step(f"Check len items from response equal totalCount param"):
+            check.equal(len(data.items), data.totalCount,
+                        "The number of items is not equal totalCount from response")
 
 
     # Creating mapping: what status is requested -> the list available statuses in the response
@@ -165,102 +188,133 @@ class TestOnlineOrdersFilterStatus(BaseOnlineOrders):
         ("Cancel", ["canceled"]),
     ]
 
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Check each item from items has correct status with input status: {requested_status}")
     @pytest.mark.parametrize("requested_status, allowed_statuses", status_mapping)
     def test_each_item_has_correct_status(self, online_orders_api, requested_status, allowed_statuses):
         status_ua = ["отримано", "скасовано"]
 
-        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status=requested_status):
-            check.is_in(
-                item.orderStatus.lower(), allowed_statuses,
-                f"Page {page}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
-                f"Expected one of: {allowed_statuses}"
-            )
-            check.is_in(
-                item.statusGroup.lower(), allowed_statuses,
-                f"Page {page}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
-                f"Expected one of: {allowed_statuses}"
-            )
-            check.is_in(
-                item.status.lower(), status_ua,
-                f"Page {page}: Item ID {item.id} has wrong status '{item.status}'. "
-                f"Expected one of: {status_ua}"
-            )
+        with allure.step(f"Requesting online orders history with status='{requested_status}'"):
+            for item, page in self._get_items_from_pages(online_orders_api, limit=40, status=requested_status):
+                with allure.step(f"Check item.orderStatus on of the {allowed_statuses}"):
+                    check.is_in(
+                        item.orderStatus.lower(), allowed_statuses,
+                        f"Page {page}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
+                        f"Expected one of: {allowed_statuses}"
+                    )
+                with allure.step(f"Check item.statusGroup on of the {allowed_statuses}"):
+                    check.is_in(
+                        item.statusGroup.lower(), allowed_statuses,
+                        f"Page {page}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
+                        f"Expected one of: {allowed_statuses}"
+                    )
+                with allure.step(f"Check item.status in UA lang on of the {status_ua}"):
+                    check.is_in(
+                        item.status.lower(), status_ua,
+                        f"Page {page}: Item ID {item.id} has wrong status '{item.status}'. "
+                        f"Expected one of: {status_ua}"
+                    )
 
 
-class TestOnlineOrdersPagination(BaseOnlineOrders):
+class TestQntAllItemsViaPagination(BaseOnlineOrders):
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Check sum qnt items from all pages")
     def test_sum_qnt_items_from_all_pages(self, online_orders_api, db_orders_counts):
-        all_items = [item for item, page in self._get_items_from_pages(
-            online_orders_api,
-            limit=40,
-            status="All")]
+        with allure.step(f"Requesting online orders history with status=All"):
+            all_items = [item for item, page in self._get_items_from_pages(
+                online_orders_api,
+                limit=40,
+                status="All")]
+        with allure.step(f"Check len all items from all pages in response equal all items from DB"):
+            check.equal(len(all_items), db_orders_counts["all"],
+                        "The number of items is not equal the quantity from db")
 
-        check.equal(len(all_items), db_orders_counts["all"],
-                    "The number of items is not equal the quantity from db")
-
-class TestOnlineOrdersSellerConsistency(BaseOnlineOrders):
+class TestSellerConsistency(BaseOnlineOrders):
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Check sum qnt items from all pages")
     def test_seller_and_type_consistency(self, online_orders_api):
         expected_types = ["online", "marketplace"]
 
-        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            if item.seller.lower() == "епіцентр к":
-                (check.equal(item.type.lower(), expected_types[0]),
-                 f"For page='{page}' item type '{item.type}'or seller '{item.seller}' is wrong")
-            else:
-                (check.equal(item.type.lower(), expected_types[1]),
-                 f"For page='{page}' item type  '{item.type}'or seller '{item.seller}' is wrong")
+        with allure.step(f"Requesting online orders history with status=All"):
+            for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
+                with allure.step(f"Check each item.type one of the {expected_types}"):
+                    if item.seller.lower() == "епіцентр к":
+                        (check.equal(item.type.lower(), expected_types[0]),
+                         f"For page='{page}' item type '{item.type}'or seller '{item.seller}' is wrong")
+                    else:
+                        (check.equal(item.type.lower(), expected_types[1]),
+                         f"For page='{page}' item type  '{item.type}'or seller '{item.seller}' is wrong")
 
 
-class TestOnlineOrdersIdsUniqueness(BaseOnlineOrders):
+class TestIdsUniqueness(BaseOnlineOrders):
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("All ids are unique")
     def test_ids_uniqueness_across_all_pages(self, online_orders_api):
         all_collected_ids = []
 
-        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            # Adding ID from the current page to common list
-            all_collected_ids.append(item.id)
+        with allure.step(f"Requesting online orders history with status=All"):
+            for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
+                # Adding ID from the current page to common list
+                all_collected_ids.append(item.id)
+                # Final check for uniqueness all gathered ID
+                duplicates = set([x for x in all_collected_ids if all_collected_ids.count(x) > 1])
 
-        # Final check for uniqueness all gathered ID
-        duplicates = set([x for x in all_collected_ids if all_collected_ids.count(x) > 1])
+            with allure.step(f"Check ids list equal ids set. It means that all ids are unique"):
+                assert len(all_collected_ids) == len(set(all_collected_ids)), \
+                    f"Pagination bug! These IDs appear on multiple pages: {duplicates}"
 
-        assert len(all_collected_ids) == len(set(all_collected_ids)), \
-            f"Pagination bug! These IDs appear on multiple pages: {duplicates}"
-
-class TestOnlineOrdersDateSorting(BaseOnlineOrders):
+class TestOrdersSorting(BaseOnlineOrders):
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("All items sorted by date")
     def test_date_sorting(self, online_orders_api):
         actual_dates = []
 
-        for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            actual_dates.append([item.createdOn])
+        with allure.step(f"Requesting online orders history with status=All"):
+            for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
+                actual_dates.append([item.createdOn])
 
-        # from new item to old one
-        expected_dates = sorted(actual_dates, reverse=True)
+            # from new item to old one
+            expected_dates = sorted(actual_dates, reverse=True)
 
-        check.equal(
-            actual_dates,
-            expected_dates,
-            "Orders are not sorted by date (newest first)!"
-        )
+        with allure.step(f"Check all items from response sorted by date. Newest first"):
+            check.equal(
+                actual_dates,
+                expected_dates,
+                "Orders are not sorted by date (newest first)!"
+            )
 
 class TestOnlineOrdersImage(BaseOnlineOrders):
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Each picture from orders isn't broken")
     def test_each_image_parallel(self, online_orders_api):
         # # The 'with' construct will wait for all threads to complete before exiting.
         with ThreadPoolExecutor(max_workers=10) as executor:
-            for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-                for url in item.goods:
-                    if not url.startswith(Data.URL_PREFIX):
-                        check.is_true(
-                            False,
-                            f"Page {page}: Item ID {item.id} has invalid image prefix!\n"
-                            f"URL: {url}\n"
-                            f"Expected prefix: {Data.URL_PREFIX}")
-                        continue
-                    if not url.lower().endswith(Data.ALLOWED_URL_SUFFIXES):
-                        check.is_true(
-                            False,
-                            f"Page {page}: Item ID {item.id} has invalid extension. "
-                            f"URL: {url}. Expected one of: {Data.ALLOWED_URL_SUFFIXES}")
-                        continue
-                    # We send a heavy network check to the thread
-                    executor.submit(self._check_single_url, url, item.id, page)
+            with allure.step(f"Requesting online orders history with status=All"):
+                for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
+                    for url in item.goods:
+                        if not url.startswith(Data.URL_PREFIX):
+                            with allure.step("Check image prefix"):
+                                check.is_true(
+                                    False,
+                                    f"Page {page}: Item ID {item.id} has invalid image prefix!\n"
+                                    f"URL: {url}\n"
+                                    f"Expected prefix: {Data.URL_PREFIX}")
+                                continue
+                        if not url.lower().endswith(Data.ALLOWED_URL_SUFFIXES):
+                            with allure.step("Check image suffix"):
+                                check.is_true(
+                                    False,
+                                    f"Page {page}: Item ID {item.id} has invalid extension. "
+                                    f"URL: {url}. Expected one of: {Data.ALLOWED_URL_SUFFIXES}")
+                                continue
+                    with allure.step(f"Check status code for each image"):
+                        # We send a heavy network check to the thread
+                        executor.submit(self._check_single_url, url, item.id, page)
 
     def _check_single_url(self, url, item_id, page):
         """ Function-worker for 1 thread """
