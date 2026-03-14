@@ -1,26 +1,24 @@
 import allure
 import pytest
 import pytest_check as check
-import requests
-from src.common.online_orders_data import Data
 from src.common.user_accounts import UserAccounts
 from .base import BaseOnlineOrders
 
+# All tests in this file will use USER_EMPTY
+# Allure grouping for all file
 pytestmark = [
     pytest.mark.parametrize("user_session", [UserAccounts.USER_EMPTY], indirect=True),
     pytest.mark.empty_state,
-    pytest.mark.regression
+    pytest.mark.regression,
+    allure.epic("Sales & Orders"),
+    allure.feature("Orders History"),
+    allure.story("Empty State Validation")
 ]
-# Этот тест (и все остальные в файле) запустится под USER_EMPTY
 
-# Группировка для всего файла
-@allure.epic("Sales & Orders")
-@allure.feature("Orders History")
-@allure.story("Empty State Validation")
-class TestOnlineOrdersSchemeEmptyState(BaseOnlineOrders):
+class TestEmptyStateScheme(BaseOnlineOrders):
     test_data = [
-        # ({"status": "All"}),
-        # ({"status": "Done"}),
+        ({"status": "All"}),
+        ({"status": "Done"}),
         ({"status": "Cancel"})
     ]
 
@@ -28,20 +26,17 @@ class TestOnlineOrdersSchemeEmptyState(BaseOnlineOrders):
     test_ids = [f"limit=40_page=0_status_{d['status']}" for d in test_data]
 
     @allure.tag("regression", "empty_state")
-    @allure.severity(allure.severity_level.NORMAL)
+    @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check empty history for status: {inputs[status]}")  # Dynamic title
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
-    def test_scheme_empty_state(self, online_orders_api, inputs):
-        # online_orders_api внутри себя попросит user_session.
-        # user_session увидит, что для него в pytestmark задан USER_EMPTY,
-        # и залогинится именно под ним.
+    def test_empty_state_scheme(self, online_orders_api, inputs):
         with allure.step(f"Requesting orders history with status '{inputs['status']}'"):
             parsed_data = self._get_orders(
                 online_orders_api,
                 page=0,
                 limit=40,
                 status=inputs["status"])
-            # Прикрепляем JSON сразу после получения, чтобы он всегда был под рукой
+
             allure.attach(
                 parsed_data.model_dump_json(indent=2),
                 name="API Response",
@@ -49,5 +44,6 @@ class TestOnlineOrdersSchemeEmptyState(BaseOnlineOrders):
             )
         with allure.step("Verifying that API returned 0 items"):
             check.equal(len(parsed_data.items), 0, "List of items should be empty")
+        with allure.step("Verifying that API returned 0 in totalPages"):
             check.equal(parsed_data.totalPages, 0, "totalPages should be 0")
 
