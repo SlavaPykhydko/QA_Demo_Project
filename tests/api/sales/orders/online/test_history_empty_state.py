@@ -2,6 +2,7 @@ import allure
 import pytest
 import pytest_check as check
 from src.common.user_accounts import UserAccounts
+from utils.allure_helper import attach_json
 from .base import BaseOnlineOrders
 
 # All tests in this file will use USER_EMPTY
@@ -15,7 +16,7 @@ pytestmark = [
     allure.story("Empty State Validation")
 ]
 
-class TestEmptyStateScheme(BaseOnlineOrders):
+class TestSchemeEmptyState(BaseOnlineOrders):
     test_data = [
         ({"status": "All"}),
         ({"status": "Done"}),
@@ -25,23 +26,17 @@ class TestEmptyStateScheme(BaseOnlineOrders):
     # Generating good-looking names for reports
     test_ids = [f"limit=40_page=0_status_{d['status']}" for d in test_data]
 
-    @allure.tag("regression", "empty_state")
     @allure.severity(allure.severity_level.CRITICAL)
-    @allure.title("Check empty history for status: {inputs[status]}")  # Dynamic title
+    @allure.title("Check contract for empty online orders history with status: {inputs[status]}")  # Dynamic title
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
-    def test_empty_state_scheme(self, online_orders_api, inputs):
-        with allure.step(f"Requesting orders history with status '{inputs['status']}'"):
+    def test_scheme_empty_state(self, online_orders_api, inputs):
+        with allure.step(f"Requesting online orders history with status '{inputs['status']}'"):
             parsed_data = self._get_orders(
                 online_orders_api,
                 page=0,
                 limit=40,
                 status=inputs["status"])
 
-            allure.attach(
-                parsed_data.model_dump_json(indent=2),
-                name="API Response",
-                attachment_type=allure.attachment_type.JSON
-            )
         with allure.step("Verifying that API returned 0 items"):
             check.equal(len(parsed_data.items), 0, "List of items should be empty")
         with allure.step("Verifying that API returned 0 in totalPages"):

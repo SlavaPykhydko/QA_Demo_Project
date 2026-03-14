@@ -1,15 +1,22 @@
+import allure
 import pytest
 import pytest_check as check
 import requests
 from src.common.online_orders_data import Data
-from src.common.user_accounts import UserAccounts
+from utils.allure_helper import attach_json
 from .base import BaseOnlineOrders
 from concurrent.futures import ThreadPoolExecutor
 
 # Now ALL tests in this file are automatically labeled 'positive' and 'regression'
-pytestmark = [pytest.mark.positive, pytest.mark.regression]
+pytestmark = [
+    pytest.mark.positive,
+    pytest.mark.regression,
+    allure.epic("Sales & Orders"),
+    allure.feature("Orders History"),
+    allure.story("Positive checks")
+]
 
-class TestOnlineOrdersScheme(BaseOnlineOrders):
+class TestScheme(BaseOnlineOrders):
     test_data = [
         ({"status": "All"}),
         ({"status": "Done"}),
@@ -20,16 +27,21 @@ class TestOnlineOrdersScheme(BaseOnlineOrders):
     test_ids = [f"limit=40_page=0_status_{d['status']}" for d in test_data]
 
     @pytest.mark.smoke
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.title("Check contract for filled online orders history with status: {inputs[status]}")  # Dynamic title
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
     def test_scheme(self, online_orders_api, inputs):
-        parsed_data = self._get_orders(
-            online_orders_api,
-            page=0,
-            limit=40,
-            status=inputs["status"])
+        with allure.step(f"Requesting online orders history with status '{inputs['status']}'"):
+            parsed_data = self._get_orders(
+                online_orders_api,
+                page=0,
+                limit=40,
+                status=inputs["status"])
 
-        assert len(parsed_data.items) >= 1
-        assert parsed_data.totalPages > 0
+        with allure.step(f"Check items lengths more or equal 1 "):
+            assert len(parsed_data.items) >= 1
+        with allure.step(f"Check totalPages more 0 "):
+            assert parsed_data.totalPages > 0
 
 class TestOnlineOrdersListInfo:
     # Defining test data (input parameters, expected results)
