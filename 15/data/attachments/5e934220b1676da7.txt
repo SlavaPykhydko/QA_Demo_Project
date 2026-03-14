@@ -1,0 +1,148 @@
+INFO     OnlineOrdersAPI:base_client.py:38 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': 'Done', 'session_id': 'Ea7BEw5FjaZahFg3XyQfwTkigLJpO8zE9rbL4db9'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:46 Response JSON:
+{
+    "items": [
+        {
+            "id": 53550043,
+            "name": "53550043",
+            "price": 598.0,
+            "totalBonus": 0.0,
+            "createdOn": "2026-01-26T00:00:00",
+            "orderStatus": "Received",
+            "status": "Отримано",
+            "statusGroup": "received",
+            "seller": "Епіцентр К",
+            "quantity": 1,
+            "type": "Online",
+            "deliveryId": 92,
+            "goods": [
+                "https://cdn.27.ua/190/ec/83/7597187_1.jpeg"
+            ]
+        },
+        {
+            "id": 52446934,
+            "name": "52446934",
+            "price": 687.78,
+            "totalBonus": 0.0,
+            "createdOn": "2025-12-04T00:00:00",
+            "orderStatus": "Received",
+            "status": "Отримано",
+            "statusGroup": "received",
+            "seller": "Епіцентр К",
+            "quantity": 1,
+            "type": "Online",
+            "deliveryId": 92,
+            "goods": [
+                "https://cdn.27.ua/190/09/15/919829_6.jpeg"
+            ]
+        },
+        {
+            "id": 50933213,
+            "name": "50933213",
+            "price": 1978.0,
+            "totalBonus": 0.0,
+            "createdOn": "2025-09-18T00:00:00",
+            "orderStatus": "Received",
+            "status": "Отримано",
+            "statusGroup": "received",
+            "seller": "Епіцентр К",
+            "quantity": 3,
+            "type": "Online",
+            "deliveryId": 45,
+            "goods": [
+                "https://cdn.27.ua/190/0f/8b/9244555_3.jpeg",
+                "https://cdn.27.ua/190/4e/38/2444856_4.jpeg",
+                "https://cdn.27.ua/190/bf/cf/7192527_1.jpeg"
+            ]
+        },
+        {
+            "id": 47955931,
+            "name": "47955931",
+            "price": 225.0,
+            "totalBonus": 0.0,
+            "createdOn": "2025-05-12T00:00:00",
+            "orderStatus": "Received",
+            "status": "Отримано",
+            "statusGroup": "received",
+            "seller": "Епіцентр К",
+            "quantity": 1,
+            "type": "Online",
+            "deliveryId": 92,
+            "goods": [
+                "https://cdn.27.ua/190/8a/82/887426_11.jpeg"
+            ]
+        },
+        {
+            "id": 44310275,
+            "name": "44310275",
+            "price": 748.8,
+            "totalBonus": 0.0,
+            "createdOn": "2025-01-20T00:00:00",
+            "orderStatus": "Received",
+            "status": "Отримано",
+            "statusGroup": "received",
+            "seller": "Епіцентр К",
+            "quantity": 1,
+            "type": "Online",
+            "deliveryId": 92,
+            "goods": [
+                "https://cdn.27.ua/190/90/35/7114805_3.jpeg"
+            ]
+        },
+        {
+            "id": 38795239,
+            "name": "38795239",
+            "price": 301.0,
+            "totalBonus": 0.0,
+            "createdOn": "2024-09-03T00:00:00",
+            "orderStatus": "Received",
+            "status": "Отримано",
+            "statusGroup": "received",
+            "seller": "Епіцентр К",
+            "quantity": 2,
+            "type": "Online",
+            "deliveryId": 45,
+            "goods": [
+                "https://cdn.27.ua/190/73/3a/2257722_2.jpeg",
+                "https://cdn.27.ua/190/80/4f/360527_4.jpeg"
+            ]
+        },
+        {
+            "id": 38738769,
+            "name": "38738769",
+            "price": 1269.0,
+            "totalBonus": 0.0,
+            "createdOn": "2024-09-02T00:00:00",
+            "orderStatus": "Received",
+            "status": "Отримано",
+            "statusGroup": "received",
+            "seller": "Епіцентр К",
+            "quantity": 1,
+            "type": "Online",
+            "deliveryId": 45,
+            "goods": [
+                "https://cdn.27.ua/190/82/33/98867_1.jpeg"
+            ]
+        },
+        {
+            "id": 23230969,
+            "name": "23230969",
+            "price": 964.0,
+            "totalBonus": 0.0,
+            "createdOn": "2023-03-30T00:00:00",
+            "orderStatus": "Received",
+            "status": "Отримано",
+            "statusGroup": "received",
+            "seller": null,
+            "quantity": 0,
+            "type": "Online",
+            "deliveryId": 39,
+            "goods": []
+        }
+    ],
+    "pageIndex": 0,
+    "totalPages": 1,
+    "totalCount": 8,
+    "hasPreviousPage": false,
+    "hasNextPage": false
+}

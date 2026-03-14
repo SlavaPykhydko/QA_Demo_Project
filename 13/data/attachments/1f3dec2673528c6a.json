@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": 50933034,
+      "name": "50933034",
+      "price": 1978.0,
+      "totalBonus": 0.0,
+      "createdOn": "2025-09-18T00:00:00",
+      "orderStatus": "Canceled",
+      "status": "Скасовано",
+      "statusGroup": "canceled",
+      "seller": "Епіцентр К",
+      "quantity": 3,
+      "type": "Online",
+      "deliveryId": 45,
+      "goods": [
+        "https://cdn.27.ua/190/0f/8b/9244555_3.jpeg",
+        "https://cdn.27.ua/190/4e/38/2444856_4.jpeg",
+        "https://cdn.27.ua/190/bf/cf/7192527_1.jpeg"
+      ]
+    }
+  ],
+  "pageIndex": 0,
+  "totalPages": 1,
+  "totalCount": 1,
+  "hasPreviousPage": false,
+  "hasNextPage": false
+}
