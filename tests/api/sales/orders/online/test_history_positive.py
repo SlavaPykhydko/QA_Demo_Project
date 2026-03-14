@@ -143,7 +143,7 @@ class TestListInfo:
 class TestItemType(BaseOnlineOrders):
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Item type belongs to one of the expected_types:")
+    @allure.title("Item type belongs to one of the expected_types")
     def test_item_type(self, online_orders_api):
         expected_types = ["online", "marketplace"]
 
@@ -168,12 +168,11 @@ class TestOnlineOrdersFilterStatus(BaseOnlineOrders):
     @allure.title("Check quantity items for filled online orders history with status: {inputs[status]}")
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
     def test_quantity_items_for_each_status(self, online_orders_api, inputs):
-        with allure.step(f"Requesting online orders history with status='{inputs['status']}'"):
-            data = self._get_orders(
-                online_orders_api,
-                page=0,
-                limit=40,
-                status=inputs["status"])
+        data = self._get_orders(
+            online_orders_api,
+            page=0,
+            limit=40,
+            status=inputs["status"])
         with allure.step(f"Check len items from response equal totalCount param"):
             check.equal(len(data.items), data.totalCount,
                         "The number of items is not equal totalCount from response")

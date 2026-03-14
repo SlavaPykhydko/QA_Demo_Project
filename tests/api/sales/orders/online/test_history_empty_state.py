@@ -30,12 +30,11 @@ class TestSchemeEmptyState(BaseOnlineOrders):
     @allure.title("Check contract for empty online orders history with status: {inputs[status]}")  # Dynamic title
     @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
     def test_scheme_empty_state(self, online_orders_api, inputs):
-        with allure.step(f"Requesting online orders history with status '{inputs['status']}'"):
-            parsed_data = self._get_orders(
-                online_orders_api,
-                page=0,
-                limit=40,
-                status=inputs["status"])
+        parsed_data = self._get_orders(
+            online_orders_api,
+            page=0,
+            limit=40,
+            status=inputs["status"])
 
         with allure.step("Verifying that API returned 0 items"):
             check.equal(len(parsed_data.items), 0, "List of items should be empty")
