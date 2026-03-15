@@ -123,28 +123,28 @@ jobs:
       - name: Extract Test Stats
         if: always()
         run: |
-            python -c "
-            import xml.etree.ElementTree as ET
-            import os
-            try:
-                tree = ET.parse('report.xml')
-                root = tree.getroot()
-#                Gathering statistics
-                total = int(root.attrib.get('tests', 0))
-                failures = int(root.attrib.get('failures', 0))
-                errors = int(root.attrib.get('errors', 0))
-                skipped = int(root.attrib.get('skipped', 0))
-                passed = total - failures - errors - skipped
+          python -c "
+          import xml.etree.ElementTree as ET
+          import os
+          try:
+              tree = ET.parse('report.xml')
+              root = tree.getroot()
+#             Gathering statistics
+              total = int(root.attrib.get('tests', 0))
+              failures = int(root.attrib.get('failures', 0))
+              errors = int(root.attrib.get('errors', 0))
+              skipped = int(root.attrib.get('skipped', 0))
+              passed = total - failures - errors - skipped
             
-                # Writing to the special GitHub file variables
-                with open(os.environ['GITHUB_ENV'], 'a') as f:
-                    f.write(f'PASSED={passed}\n')
-                    f.write(f'FAILED={failures + errors}\n')
-                    f.write(f'SKIPPED={skipped}\n')
-                    f.write(f'TOTAL={total}\n')
-            except Exception as e:
-                print(f'Error: {e}')
-            "
+              # Writing to the special GitHub file variables
+              with open(os.environ['GITHUB_ENV'], 'a') as f:
+                  f.write(f'PASSED={passed}\n')
+                  f.write(f'FAILED={failures + errors}\n')
+                  f.write(f'SKIPPED={skipped}\n')
+                  f.write(f'TOTAL={total}\n')
+          except Exception as e:
+              print(f'Error: {e}')
+          "
 
       - name: Send Telegram Notification
         if: always()
