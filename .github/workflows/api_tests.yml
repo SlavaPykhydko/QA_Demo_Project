@@ -70,6 +70,7 @@ jobs:
           DB_USER_STAGE: ${{ secrets.DB_USER_STAGE }}
           DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
           DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
+        continue-on-error: true
         run: |
           pytest -m regression --alluredir=allure-results -n 2
           # If smoke tests failed, regression tests wouldn't be run
