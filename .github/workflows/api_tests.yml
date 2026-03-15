@@ -71,9 +71,9 @@ jobs:
           DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
           DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
         run: |
-          pytest -m regression --alluredir=allure-results -n 2
-          # If smoke tests failed, regression tests wouldn't be run
-          # Regression tests will exclude smoke tests because "and not smoke" 
+          pytest -m regression --alluredir=allure-results --junitxml=report.xml -n 2
+#          If smoke tests failed, regression tests wouldn't be run
+#          Regression tests will exclude smoke tests because "and not smoke"
 #          pytest -m "regression and not smoke" --alluredir=allure-results -n 2
 
       - name: Upload Allure Results
@@ -120,6 +120,32 @@ jobs:
           publish_branch: gh-pages
           force_orphan: true
 
+      - name: Extract Test Stats
+        if: always()
+        run: |
+            python -c "
+            import xml.etree.ElementTree as ET
+            import os
+            try:
+                tree = ET.parse('report.xml')
+                root = tree.getroot()
+#                Gathering statistics
+                total = int(root.attrib.get('tests', 0))
+                failures = int(root.attrib.get('failures', 0))
+                errors = int(root.attrib.get('errors', 0))
+                skipped = int(root.attrib.get('skipped', 0))
+                passed = total - failures - errors - skipped
+            
+                # Writing to the special GitHub file variables
+                with open(os.environ['GITHUB_ENV'], 'a') as f:
+                    f.write(f'PASSED={passed}\n')
+                    f.write(f'FAILED={failures + errors}\n')
+                    f.write(f'SKIPPED={skipped}\n')
+                    f.write(f'TOTAL={total}\n')
+            except Exception as e:
+                print(f'Error: {e}')
+            "
+
       - name: Send Telegram Notification
         if: always()
         uses: appleboy/telegram-action@master
@@ -128,9 +154,13 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           format: html
           message: |
-            <b>🚀 Project: ${{ github.repository }}</b>
-            <b>Status:</b> ${{ job.status == 'success' && '✅ Success' || '❌ Error / Broken' }}
+            <b>🚀 Test Report: ${{ github.repository }}</b>
+            ✅ <b>Прошло:</b> ${{ env.PASSED }}
+            ❌ <b>Упало:</b> ${{ env.FAILED }}
+            ⏩ <b>Пропущено:</b> ${{ env.SKIPPED }}
+            📝 <b>Всего:</b> ${{ env.TOTAL }}
             
+            Job status: ${{ job.status }}
             📊 <b>Allure report:</b> <a href="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/">View results</a>
             
             👤 Author: ${{ github.actor }}
