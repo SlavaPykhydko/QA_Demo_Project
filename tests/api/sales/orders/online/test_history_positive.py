@@ -4,6 +4,7 @@ import pytest_check as check
 import requests
 from src.common.online_orders_data import Data
 from utils.allure_helper import attach_json
+from utils.test_utils import generate_test_name
 from .base import BaseOnlineOrders
 from concurrent.futures import ThreadPoolExecutor
 
@@ -54,7 +55,8 @@ class TestListInfo:
         pytest.param(
             {"page": 0, "limit": 10, "status": "All"},
             {"totalCount": Data.ALL, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
-            marks=pytest.mark.xfail(reason="#Jira link to the bug Bug with pagination: Total count is wrong", strict=True)
+            marks=pytest.mark.xfail(reason="#Jira link to the bug Bug: Total count is wrong", strict=True),
+            id="page_0_limit_10_status=All_BUG"  # <--- Indicate ID right here
         ),
         # 3. The last page with limit=10
         (
@@ -80,7 +82,7 @@ class TestListInfo:
     ]
 
     # Generating good-looking names for reports
-    test_ids = [f"limit_{d[0]['limit']}_page_{d[0]['page']}_status_{d[0]['status']}" for d in test_data]
+    test_ids = generate_test_name(test_data)
 
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
