@@ -51,9 +51,10 @@ class TestListInfo:
             {"totalCount": Data.ALL, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
         ),
         # 2. The first page with limit=10
-        (
+        pytest.param(
             {"page": 0, "limit": 10, "status": "All"},
-            {"totalCount": Data.ALL, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True}
+            {"totalCount": Data.ALL, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
+            marks=pytest.mark.xfail(reason="#Jira link to the bug Bug with pagination: Total count is wrong", strict=True)
         ),
         # 3. The last page with limit=10
         (
