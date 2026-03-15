@@ -129,7 +129,7 @@ jobs:
           try:
               tree = ET.parse('report.xml')
               root = tree.getroot()
-#             Gathering statistics
+              # Gathering statistics
               total = int(root.attrib.get('tests', 0))
               failures = int(root.attrib.get('failures', 0))
               errors = int(root.attrib.get('errors', 0))
