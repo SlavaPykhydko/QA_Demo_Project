@@ -226,7 +226,7 @@ class TestSellerConsistency(BaseOnlineOrders):
         expected_types = ["online", "marketplace"]
 
         for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            with allure.step(f"Check each item.type one of the {expected_types}"):
+            with allure.step(f"For item ID {item.id} check item.type is one of the {expected_types}"):
                 if item.seller.lower() == "епіцентр к":
                     (check.equal(item.type.lower(), expected_types[0]),
                      f"For page='{page}' item type '{item.type}'or seller '{item.seller}' is wrong")
@@ -281,22 +281,21 @@ class TestOnlineOrdersImage(BaseOnlineOrders):
         with ThreadPoolExecutor(max_workers=10) as executor:
             for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
                 for url in item.goods:
-                    if not url.startswith(Data.URL_PREFIX):
-                        with allure.step("Check image prefix"):
+                    with allure.step(f"Verify prefix and extension for: {url}"):
+                        if not url.startswith(Data.URL_PREFIX):
                             check.is_true(
                                 False,
                                 f"Page {page}: Item ID {item.id} has invalid image prefix!\n"
                                 f"URL: {url}\n"
                                 f"Expected prefix: {Data.URL_PREFIX}")
                             continue
-                    if not url.lower().endswith(Data.ALLOWED_URL_SUFFIXES):
-                        with allure.step("Check image suffix"):
+                        if not url.lower().endswith(Data.ALLOWED_URL_EXTENSIONS):
                             check.is_true(
                                 False,
                                 f"Page {page}: Item ID {item.id} has invalid extension. "
-                                f"URL: {url}. Expected one of: {Data.ALLOWED_URL_SUFFIXES}")
+                                f"URL: {url}. Expected one of: {Data.ALLOWED_URL_EXTENSIONS}")
                             continue
-                with allure.step(f"Check status code for each image"):
+                with allure.step(f"For item ID {item.id} check status code for each image"):
                     # We send a heavy network check to the thread
                     executor.submit(self._check_single_url, url, item.id, page)
 

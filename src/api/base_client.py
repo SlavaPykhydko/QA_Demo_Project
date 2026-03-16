@@ -75,7 +75,7 @@ class BaseClient:
 
     def _get(self, endpoint, **kwargs):
         # Allure пометит этот метод как вложенный шаг
-        with allure.step(f"API Call: Get orders with params {kwargs}"):
+        with allure.step(f"API Call with params {kwargs}"):
             return self._request("GET", endpoint, **kwargs)
 
     def _post(self, endpoint, json=None, **kwargs):

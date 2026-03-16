@@ -14,6 +14,6 @@ class OnlineOrdersData:
         return db_client.get_online_orders_counts()["cancel"]
 
     URL_PREFIX = "https://cdn.27.ua/"
-    ALLOWED_URL_SUFFIXES = (".jpg", ".jpeg")
+    ALLOWED_URL_EXTENSIONS = (".jpg", ".jpeg")
 
 Data = OnlineOrdersData()
