@@ -23,12 +23,9 @@ class TestSchemeEmptyState(BaseOnlineOrders):
         ({"status": "Cancel"})
     ]
 
-    # Generating good-looking names for reports
-    test_ids = [f"limit=40_page=0_status_{d['status']}" for d in test_data]
-
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check contract for empty online orders history with status: {inputs[status]}")  # Dynamic title
-    @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
+    @pytest.mark.parametrize("inputs", test_data)
     def test_scheme_empty_state(self, online_orders_api, inputs):
         parsed_data = self._get_orders(
             online_orders_api,

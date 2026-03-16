@@ -4,7 +4,6 @@ import pytest_check as check
 import requests
 from src.common.online_orders_data import Data
 from utils.allure_helper import attach_json
-from utils.test_utils import generate_test_name
 from .base import BaseOnlineOrders
 from concurrent.futures import ThreadPoolExecutor
 
@@ -24,13 +23,10 @@ class TestScheme(BaseOnlineOrders):
         ({"status": "Cancel"})
     ]
 
-    # Generating good-looking names for reports
-    test_ids = [f"limit=40_page=0_status_{d['status']}" for d in test_data]
-
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check contract for filled online orders history with status: {inputs[status]}")  # Dynamic title
-    @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
+    @pytest.mark.parametrize("inputs", test_data)
     def test_scheme(self, online_orders_api, inputs):
         parsed_data = self._get_orders(
             online_orders_api,
@@ -56,7 +52,7 @@ class TestListInfo:
             {"page": 0, "limit": 10, "status": "All"},
             {"totalCount": Data.ALL, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
             marks=pytest.mark.xfail(reason="#Jira link to the bug Bug: Total count is wrong", strict=True),
-            id="page_0_limit_10_status=All_BUG"  # <--- Indicate ID right here
+            id="page_0_limit_10_status=All-BUG"  # <--- Indicate ID right here
         ),
         # 3. The last page with limit=10
         (
@@ -81,13 +77,10 @@ class TestListInfo:
         )
     ]
 
-    # Generating good-looking names for reports
-    test_ids = generate_test_name(test_data)
-
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check list info params for online orders history with {inputs}:")
-    @pytest.mark.parametrize("inputs, expected", test_data, ids=test_ids)
+    @pytest.mark.parametrize("inputs, expected", test_data)
     def test_list_info_params(self, online_orders_api, inputs, expected, db_orders_counts):
         response = online_orders_api.get_online_orders(
             page=inputs["page"],
@@ -165,11 +158,9 @@ class TestOnlineOrdersFilterStatus(BaseOnlineOrders):
         ({"status": "Cancel"})
     ]
 
-    test_ids = [f"limit=40_page_=0_status_{d['status']}" for d in test_data]
-
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check quantity items for filled online orders history with status: {inputs[status]}")
-    @pytest.mark.parametrize("inputs", test_data, ids=test_ids)
+    @pytest.mark.parametrize("inputs", test_data)
     def test_quantity_items_for_each_status(self, online_orders_api, inputs):
         data = self._get_orders(
             online_orders_api,

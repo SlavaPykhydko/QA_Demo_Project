@@ -11,6 +11,19 @@ from src.models.orders.online_orders import OrderItem
 # Creating logger for fixture/reports
 report_logger = get_logger("TestReport")
 
+
+# Generating good-looking names for reports
+def pytest_make_parametrize_id(val, argname):
+    if argname == "inputs" and isinstance(val, dict):
+        # Выбираем важные ключи для названия
+        items = list(val.items())[:3]
+        return "-".join([f"{k}_{v}" for k, v in items])
+
+    if argname in ["expected", "allowed_statuses"]:
+        return ""
+
+    return None
+
 @pytest.fixture(scope="session")
 def db_orders_counts():
     counts = db_client.get_online_orders_counts()
