@@ -51,8 +51,9 @@ class TestListInfo:
         pytest.param(
             {"page": 0, "limit": 10, "status": "All"},
             {"totalCount": Data.ALL, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
-            marks=pytest.mark.xfail(reason="#Jira link to the bug Bug: Total count is wrong", strict=True),
-            id="page_0_limit_10_status=All-BUG"  # <--- Indicate ID right here
+            marks=[pytest.mark.xfail(reason="#Jira link to the bug Bug: Total count is wrong", strict=True),
+            allure.issue("#Jira link to the bug Bug: Total count is wrong", "Total count is wrong")],
+            id="page_0_limit_10_status=All-BUG",  # <--- Indicate ID right here
         ),
         # 3. The last page with limit=10
         (
@@ -113,17 +114,14 @@ class TestListInfo:
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check sum of Done and Cancel orders for online orders history:")
     def test_sum_done_and_cancel_orders(self, online_orders_api, db_orders_counts):
-        with allure.step(f"Requesting online orders history with status=All"):
-            res_all_orders = online_orders_api.get_online_orders(page=0, limit=40, status="All")
-            total_count_all_orders = online_orders_api._get_json_value(res_all_orders, "totalCount")
+        res_all_orders = online_orders_api.get_online_orders(page=0, limit=40, status="All")
+        total_count_all_orders = online_orders_api._get_json_value(res_all_orders, "totalCount")
 
-        with allure.step(f"Requesting online orders history with status=Done"):
-            res_done_orders = online_orders_api.get_online_orders(page=0, limit=40, status="Done")
-            total_count_done_orders = online_orders_api._get_json_value(res_done_orders, "totalCount")
+        res_done_orders = online_orders_api.get_online_orders(page=0, limit=40, status="Done")
+        total_count_done_orders = online_orders_api._get_json_value(res_done_orders, "totalCount")
 
-        with allure.step(f"Requesting online orders history with status=Cancel"):
-            res_cancel_orders = online_orders_api.get_online_orders(page=0, limit=40, status="Cancel")
-            total_count_cancel_orders = online_orders_api._get_json_value(res_cancel_orders, "totalCount")
+        res_cancel_orders = online_orders_api.get_online_orders(page=0, limit=40, status="Cancel")
+        total_count_cancel_orders = online_orders_api._get_json_value(res_cancel_orders, "totalCount")
 
         with allure.step(f"Check from DB all = done + cancel"):
             check.equal(db_orders_counts["all"],
