@@ -162,7 +162,7 @@ jobs:
                   f.write(f"TOTAL={stats['total']}\n")
               
               print(f"Extracted stats: {stats}")
-              EOF
+          EOF
 
       - name: Send Telegram Notification
         if: always()
