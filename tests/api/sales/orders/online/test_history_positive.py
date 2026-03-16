@@ -281,7 +281,7 @@ class TestOnlineOrdersImage(BaseOnlineOrders):
         with ThreadPoolExecutor(max_workers=10) as executor:
             for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
                 for url in item.goods:
-                    with allure.step(f"Verify prefix and extension for: {url}"):
+                    with allure.step(f"For item ID {item.id} verify prefix and extension for: {url}"):
                         if not url.startswith(Data.URL_PREFIX):
                             check.is_true(
                                 False,
@@ -295,20 +295,20 @@ class TestOnlineOrdersImage(BaseOnlineOrders):
                                 f"Page {page}: Item ID {item.id} has invalid extension. "
                                 f"URL: {url}. Expected one of: {Data.ALLOWED_URL_EXTENSIONS}")
                             continue
-                with allure.step(f"For item ID {item.id} check status code for each image"):
                     # We send a heavy network check to the thread
                     executor.submit(self._check_single_url, url, item.id, page)
 
     def _check_single_url(self, url, item_id, page):
-        """ Function-worker for 1 thread """
-        try:
-            response = requests.head(url, timeout=5, allow_redirects=True)
-            check.equal(
-                response.status_code, 200,
-                f"Page {page}: ID {item_id} - URL {url} returned {response.status_code}"
-            )
-        except Exception as e:
-            check.is_true(False, f"Page {page}: Item ID {item_id} URL unreachable: {url}. Error: {e}")
+        with allure.step(f"For item ID {item_id} check status code for each image with {url}"):
+            """ Function-worker for 1 thread """
+            try:
+                response = requests.head(url, timeout=5, allow_redirects=True)
+                check.equal(
+                    response.status_code, 200,
+                    f"Page {page}: ID {item_id} - URL {url} returned {response.status_code}"
+                )
+            except Exception as e:
+                check.is_true(False, f"Page {page}: Item ID {item_id} URL unreachable: {url}. Error: {e}")
 
 class TestOrderPrice(BaseOnlineOrders):
     @pytest.mark.smoke
