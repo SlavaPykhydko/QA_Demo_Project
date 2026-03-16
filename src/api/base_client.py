@@ -24,7 +24,7 @@ class BaseClient:
             return str(data)
 
 
-    def _request(self, method, endpoint, **kwargs):
+    def _request(self, method, endpoint, raise_for_status=True, **kwargs):
         url = f"{self.full_url}/{endpoint.lstrip('/')}"
 
         # Adding session_id in all requests if it there is in session
@@ -46,8 +46,8 @@ class BaseClient:
                 self.logger.info(f"Response JSON:\n{self._format_json(res_json)}")
             except (JSONDecodeError, ValueError):
                 self.logger.info(f"Response is not JSON. Text: {response.text[:200]}...")
-
-            response.raise_for_status()
+            if raise_for_status:
+                response.raise_for_status()
             return response
 
         except HTTPError:
@@ -92,6 +92,4 @@ class BaseClient:
     def _get_json_value(self, response: Response, path: str):
         data = response.json()
         value = jmespath.search(path, data)
-
-        assert value is not None, f"Path '{path}' not found in JSON: {data}"
         return value

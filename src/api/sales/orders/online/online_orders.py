@@ -5,7 +5,7 @@ class OnlineOrdersAPI(BaseClient):
         super().__init__(session=session)
         self.endpoint = "/sales/orders/online"
 
-    def get_online_orders(self, page=0, limit=40, status="All"):
+    def get_online_orders(self, page=0, limit=40, status="All", raise_for_status=True):
 
         query_params = {
             "Page": page,
@@ -13,4 +13,4 @@ class OnlineOrdersAPI(BaseClient):
             "Status": status
         }
 
-        return self._get(self.endpoint, params=query_params)
+        return self._get(self.endpoint, params=query_params, raise_for_status=raise_for_status)

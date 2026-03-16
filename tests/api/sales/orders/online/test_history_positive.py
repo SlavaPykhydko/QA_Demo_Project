@@ -3,7 +3,6 @@ import pytest
 import pytest_check as check
 import requests
 from src.common.online_orders_data import Data
-from utils.allure_helper import attach_json
 from .base import BaseOnlineOrders
 from concurrent.futures import ThreadPoolExecutor
 
@@ -35,9 +34,9 @@ class TestScheme(BaseOnlineOrders):
             status=inputs["status"])
 
         with allure.step(f"Check items lengths more or equal 1 "):
-            assert len(parsed_data.items) >= 1
+            check.greater( len(parsed_data.items), 1, "List of items must be >= 1")
         with allure.step(f"Check totalPages more 0 "):
-            assert parsed_data.totalPages > 0
+            check.greater(parsed_data.totalPages, 0, "totalPages param must be > 0")
 
 class TestListInfo:
     # Defining test data (input parameters, expected results)
