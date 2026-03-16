@@ -79,7 +79,7 @@ class TestListInfo:
 
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Check list info params for online orders history with {inputs}:")
+    @allure.title("Check list info params for online orders history with inputs: {inputs}")
     @pytest.mark.parametrize("inputs, expected", test_data)
     def test_list_info_params(self, online_orders_api, inputs, expected, db_orders_counts):
         response = online_orders_api.get_online_orders(
@@ -144,7 +144,7 @@ class TestItemType(BaseOnlineOrders):
         expected_types = ["online", "marketplace"]
 
         for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            with allure.step(f"Check each item type is one of the expected_types '{expected_types}"):
+            with allure.step(f"For tem ID: {item.id} check each item type is one of the expected_types '{expected_types}"):
                 check.is_in(
                     item.type.lower(),
                     expected_types,
@@ -187,19 +187,19 @@ class TestOnlineOrdersFilterStatus(BaseOnlineOrders):
         status_ua = ["отримано", "скасовано"]
 
         for item, page in self._get_items_from_pages(online_orders_api, limit=40, status=requested_status):
-            with allure.step(f"Check item.orderStatus on of the {allowed_statuses}"):
+            with allure.step(f"For tem ID: {item.id} check item.orderStatus on of the {allowed_statuses}"):
                 check.is_in(
                     item.orderStatus.lower(), allowed_statuses,
                     f"Page {page}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
                     f"Expected one of: {allowed_statuses}"
                 )
-            with allure.step(f"Check item.statusGroup on of the {allowed_statuses}"):
+            with allure.step(f"For tem ID: {item.id} check item.statusGroup on of the {allowed_statuses}"):
                 check.is_in(
                     item.statusGroup.lower(), allowed_statuses,
                     f"Page {page}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
                     f"Expected one of: {allowed_statuses}"
                 )
-            with allure.step(f"Check item.status in UA lang on of the {status_ua}"):
+            with allure.step(f"For tem ID: {item.id} check item.status in UA lang on of the {status_ua}"):
                 check.is_in(
                     item.status.lower(), status_ua,
                     f"Page {page}: Item ID {item.id} has wrong status '{item.status}'. "
@@ -318,7 +318,7 @@ class TestOrderPrice(BaseOnlineOrders):
     @allure.title("Each order price more than 0")
     def test_order_price(self, online_orders_api):
         for item, page  in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            with allure.step(f"Check item.price more than 0"):
+            with allure.step(f"For item ID: {item.id} check item.price more than 0"):
                 check.greater(item.price, 0, f"Item {item.id} has invalid price: {item.price}")
 
 
@@ -328,7 +328,7 @@ class TestQuantityParam(BaseOnlineOrders):
     @allure.title("Quantity param in each item more than 0")
     def test_qnt_param(self, online_orders_api):
         for item, page  in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            with allure.step(f"Check item.quantity more than 0"):
+            with allure.step(f"For item ID: {item.id} check item.quantity more than 0"):
                 check.greater(item.quantity, 0, f"Item {item.id} has invalid quantity: {item.quantity}")
 
 
@@ -338,7 +338,7 @@ class TestGoodsAndImageConsistency(BaseOnlineOrders):
     @allure.title("Qnt param in each item equal qnt images")
     def test_qnt_param_equal_image_qnt(self, online_orders_api):
         for item, page  in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            with allure.step(f"Check item.quantity param equal qnt images"):
+            with allure.step(f"For item ID: {item.id} check item.quantity param equal qnt images"):
                 check.equal(
                     len(item.goods),
                     item.quantity,
@@ -351,7 +351,7 @@ class TestIdAndNameConsistency(BaseOnlineOrders):
     @allure.title("Item name and id are similar")
     def test_id_and_name_consistency(self, online_orders_api):
         for item, page in self._get_items_from_pages(online_orders_api, limit=40, status="All"):
-            with allure.step(f"Check item.id and item.name are equal"):
+            with allure.step(f"Check consistency for item ID: {item.id}"):
                 check.equal(str(item.id), item.name, f"Item {item.id} has invalid name: {item.name}")
 
 
@@ -362,7 +362,7 @@ class TestOrderDataEqualDataFromDB(BaseOnlineOrders):
     def test_order_data_equal_data_from_db(self, online_orders_api, db_online_orders_map):
         for api_item, page in self._get_items_from_pages(online_orders_api, limit=40, status="Cancel"):
             db_item = db_online_orders_map[api_item.id]
-            with allure.step(f"Checking whether the order is in the DB"):
+            with allure.step(f"Checking whether the order with ID: {api_item.id}  is in the DB"):
                 if check.is_not_none(db_item, f"Order {api_item.id} found in API but missing in DB!"):
                     with allure.step("Compare each value except EXCLUDE_FIELDS"):
                         self._compare_items(api_item, db_item, page)
