@@ -51,9 +51,10 @@ class TestListInfo:
         pytest.param(
             {"page": 0, "limit": 10, "status": "All"},
             {"totalCount": Data.ALL, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
-            marks=[pytest.mark.xfail(reason="#Jira link to the bug Bug: Total count is wrong", strict=True),
-            allure.issue("#Jira link to the bug Bug: Total count is wrong", "Total count is wrong")],
-            id="page_0_limit_10_status=All-BUG",  # <--- Indicate ID right here
+            marks=[pytest.mark.xfail(reason="BUG: Total count is wrong", strict=True),
+            allure.issue("#Link to Bug #1", "Total count is wrong"),
+            allure.description("⚠️ Expected Bug: Total count is wrong. Look at task  #1"),],
+            id="page_0_limit_10_status=All-BUG",
         ),
         # 3. The last page with limit=10
         (
