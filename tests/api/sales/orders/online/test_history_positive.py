@@ -220,7 +220,7 @@ class TestSellerConsistency:
     def test_seller_and_type_consistency(self, online_orders_api):
         expected_types = ["online", "marketplace"]
 
-        for item, page in online_orders_api.get_items_with_pagination(online_orders_api, limit=40, status="All"):
+        for item, page in online_orders_api.get_items_with_pagination(limit=40, status="All"):
             with allure.step(f"For item ID {item.id} check item.type is one of the {expected_types}"):
                 if item.seller.lower() == "епіцентр к":
                     (check.equal(item.type.lower(), expected_types[0]),
@@ -387,7 +387,6 @@ class TestDefaultsParams:
     @allure.title("Verify default 'Status' behavior (should default to 'All')")
     def test_default_status_is_all(self, online_orders_api):
         parsed_data = online_orders_api.get_parsed_items(
-            online_orders_api,
             page=0,
             limit=40
         )

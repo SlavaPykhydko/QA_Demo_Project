@@ -26,7 +26,6 @@ class TestSchemeEmptyState:
     @pytest.mark.parametrize("inputs", test_data)
     def test_scheme_empty_state(self, online_orders_api, inputs):
         parsed_data = online_orders_api.get_parsed_items(
-            online_orders_api,
             page=0,
             limit=40,
             status=inputs["status"])
