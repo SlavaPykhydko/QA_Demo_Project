@@ -44,4 +44,4 @@ class TestInvalidStatusHandling:
                 is_valid_template = any(t in actual_message for t in ["is invalid", "is not valid"])
                 check.is_true(is_valid_template, f"Unexpected template in message: {actual_message}")
 
-        online_orders_api.assert_problem_details(response)
+        online_orders_api._assert_problem_details(response)
