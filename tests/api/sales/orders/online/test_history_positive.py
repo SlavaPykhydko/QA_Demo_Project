@@ -384,3 +384,19 @@ class TestOrderDataEqualDataFromDB(BaseOnlineOrders):
                 f"API: {api_val}\n"
                 f"DB:  {db_val}"
             )
+
+class TestDefaultsParams(BaseOnlineOrders):
+
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Verify default 'Status' behavior (should default to 'All')")
+    def test_default_status_is_all(self, online_orders_api):
+        parsed_data = self._get_orders(
+            online_orders_api,
+            page=0,
+            limit=40
+        )
+
+        with allure.step(f"Verify that items are returned (defaulting works)"):
+            check.greater( len(parsed_data.items), 1, "Should return items even without explicit param Status")
+        with allure.step(f"Verify that default param Status is status=All)"):
+            check.equal(parsed_data.totalCount, Data.ALL, "Default param Status must be status=All")

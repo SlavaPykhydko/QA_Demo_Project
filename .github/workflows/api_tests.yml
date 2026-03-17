@@ -71,10 +71,10 @@ jobs:
           DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
           DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
         run: |
-          pytest -m regression --alluredir=allure-results --junitxml=report.xml -n 2
+          pytest -m smoke --alluredir=allure-results --junitxml=report_smoke.xml -n 2
 #          If smoke tests failed, regression tests wouldn't be run
 #          Regression tests will exclude smoke tests because "and not smoke"
-#          pytest -m "regression and not smoke" --alluredir=allure-results -n 2
+          pytest -m "regression and not smoke" --alluredir=allure-results --junitxml=report_regression.xml -n 2
 
       - name: Upload Allure Results
         if: always()
@@ -125,43 +125,45 @@ jobs:
         run: |
           python <<EOF
           import xml.etree.ElementTree as ET
+          import glob
           import os
-            
-          report_file = 'report.xml'
-          if not os.path.exists(report_file):
-              print(f"Error: {report_file} not found!")
-              stats = {'total': 0, 'failures': 0, 'errors': 0, 'skipped': 0, 'passed': 0}
+      
+          stats = {'total': 0, 'failures': 0, 'errors': 0, 'skipped': 0, 'passed': 0}
+          
+          # Ищем все файлы, начинающиеся на report_ и заканчивающиеся на .xml
+          files = glob.glob('report_*.xml')
+          
+          if not files:
+              print("No report files found!")
           else:
-              try:
+              for report_file in files:
+                  print(f"Parsing {report_file}...")
                   tree = ET.parse(report_file)
                   root = tree.getroot()
-            
-                  # Если pytest упаковал всё в <testsuites>, суммируем все <testsuite>
+                  
+                  # Суммируем данные из каждого файла
                   if root.tag == 'testsuites':
-                      total = sum(int(s.get('tests', 0)) for s in root.findall('testsuite'))
-                      failures = sum(int(s.get('failures', 0)) for s in root.findall('testsuite'))
-                      errors = sum(int(s.get('errors', 0)) for s in root.findall('testsuite'))
-                      skipped = sum(int(s.get('skipped', 0)) for s in root.findall('testsuite'))
+                      for suite in root.findall('testsuite'):
+                          stats['total'] += int(suite.get('tests', 0))
+                          stats['failures'] += int(suite.get('failures', 0))
+                          stats['errors'] += int(suite.get('errors', 0))
+                          stats['skipped'] += int(suite.get('skipped', 0))
                   else:
-                      total = int(root.get('tests', 0))
-                      failures = int(root.get('failures', 0))
-                      errors = int(root.get('errors', 0))
-                      skipped = int(root.get('skipped', 0))
-            
-                  passed = total - failures - errors - skipped
-                  stats = {'total': total, 'failures': failures + errors, 'skipped': skipped, 'passed': passed}
-              except Exception as e:
-                  print(f"Parsing error: {e}")
-                  stats = {'total': 0, 'failures': 0, 'errors': 0, 'skipped': 0, 'passed': 0}
-            
-              # Записываем в GITHUB_ENV
-              with open(os.environ['GITHUB_ENV'], 'a') as f:
-                  f.write(f"PASSED={stats['passed']}\n")
-                  f.write(f"FAILED={stats['failures']}\n")
-                  f.write(f"SKIPPED={stats['skipped']}\n")
-                  f.write(f"TOTAL={stats['total']}\n")
-              
-              print(f"Extracted stats: {stats}")
+                      stats['total'] += int(root.get('tests', 0))
+                      stats['failures'] += int(root.get('failures', 0))
+                      stats['errors'] += int(root.get('errors', 0))
+                      stats['skipped'] += int(root.get('skipped', 0))
+      
+              stats['passed'] = stats['total'] - stats['failures'] - stats['errors'] - stats['skipped']
+      
+          # Записываем суммарные данные в GITHUB_ENV
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+              f.write(f"PASSED={stats['passed']}\n")
+              f.write(f"FAILED={stats['failures'] + stats['errors']}\n")
+              f.write(f"SKIPPED={stats['skipped']}\n")
+              f.write(f"TOTAL={stats['total']}\n")
+          
+          print(f"Combined stats: {stats}")
           EOF
 
       - name: Send Telegram Notification

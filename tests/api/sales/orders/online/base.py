@@ -4,7 +4,7 @@ from src.common.online_orders_data import Data
 from src.models.orders.online_orders import OrdersResponse
 
 class BaseOnlineOrders:
-    def _get_orders(self, api, page=0, limit=40, status="All"):
+    def _get_orders(self, api, page=None, limit=None, status=None):
         response = api.get_online_orders(page=page, limit=limit, status=status)
         return OrdersResponse(**response.json())
 

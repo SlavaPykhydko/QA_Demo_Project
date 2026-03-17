@@ -47,27 +47,3 @@ class TestInvalidStatusHandling(BaseOnlineOrders):
                 check.is_true(is_valid_template, f"Unexpected template in message: {actual_message}")
 
         online_orders_api.assert_problem_details(response)
-
-class TestWithMissingParams(BaseOnlineOrders):
-
-    @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Checking response code and response structure with missing param: Status")
-    def test_with_missing_param_status(self, online_orders_api):
-        response = online_orders_api.get_online_orders(
-            page=0,
-            limit=40
-        )
-
-        parsed_data = response.json()
-
-        print(parsed_data)
-
-        with allure.step(f"Check items lengths more or equal 1 "):
-            check.equal(response.status_code, 200, "")
-        with allure.step(f"Check items lengths more or equal 1 "):
-            check.greater( len(parsed_data.items), 1, "List of items must be >= 1")
-
-
-
-
-
