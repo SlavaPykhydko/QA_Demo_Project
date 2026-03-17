@@ -72,8 +72,6 @@ jobs:
           DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
         run: |
           pytest -m smoke --alluredir=allure-results --junitxml=report_smoke.xml -n 2
-#          If smoke tests failed, regression tests wouldn't be run
-#          Regression tests will exclude smoke tests because "and not smoke"
           pytest -m "regression and not smoke" --alluredir=allure-results --junitxml=report_regression.xml -n 2
 
       - name: Upload Allure Results
