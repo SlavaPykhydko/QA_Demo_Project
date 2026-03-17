@@ -2,8 +2,6 @@ import allure
 import pytest
 import pytest_check as check
 from src.common.user_accounts import UserAccounts
-from utils.allure_helper import attach_json
-from .base import BaseOnlineOrders
 
 # All tests in this file will use USER_EMPTY
 # Allure grouping for all file
@@ -16,7 +14,7 @@ pytestmark = [
     allure.story("Empty State Validation")
 ]
 
-class TestSchemeEmptyState(BaseOnlineOrders):
+class TestSchemeEmptyState:
     test_data = [
         ({"status": "All"}),
         ({"status": "Done"}),
@@ -27,7 +25,7 @@ class TestSchemeEmptyState(BaseOnlineOrders):
     @allure.title("Check contract for empty online orders history with status: {inputs[status]}")  # Dynamic title
     @pytest.mark.parametrize("inputs", test_data)
     def test_scheme_empty_state(self, online_orders_api, inputs):
-        parsed_data = self._get_orders(
+        parsed_data = online_orders_api.get_parsed_items(
             online_orders_api,
             page=0,
             limit=40,

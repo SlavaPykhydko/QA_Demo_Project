@@ -1,10 +1,6 @@
-from http.client import responses
-
 import allure
-import jmespath
 import pytest
 import pytest_check as check
-from tests.api.sales.orders.online.base import BaseOnlineOrders
 
 pytestmark = [
     pytest.mark.negative,
@@ -15,7 +11,7 @@ pytestmark = [
 ]
 
 
-class TestInvalidStatusHandling(BaseOnlineOrders):
+class TestInvalidStatusHandling:
 
     negative_status_data = [
         pytest.param({"status": "Unknown"}, id="status_as_random_string"),
@@ -28,7 +24,7 @@ class TestInvalidStatusHandling(BaseOnlineOrders):
     @allure.title("Checking response code and message with invalid status = : {inputs[status]}")
     @pytest.mark.parametrize("inputs", negative_status_data)
     def test_invalid_status_returns_400(self, online_orders_api, inputs):
-        response = online_orders_api.get_online_orders(
+        response = online_orders_api.get_items(
             page=0,
             limit=40,
             status=inputs["status"],
