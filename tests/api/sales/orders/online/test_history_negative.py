@@ -29,10 +29,12 @@ class TestInvalidStatusHandling(BaseOnlineOrders):
     @pytest.mark.parametrize("inputs", negative_status_data)
     def test_invalid_status_returns_400(self, online_orders_api, inputs):
         response = online_orders_api.get_online_orders(
+            page=0,
+            limit=40,
             status=inputs["status"],
             raise_for_status=False)
 
-        with allure.step("Check error message with invalid status = inputs['status'] "):
+        with allure.step("Check error message"):
             actual_message = online_orders_api._get_json_value(response, "errors.Status[0]")
             check.is_not_none(actual_message,
                               f"Could not find error message in path 'errors.Status[0]'. JSON: {response.text}")
