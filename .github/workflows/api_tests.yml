@@ -1,4 +1,4 @@
-name: API Smoke Tests
+name: API Tests
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
-# Global env settings
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -73,6 +72,7 @@ jobs:
         run: |
           pytest -m smoke --alluredir=allure-results --junitxml=report_smoke.xml -n 2
           pytest -m "regression and not smoke" --alluredir=allure-results --junitxml=report_regression.xml -n 2
+          pytest -m performance --alluredir=allure-results --junitxml=report_performance.xml -n 2
 
       - name: Upload Allure Results
         if: always()
@@ -128,7 +128,7 @@ jobs:
       
           stats = {'total': 0, 'failures': 0, 'errors': 0, 'skipped': 0, 'passed': 0}
           
-          # Ищем все файлы, начинающиеся на report_ и заканчивающиеся на .xml
+          # Find all files that start with report_ and end with .xml 
           files = glob.glob('report_*.xml')
           
           if not files:
@@ -139,7 +139,7 @@ jobs:
                   tree = ET.parse(report_file)
                   root = tree.getroot()
                   
-                  # Суммируем данные из каждого файла
+                  # Sum data from all files
                   if root.tag == 'testsuites':
                       for suite in root.findall('testsuite'):
                           stats['total'] += int(suite.get('tests', 0))
@@ -154,7 +154,7 @@ jobs:
       
               stats['passed'] = stats['total'] - stats['failures'] - stats['errors'] - stats['skipped']
       
-          # Записываем суммарные данные в GITHUB_ENV
+          # Writing summary data to GITHUB_ENV
           with open(os.environ['GITHUB_ENV'], 'a') as f:
               f.write(f"PASSED={stats['passed']}\n")
               f.write(f"FAILED={stats['failures'] + stats['errors']}\n")
