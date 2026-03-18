@@ -70,9 +70,9 @@ jobs:
           DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
           DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
         run: |
-          pytest -m smoke --alluredir=allure-results --junitxml=report_smoke.xml -n 2
-          pytest -m "regression and not smoke" --alluredir=allure-results --junitxml=report_regression.xml -n 2
-          pytest -m performance --alluredir=allure-results --junitxml=report_performance.xml -n 2
+          pytest -m smoke --env=prod --alluredir=allure-results --junitxml=report_smoke.xml -n 2
+          pytest -m "regression and not smoke" --env=prod --alluredir=allure-results --junitxml=report_regression.xml -n 2
+          pytest -m performance --env=prod --alluredir=allure-results --junitxml=report_performance.xml -n 2
 
       - name: Upload Allure Results
         if: always()
