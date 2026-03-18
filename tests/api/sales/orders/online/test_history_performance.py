@@ -18,12 +18,12 @@ class TestPerformance:
 
     @allure.severity(allure.severity_level.MINOR)
     @allure.title(f"Performance SLA check: Average of {ITERATIONS} requests")
-    def test_average_response_time(self, online_orders_api):
+    def test_average_response_time(self, api):
         durations = []
 
         for i in range(1, self.ITERATIONS + 1):
             with allure.step(f"Iteration {i}: Requesting Online Orders"):
-                response = online_orders_api.get_items(page=0, limit=40, status='All')
+                response = api.online_orders.get_items(page=0, limit=40, status='All')
 
                 check.equal(response.status_code, 200, f"Iteration {i} failed with status {response.status_code}")
 
@@ -35,7 +35,7 @@ class TestPerformance:
                               attachment_type=allure.attachment_type.TEXT)
                 time.sleep(0.5)
 
-        online_orders_api._assert_performance_sla(durations=durations, sla_threshold=self.SLA_THRESHOLD)
+        api.online_orders._assert_performance_sla(durations=durations, sla_threshold=self.SLA_THRESHOLD)
 
 
 

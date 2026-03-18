@@ -24,8 +24,8 @@ class TestSchemeEmptyState:
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check contract for empty online orders history with status: {inputs[status]}")  # Dynamic title
     @pytest.mark.parametrize("inputs", test_data)
-    def test_scheme_empty_state(self, online_orders_api, inputs):
-        parsed_data = online_orders_api.get_parsed_items(
+    def test_scheme_empty_state(self, api, inputs):
+        parsed_data = api.online_orders.get_parsed_items(
             page=0,
             limit=40,
             status=inputs["status"])

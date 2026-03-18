@@ -1,15 +1,38 @@
 import pytest
 from requests import Session
-from src.common.config import config
+
+from src.api.api_client import ApiClient
+from src.common.config import envs, ProdConfig
 
 from src.common.logger import get_logger
-from src.api.sales.orders.online.online_orders import OnlineOrdersAPI
 from src.common.user_accounts import UserAccounts
 from src.database.db_client import db_client
 from src.models.orders.online_orders import OrderItem
 
 # Creating logger for fixture/reports
 report_logger = get_logger("TestReport")
+
+def pytest_addoption(parser):
+    """ Registration -env flag in pytest."""
+    parser.addoption(
+        "--env",
+        action="store",
+        default="PROD",
+        help="Choose environment: PROD or STAGE"
+    )
+
+
+@pytest.fixture(scope="session")
+def cfg(request):
+    # 1. Getting env from CLI  (example. --env=stage)
+    env_from_cli = request.config.getoption("--env").upper()
+
+    # 2. Choosing the appropriate config class from envs dict
+    # If something inappropriate was indicated, return ProdConfig
+    config_class = envs.get(env_from_cli, ProdConfig)
+
+    # 3. Creating instance and return the object of the configuration
+    return config_class()
 
 
 # Generating good-looking names for reports
@@ -71,14 +94,14 @@ def pytest_runtest_makereport(item, call):
 
 # --- Layer #1: Base session ---
 @pytest.fixture(scope="session")
-def base_session():
+def base_session(cfg):
     """Creating a session 'foundation' with common headers"""
     session = Session()
     session.headers.update({
-        "x-api-key": config.X_API_KEY,
+        "x-api-key": cfg.X_API_KEY,
         "Content-Type": "application/json; charset=utf-8",
-        "platform": config.PLATFORM,
-        "mobile-version": config.MOBILE_VERSION,
+        "platform": cfg.PLATFORM,
+        "mobile-version": cfg.MOBILE_VERSION,
     })
     return session
 
@@ -86,7 +109,7 @@ def base_session():
 # --- Layer #2 Smart authorization  ---
 # Благодаря scope="module" выполнится один раз для каждого типа юзера в файле.
 @pytest.fixture(scope="module")
-def user_session(base_session, request):
+def user_session(base_session, request, cfg):
     """
     Converts a basic session to an authorized session for a specific user.
     First, it checks whether a specific user was passed via parameters.
@@ -105,7 +128,7 @@ def user_session(base_session, request):
         "password": user_data.password
     }
 
-    login_res = session.post(f"{config.BASE_URL}{config.API_VERSION}/auth/basic", json=login_payload)
+    login_res = session.post(f"{cfg.BASE_URL}{cfg.API_VERSION}/auth/basic", json=login_payload)
     if login_res.status_code != 200:
         report_logger.error(f"Login failed! Status: {login_res.status_code}, Response: {login_res.text}")
         login_res.raise_for_status()
@@ -116,7 +139,7 @@ def user_session(base_session, request):
     # 3. Обновляем заголовки (Token + fUserId)
     session.headers.update({"Authorization": f"Bearer {access_token}"})
 
-    info_res = session.get(f"{config.BASE_URL}{config.API_VERSION}/auth/info/site-user")
+    info_res = session.get(f"{cfg.BASE_URL}{cfg.API_VERSION}/auth/info/site-user")
 
     if info_res.status_code != 200:
         report_logger.error(f"Failed to get user info! Status: {info_res.status_code}, Response: {info_res.text}")
@@ -137,7 +160,7 @@ def user_session(base_session, request):
     if hasattr(session, "api_session_id"):
         del session.api_session_id
 
-# --- Layer #3 Specific endpoints  ---
+# --- Layer #3 The main control  ---
 @pytest.fixture(scope="module")
-def online_orders_api(user_session):
-    return OnlineOrdersAPI(session=user_session)
+def api(user_session, cfg):
+    return ApiClient(session=user_session, config=cfg)

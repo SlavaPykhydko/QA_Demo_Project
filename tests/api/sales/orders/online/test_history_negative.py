@@ -23,15 +23,15 @@ class TestInvalidStatusHandling:
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Checking response code and message with invalid status = : {inputs[status]}")
     @pytest.mark.parametrize("inputs", negative_status_data)
-    def test_invalid_status_returns_400(self, online_orders_api, inputs):
-        response = online_orders_api.get_items(
+    def test_invalid_status_returns_400(self, api, inputs):
+        response = api.online_orders.get_items(
             page=0,
             limit=40,
             status=inputs["status"],
             raise_for_status=False)
 
         with allure.step("Check error message"):
-            actual_message = online_orders_api._get_json_value(response, "errors.Status[0]")
+            actual_message = api.online_orders._get_json_value(response, "errors.Status[0]")
             check.is_not_none(actual_message,
                               f"Could not find error message in path 'errors.Status[0]'. JSON: {response.text}")
             if actual_message:
@@ -44,4 +44,4 @@ class TestInvalidStatusHandling:
                 is_valid_template = any(t in actual_message for t in ["is invalid", "is not valid"])
                 check.is_true(is_valid_template, f"Unexpected template in message: {actual_message}")
 
-        online_orders_api._assert_problem_details(response)
+        api.online_orders._assert_problem_details(response)

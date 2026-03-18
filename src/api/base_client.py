@@ -8,13 +8,14 @@ from pytest_check import check
 from src.common.logger import get_logger
 from requests import Response, Session
 from requests.exceptions import HTTPError, JSONDecodeError
-from src.common.config import config
+# from src.common.config import config
 
 
 class BaseClient:
-    def __init__(self, session: Session = None):
-        self.base_url = config.BASE_URL
-        self.api_version = config.API_VERSION
+    def __init__(self, cfg, session: Session = None):
+        self.config = cfg
+        self.base_url = cfg.BASE_URL
+        self.api_version = cfg.API_VERSION
         self.full_url = f"{self.base_url}{self.api_version}"
         self.session = session if session else Session()
         self.logger = get_logger(self.__class__.__name__)
