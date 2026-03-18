@@ -38,9 +38,37 @@
 - **JUnit XML Aggregation:** Скрипт для консолідації даних із декількох звітів у єдине зведення.
 - **Telegram Feedback:** Миттєва відправка агрегованої статистики прогону в месенджер.
 
-## 📊 Reporting & Analytics
+### 📊 Reporting & Analytics
 - **Step-by-step scenarios** — детальне відстеження логіки виконання тесту для легкого розуміння бізнес-процесів за допомогою декоратора @allure.step.
 - **Logs in attachments** — повна історія HTTP-взаємодій, що дозволяє миттєво діагностувати причини падіння.
 - **Severity levels** — чітка пріоритезація тестів (Blocker, Critical, Normal тощо) для ефективного управління якістю.
 - **Jira Integration** — можливість додавати прямі посилання на баг-тікети за допомогою декоратора @allure.issue.
 - **Dynamic performance parameters** — візуалізація метрик швидкодії та автоматичний контроль виконання SLA безпосередньо у звіті.
+
+### 🚀 How to Run
+
+- **1. Clone & Install**
+```
+git clone [https://github.com/SlavaPykhydko/QA_Demo_Project](https://github.com/SlavaPykhydko/QA_Demo_Project)
+cd QA_Demo_Project
+python -m venv venv
+source venv/bin/activate  # venv\Scripts\activate for Windows
+pip install -r requirements.txt
+```
+- **2. Configure Secrets**
+
+ Create a .env file in the root based on .env.example and add your credentials.
+- **3. Run Tests**
+
+Run Smoke tests on Stage
+```bash
+pytest -m smoke --env=stage --alluredir=allure-results
+```
+Run full Regression on Production with detailed logs
+```
+pytest -m regression --env=prod  --alluredir=allure-results -v -s
+```
+- **4. Open Report**
+```
+allure serve allure-results
+```
