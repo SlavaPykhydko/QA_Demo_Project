@@ -38,7 +38,7 @@ def cfg(request):
 # Generating good-looking names for reports
 def pytest_make_parametrize_id(val, argname):
     if argname == "inputs" and isinstance(val, dict):
-        # Выбираем важные ключи для названия
+        # Choosing the important keys for naming
         items = list(val.items())[:3]
         return "-".join([f"{k}_{v}" for k, v in items])
 
@@ -107,7 +107,6 @@ def base_session(cfg):
 
 
 # --- Layer #2 Smart authorization  ---
-# Благодаря scope="module" выполнится один раз для каждого типа юзера в файле.
 @pytest.fixture(scope="module")
 def user_session(base_session, request, cfg):
     """
@@ -115,8 +114,8 @@ def user_session(base_session, request, cfg):
     First, it checks whether a specific user was passed via parameters.
     If not, it takes the main user (USER_WITH_HISTORY) by default.
     """
-    # 1. Выбираем юзера.
-    # getattr ищет 'param' в объекте request. Если его нет — берет дефолт.
+    # 1. Choosing the user
+    # getattr looks for  'param' in the request object . I there's no object there - take default.
     user_data = getattr(request, "param", UserAccounts.USER_WITH_HISTORY)
 
     session = base_session
@@ -136,7 +135,7 @@ def user_session(base_session, request, cfg):
     access_token = login_res.json().get("accessToken")
     refresh_token = login_res.json().get("refreshToken")
 
-    # 3. Обновляем заголовки (Token + fUserId)
+    # 3. Updating headers (Token + fUserId)
     session.headers.update({"Authorization": f"Bearer {access_token}"})
 
     info_res = session.get(f"{cfg.BASE_URL}{cfg.API_VERSION}/auth/info/site-user")
@@ -154,7 +153,7 @@ def user_session(base_session, request, cfg):
 
     yield session
 
-    # 4. Teardown (Чистим сессию, чтобы следующий тест не "наследовал" этого юзера)
+    # 4. Teardown (Clean session so the next test doesn't "inherit" this user)
     session.headers.pop("Authorization", None)
     session.headers.pop("x-fuser-id", None)
     if hasattr(session, "api_session_id"):
