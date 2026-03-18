@@ -45,6 +45,13 @@
 - **Jira Integration** — можливість додавати прямі посилання на баг-тікети за допомогою декоратора @allure.issue.
 - **Dynamic performance parameters** — візуалізація метрик швидкодії та автоматичний контроль виконання SLA безпосередньо у звіті.
 
+### 🤖 AI-Assisted Development
+- **Architectural optimization**
+- **Code review & Refactoring**
+- **Dynamic Configuration Strategy**
+- **Troubleshooting & Debugging**
+- **Documentation generation**
+
 ### 🚀 How to Run
 
 - **1. Clone & Install**
