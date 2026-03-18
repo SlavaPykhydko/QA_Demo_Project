@@ -1,6 +1,4 @@
 import time
-from statistics import mean
-
 import pytest
 import allure
 import pytest_check as check

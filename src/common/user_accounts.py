@@ -7,7 +7,7 @@ class UserAccount:
         self.password = password
 
     def __repr__(self):
-        """То, что будет видно в логах при падении и в отчетах"""
+        """It will be shown in the logs during a crash and in reports"""
         return (f"User(login='{self.login}', "
                 f"password='[MASKED]'")
 
