@@ -3,6 +3,8 @@ import pytest
 import allure
 import pytest_check as check
 
+from utils.report_helper import assert_performance_sla
+
 pytestmark = [
     pytest.mark.performance,
     allure.epic("Sales & Orders"),
@@ -33,7 +35,7 @@ class TestPerformance:
                               attachment_type=allure.attachment_type.TEXT)
                 time.sleep(0.5)
 
-        api.online_orders._assert_performance_sla(durations=durations, sla_threshold=self.SLA_THRESHOLD)
+        assert_performance_sla(durations=durations, sla_threshold=self.SLA_THRESHOLD)
 
 
 

@@ -1,6 +1,7 @@
 import allure
 import pytest
 import pytest_check as check
+from src.common.mixins import *
 
 pytestmark = [
     pytest.mark.negative,
@@ -44,4 +45,4 @@ class TestInvalidStatusHandling:
                 is_valid_template = any(t in actual_message for t in ["is invalid", "is not valid"])
                 check.is_true(is_valid_template, f"Unexpected template in message: {actual_message}")
 
-        api.online_orders._assert_problem_details(response)
+        api.online_orders.assert_problem_details(response)

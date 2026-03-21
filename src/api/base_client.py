@@ -8,7 +8,6 @@ from pytest_check import check
 from src.common.logger import get_logger
 from requests import Response, Session
 from requests.exceptions import HTTPError, JSONDecodeError
-# from src.common.config import config
 
 
 class BaseClient:
@@ -97,38 +96,3 @@ class BaseClient:
         data = response.json()
         value = jmespath.search(path, data)
         return value
-
-    def _assert_problem_details(self, response, expected_title="validation errors occurred"):
-        """" Checking the response structure according to RFC 9110 (Problem Details). """
-
-        data = response.json()
-
-        with allure.step("Verify standard Problem Details (RFC 9110)"):
-            check.equal(response.status_code, 400, "HTTP Header status code != 400")
-            check.equal(data.get("status"), 400, "JSON 'status' field != 400")
-
-            actual_title = data.get("title", "")
-            check.is_in(expected_title, actual_title,
-                        f"Expected title part '{expected_title}' not found in '{actual_title}'")
-
-            trace_id = data.get("traceId", "")
-            check.greater(len(str(trace_id)), 54, f"traceId is missing or suspiciously short: '{trace_id}'")
-
-    def _assert_performance_sla(self, durations, sla_threshold):
-        # 2. Calculate statistics
-        avg_time = mean(durations)
-        max_time = max(durations)
-        min_time = min(durations)
-
-        # 3. Data output to Allure parameters
-        allure.dynamic.parameter("Average Time", f"{avg_time:.3f}s")
-        allure.dynamic.parameter("Max Time", f"{max_time:.3f}s")
-        allure.dynamic.parameter("Min Time", f"{min_time:.3f}s")
-        allure.dynamic.parameter("SLA Limit", f"{sla_threshold}s")
-
-        with allure.step(f"Verify Average Response Time ({avg_time:.3f}s) < SLA ({sla_threshold}s)"):
-            check.less(
-                avg_time,
-                sla_threshold,
-                f"Average response time is too high! Avg: {avg_time:.3f}s, Threshold: {sla_threshold}s"
-            )
