@@ -1,7 +1,6 @@
 import allure
 import pytest
 import pytest_check as check
-from src.common.mixins import *
 
 pytestmark = [
     pytest.mark.negative,

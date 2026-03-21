@@ -5,7 +5,7 @@ from src.api.api_client import ApiClient
 from src.common.config import envs, ProdConfig
 
 from src.common.logger import get_logger
-from src.common.user_accounts import UserAccounts
+from src.common.user_accounts import UserType, UserFactory
 from src.database.db_client import db_client
 from src.models.orders.online_orders import OrderItem
 
@@ -116,15 +116,17 @@ def user_session(base_session, request, cfg):
     """
     # 1. Choosing the user
     # getattr looks for  'param' in the request object . I there's no object there - take default.
-    user_data = getattr(request, "param", UserAccounts.USER_WITH_HISTORY)
+    user_type = getattr(request, "param", UserType.WITH_HISTORY)
+
+    user = UserFactory.get_user(user_type, cfg)
 
     session = base_session
 
-    report_logger.info(f"Attempting login for: {user_data.login}")
+    report_logger.info(f"Attempting login for: {user.login}")
 
     login_payload = {
-        "login": user_data.login,
-        "password": user_data.password
+        "login": user.login,
+        "password": user.password
     }
 
     login_res = session.post(f"{cfg.BASE_URL}{cfg.API_VERSION}/auth/basic", json=login_payload)

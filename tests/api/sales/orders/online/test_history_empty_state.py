@@ -1,12 +1,12 @@
 import allure
 import pytest
 import pytest_check as check
-from src.common.user_accounts import UserAccounts
+from src.common.user_accounts import UserType
 
 # All tests in this file will use USER_EMPTY
 # Allure grouping for all file
 pytestmark = [
-    pytest.mark.parametrize("user_session", [UserAccounts.USER_EMPTY], indirect=True),
+    pytest.mark.parametrize("user_session", [UserType.EMPTY], indirect=True),
     pytest.mark.empty_state,
     pytest.mark.regression,
     allure.epic("Sales & Orders"),
