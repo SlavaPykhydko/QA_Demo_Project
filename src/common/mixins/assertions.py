@@ -3,7 +3,7 @@ from pytest_check import check
 
 
 class AssertionsMixin:
-    def assert_problem_details(self, response, expected_title="validation errors occurred"):
+    def _assert_problem_details(self, response, expected_title="validation errors occurred"):
         """" Checking the response structure according to RFC 9110 (Problem Details). """
 
         data = response.json()

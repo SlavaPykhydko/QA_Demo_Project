@@ -1,16 +1,14 @@
 import json
-from statistics import mean
-
 import allure
 import jmespath
-from pytest_check import check
 
 from src.common.logger import get_logger
 from requests import Response, Session
 from requests.exceptions import HTTPError, JSONDecodeError
+from src.common.mixins.assertions import AssertionsMixin
 
 
-class BaseClient:
+class BaseClient(AssertionsMixin):
     def __init__(self, cfg, session: Session = None):
         self.config = cfg
         self.base_url = cfg.BASE_URL
