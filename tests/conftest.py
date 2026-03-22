@@ -2,11 +2,11 @@ import pytest
 from requests import Session
 
 from src.api.api_client import ApiClient
-from src.common.config import envs, ProdConfig
+from src.common.config import envs, DEFAULT_ENV_NAME
 
 from src.common.logger import get_logger
 from src.common.user_accounts import UserType, UserFactory
-from src.database.db_client import db_client
+from src.database.db_client import FakeDBClient
 from src.models.orders.online_orders import OrderItem
 
 # Creating logger for fixture/reports
@@ -17,7 +17,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--env",
         action="store",
-        default="PROD",
+        default=DEFAULT_ENV_NAME,
         help="Choose environment: PROD or STAGE"
     )
 
@@ -29,7 +29,7 @@ def cfg(request):
 
     # 2. Choosing the appropriate config class from envs dict
     # If something inappropriate was indicated, return ProdConfig
-    config_class = envs.get(env_from_cli, ProdConfig)
+    config_class = envs.get(env_from_cli, envs[DEFAULT_ENV_NAME])
 
     # 3. Creating instance and return the object of the configuration
     return config_class()
@@ -48,14 +48,21 @@ def pytest_make_parametrize_id(val, argname):
     return None
 
 @pytest.fixture(scope="session")
-def db_orders_counts():
-    counts = db_client.get_online_orders_counts()
+def db(cfg):
+    # Unless we have access to real DB, use Fake DB client
+    # After will use DBClient(cfg)
+    db_client = FakeDBClient()
+    return db_client
+
+@pytest.fixture(scope="session")
+def db_orders_counts(db):
+    counts = db.get_online_orders_counts()
     return counts
 
 @pytest.fixture(scope="session")
-def db_online_orders_map():
+def db_online_orders_map(db):
     # 1. Getting raw data (list dicts)
-    raw_data = db_client.get_online_orders_from_history_table()
+    raw_data = db.get_online_orders_from_history_table()
 
     # 2. Transform them into map OrderItem's object
     # Now it's not just a list it's a quick reference book{id: object}

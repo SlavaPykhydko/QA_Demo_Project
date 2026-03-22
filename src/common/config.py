@@ -50,6 +50,5 @@ envs = {
     "PROD": ProdConfig,
     "STAGE": StageConfig
 }
- # Default PROD env
-env_type = os.getenv("ENV_TYPE", "PROD").upper()
-config = envs.get(env_type, ProdConfig)()
+
+DEFAULT_ENV_NAME = "PROD"

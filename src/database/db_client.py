@@ -1,5 +1,4 @@
 from sqlalchemy import create_engine, text, URL
-from src.common.config import config
 
 class BaseDBClient:
     def get_online_orders_counts(self):
@@ -7,15 +6,15 @@ class BaseDBClient:
         raise NotImplementedError("The method must be implemented in subclasses")
 
 class DBClient(BaseDBClient):
-    def __init__(self):
+    def __init__(self, cfg):
         # Creating a connection URL via object (when there are all parameters)
         self.connection_url = URL.create(
             drivername="postgresql",  # or "mssql+pyodbc", "mysql+pymysql" etc
-            username=config.DB_USER,
-            password=config.DB_PASSWORD,
-            host=config.DB_HOST,
-            port=config.DB_PORT,
-            database=config.DB_NAME
+            username=cfg.DB_USER,
+            password=cfg.DB_PASSWORD,
+            host=cfg.DB_HOST,
+            port=cfg.DB_PORT,
+            database=cfg.DB_NAME
         )
         # if echo=True  SQL-queries will be written to logs
         self.engine = create_engine(self.connection_url, echo=False)
@@ -81,5 +80,3 @@ class FakeDBClient(BaseDBClient):
             }
         ]
 
-# Unless we have access to real DB, importing Fake DB client
-db_client = FakeDBClient()
