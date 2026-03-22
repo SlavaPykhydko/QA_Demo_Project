@@ -36,9 +36,9 @@ jobs:
 
       - name: Run API Tests
         env:
-          ENV_TYPE: ${{ secrets.ENV_TYPE }}
           BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
           X_API_KEY_PROD: ${{ secrets.X_API_KEY_PROD }}
+          URL_PREFIX_PROD: ${{ secrets.URL_PREFIX_PROD }}
 
           # User with history
           USER_PHONE_NUMBER_PROD: ${{ secrets.USER_PHONE_NUMBER_PROD }}
@@ -51,6 +51,7 @@ jobs:
           # Stage Environment
           BASE_URL_STAGE: ${{ secrets.BASE_URL_STAGE }}
           X_API_KEY_STAGE: ${{ secrets.X_API_KEY_STAGE }}
+          URL_PREFIX_STAGE: ${{ secrets.URL_PREFIX_STAGE }}
           USER_PHONE_STAGE: ${{ secrets.USER_PHONE_STAGE }}
           USER_PASS_STAGE: ${{ secrets.USER_PASS_STAGE }}
           EMPTY_USER_PHONE_STAGE: ${{ secrets.EMPTY_USER_PHONE_STAGE }}
