@@ -4,7 +4,7 @@ from src.models.orders.online_orders import OrdersResponse
 
 class OnlineOrdersAPI(BaseClient):
     def __init__(self, config, session):
-        super().__init__(session=session, cfg=config)
+        super().__init__(session=session, config=config)
         self.endpoint = "/sales/orders/online"
 
     def get_parsed_items(self, page=None, limit=None, status=None):

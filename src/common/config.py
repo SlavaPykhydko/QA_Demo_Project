@@ -13,6 +13,7 @@ class ProdConfig(Config):
     #Data for Production
     BASE_URL = os.getenv("BASE_URL_PROD")
     X_API_KEY = os.getenv("X_API_KEY_PROD")
+    URL_PREFIX = os.getenv("URL_PREFIX_PROD")
     # user data
     USER_PHONE_NUMBER = os.getenv("USER_PHONE_NUMBER_PROD")
     USER_PASSWORD = os.getenv("USER_PASSWORD_PROD")
@@ -31,6 +32,7 @@ class StageConfig(Config):
     #Data for Stage
     BASE_URL = os.getenv("BASE_URL_STAGE")
     X_API_KEY = os.getenv("X_API_KEY_STAGE")
+    URL_PREFIX = os.getenv("URL_PREFIX_STAGE")
     # user data
     USER_PHONE_NUMBER = os.getenv("USER_PHONE_STAGE")
     USER_PASSWORD = os.getenv("USER_PASS_STAGE")

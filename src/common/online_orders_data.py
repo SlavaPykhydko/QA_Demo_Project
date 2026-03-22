@@ -1,19 +1,16 @@
-from src.database.db_client import db_client
-
 
 class OnlineOrdersData:
+    def __init__(self, db_client, config):
+        self.db_client = db_client
+        self.URL_PREFIX = config.URL_PREFIX
+        self.ALLOWED_URL_EXTENSIONS = (".jpg", ".jpeg")
 
     @property
     def ALL(self):
-        return db_client.get_online_orders_counts()["all"]
+        return self.db_client.get_online_orders_counts()["all"]
     @property
     def DONE(self):
-        return db_client.get_online_orders_counts()["done"]
+        return self.db_client.get_online_orders_counts()["done"]
     @property
     def CANCEL(self):
-        return db_client.get_online_orders_counts()["cancel"]
-
-    URL_PREFIX = "https://cdn.27.ua/"
-    ALLOWED_URL_EXTENSIONS = (".jpg", ".jpeg")
-
-Data = OnlineOrdersData()
+        return self.db_client.get_online_orders_counts()["cancel"]

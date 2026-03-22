@@ -2,7 +2,6 @@ import allure
 import pytest
 import pytest_check as check
 import requests
-from src.common.online_orders_data import Data
 from concurrent.futures import ThreadPoolExecutor
 
 # Now ALL tests in this file are automatically labeled 'positive' and 'regression'
@@ -42,12 +41,12 @@ class TestListInfo:
         # 1. All orders in one page
         (
             {"page": 0, "limit": 40, "status": "All"},
-            {"totalCount": Data.ALL, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+            {"totalCount": "ALL", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
         ),
         # 2. The first page with limit=10
         pytest.param(
             {"page": 0, "limit": 10, "status": "All"},
-            {"totalCount": Data.ALL, "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
+            {"totalCount": "ALL", "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
             marks=[pytest.mark.xfail(reason="BUG: Total count is wrong", strict=True),
             allure.issue("#Link to Bug #1", "Total count is wrong"),
             allure.description("⚠️ Expected Bug: Total count is wrong. Look at task  #1"),],
@@ -56,23 +55,23 @@ class TestListInfo:
         # 3. The last page with limit=10
         (
             {"page": 2, "limit": 10, "status": "All"},
-            {"totalCount": Data.ALL, "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
+            {"totalCount": "ALL", "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
         ),
         # 4. Some middle page with limit=1
         (
             {"page": 10, "limit": 1, "status": "All"},
-            {"totalCount": Data.ALL, "totalPages": Data.ALL, "pageIndex": 10, "hasPreviousPage": True,
+            {"totalCount": "ALL", "totalPages": 21, "pageIndex": 10, "hasPreviousPage": True,
              "hasNextPage": True}
         ),
         # 5. Done orders in one page
         (
             {"page": 0, "limit": 40, "status": "Done"},
-            {"totalCount": Data.DONE, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+            {"totalCount": "DONE", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
         ),
         # 6. Cancel orders in one page
         (
             {"page": 0, "limit": 40, "status": "Cancel"},
-            {"totalCount": Data.CANCEL, "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
+            {"totalCount": "CANCEL", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
         )
     ]
 
@@ -80,7 +79,10 @@ class TestListInfo:
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check list info params for online orders history with inputs: {inputs}")
     @pytest.mark.parametrize("inputs, expected", test_data)
-    def test_list_info_params(self, api, inputs, expected, db_orders_counts):
+    def test_list_info_params(self, api, inputs, expected, expected_data):
+        marker_total_count = expected["totalCount"]
+        expected_total_count = getattr(expected_data, marker_total_count)
+
         response = api.online_orders.get_items(
             page=inputs["page"],
             limit=inputs["limit"],
@@ -94,7 +96,7 @@ class TestListInfo:
         has_next_page = api.online_orders._get_json_value(response, "hasNextPage")
 
         with allure.step(f"Check totalCount"):
-            check.equal(total_count, expected["totalCount"], "Total count is wrong")
+            check.equal(total_count, expected_total_count, "Total count is wrong")
         with allure.step(f"Check pageIndex"):
             check.equal(page_index, expected["pageIndex"], "Page index is wrong")
         with allure.step(f"Check totalPages"):
@@ -104,10 +106,6 @@ class TestListInfo:
         with allure.step(f"Check hasNextPage"):
             check.equal(has_next_page, expected["hasNextPage"], "Has next page is wrong")
 
-        with allure.step(f"Just for self-checking"):
-            check.equal(Data.ALL, db_orders_counts["all"])
-            check.equal(Data.CANCEL, db_orders_counts["cancel"])
-            check.equal(Data.DONE, db_orders_counts["done"])
 
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check sum of Done and Cancel orders for online orders history:")
@@ -271,24 +269,24 @@ class TestOnlineOrdersImage:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Each picture from orders isn't broken")
-    def test_each_image_parallel(self, api):
+    def test_each_image_parallel(self, api, expected_data):
         # # The 'with' construct will wait for all threads to complete before exiting.
         with ThreadPoolExecutor(max_workers=10) as executor:
             for item, page in api.online_orders.get_items_with_pagination(limit=40, status="All"):
                 for url in item.goods:
                     with allure.step(f"For item ID {item.id} verify prefix and extension for: {url}"):
-                        if not url.startswith(Data.URL_PREFIX):
+                        if not url.startswith(expected_data.URL_PREFIX):
                             check.is_true(
                                 False,
                                 f"Page {page}: Item ID {item.id} has invalid image prefix!\n"
                                 f"URL: {url}\n"
-                                f"Expected prefix: {Data.URL_PREFIX}")
+                                f"Expected prefix: {expected_data.URL_PREFIX}")
                             continue
-                        if not url.lower().endswith(Data.ALLOWED_URL_EXTENSIONS):
+                        if not url.lower().endswith(expected_data.ALLOWED_URL_EXTENSIONS):
                             check.is_true(
                                 False,
                                 f"Page {page}: Item ID {item.id} has invalid extension. "
-                                f"URL: {url}. Expected one of: {Data.ALLOWED_URL_EXTENSIONS}")
+                                f"URL: {url}. Expected one of: {expected_data.ALLOWED_URL_EXTENSIONS}")
                             continue
                     # We send a heavy network check to the thread
                     executor.submit(self._check_single_url, url, item.id, page)
@@ -385,7 +383,7 @@ class TestDefaultsParams:
 
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Verify default 'Status' behavior (should default to 'All')")
-    def test_default_status_is_all(self, api):
+    def test_default_status_is_all(self, api, expected_data):
         parsed_data = api.online_orders.get_parsed_items(
             page=0,
             limit=40
@@ -394,4 +392,4 @@ class TestDefaultsParams:
         with allure.step(f"Verify that items are returned (defaulting works)"):
             check.greater( len(parsed_data.items), 1, "Should return items even without explicit param Status")
         with allure.step(f"Verify that default param Status is status=All)"):
-            check.equal(parsed_data.totalCount, Data.ALL, "Default param Status must be status=All")
+            check.equal(parsed_data.totalCount, expected_data.ALL, "Default param Status must be status=All")

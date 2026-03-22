@@ -5,6 +5,7 @@ from src.api.api_client import ApiClient
 from src.common.config import envs, DEFAULT_ENV_NAME
 
 from src.common.logger import get_logger
+from src.common.online_orders_data import OnlineOrdersData
 from src.common.user_accounts import UserType, UserFactory
 from src.database.db_client import FakeDBClient
 from src.models.orders.online_orders import OrderItem
@@ -69,6 +70,10 @@ def db_online_orders_map(db):
     orders_map = {item['id']: OrderItem(**item) for item in raw_data}
 
     return orders_map
+
+@pytest.fixture(scope="session")
+def expected_data(db, cfg):
+    return OnlineOrdersData(db_client=db, config=cfg)
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
