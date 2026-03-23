@@ -22,7 +22,7 @@ class TestScheme:
 
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.CRITICAL)
-    @allure.title("Check contract for filled online orders history with status: {inputs[status]}")  # Dynamic title
+    @allure.title("Check contract with status: {inputs[status]}")  # Dynamic title
     @pytest.mark.parametrize("inputs", test_data)
     def test_scheme(self, api, inputs):
         parsed_data = api.online_orders.get_parsed_items(
@@ -77,7 +77,7 @@ class TestListInfo:
 
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Check list info params for online orders history with inputs: {inputs}")
+    @allure.title("Check list info params with inputs: {inputs}")
     @pytest.mark.parametrize("inputs, expected", test_data)
     def test_list_info_params(self, api, inputs, expected, expected_data):
         marker_total_count = expected["totalCount"]
@@ -108,7 +108,7 @@ class TestListInfo:
 
 
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Check sum of Done and Cancel orders for online orders history:")
+    @allure.title("Check sum of Done and Canceled orders:")
     def test_sum_done_and_cancel_orders(self, api, db_orders_counts):
         res_all_orders = api.online_orders.get_items(page=0, limit=40, status="All")
         total_count_all_orders = api.online_orders._get_json_value(res_all_orders, "totalCount")
@@ -138,11 +138,11 @@ class TestItemType:
         expected_types = ["online", "marketplace"]
 
         for item, page in api.online_orders.get_items_with_pagination(limit=40, status="All"):
-            with allure.step(f"For tem ID: {item.id} check each item type is one of the expected_types '{expected_types}"):
+            with allure.step(f"For tem ID: {item.id} check each item type is one of the expected_types {expected_types}"):
                 check.is_in(
                     item.type.lower(),
                     expected_types,
-                     f"Page {page}: Item ID {item.id} has wrong type '{item.type} Expected one of: {expected_types}")
+                     f"Page {page}: Item ID {item.id} has wrong type {item.type} Expected one of: {expected_types}")
 
 
 class TestOnlineOrdersFilterStatus:
@@ -153,7 +153,7 @@ class TestOnlineOrdersFilterStatus:
     ]
 
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Check quantity items for filled online orders history with status: {inputs[status]}")
+    @allure.title("Check quantity items with status: {inputs[status]}")
     @pytest.mark.parametrize("inputs", test_data)
     def test_quantity_items_for_each_status(self, api, inputs):
         data = api.online_orders.get_parsed_items(
@@ -180,19 +180,19 @@ class TestOnlineOrdersFilterStatus:
         status_ua = ["отримано", "скасовано"]
 
         for item, page in api.online_orders.get_items_with_pagination(limit=40, status=requested_status):
-            with allure.step(f"For tem ID: {item.id} check item.orderStatus on of the {allowed_statuses}"):
+            with allure.step(f"For item ID: {item.id} check item.orderStatus is one of the {allowed_statuses}"):
                 check.is_in(
                     item.orderStatus.lower(), allowed_statuses,
                     f"Page {page}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
                     f"Expected one of: {allowed_statuses}"
                 )
-            with allure.step(f"For tem ID: {item.id} check item.statusGroup on of the {allowed_statuses}"):
+            with allure.step(f"For item ID: {item.id} check item.statusGroup is one of the {allowed_statuses}"):
                 check.is_in(
                     item.statusGroup.lower(), allowed_statuses,
                     f"Page {page}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
                     f"Expected one of: {allowed_statuses}"
                 )
-            with allure.step(f"For tem ID: {item.id} check item.status in UA lang on of the {status_ua}"):
+            with allure.step(f"For item ID: {item.id} check item.status in UA lang on of the {status_ua}"):
                 check.is_in(
                     item.status.lower(), status_ua,
                     f"Page {page}: Item ID {item.id} has wrong status '{item.status}'. "
@@ -214,8 +214,8 @@ class TestQntAllItemsViaPagination:
 
 class TestSellerConsistency:
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Check sum qnt items from all pages")
-    def test_seller_and_type_consistency(self, api):
+    @allure.title("Check consistency seller with selling type")
+    def test_seller_and_selling_type_consistency(self, api):
         expected_types = ["online", "marketplace"]
 
         for item, page in api.online_orders.get_items_with_pagination(limit=40, status="All"):
@@ -232,7 +232,7 @@ class TestIdsUniqueness:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("All ids are unique")
-    def test_ids_uniqueness_across_all_pages(self, api):
+    def test_ids_uniqueness(self, api):
         all_collected_ids = []
 
         for item, page in api.online_orders.get_items_with_pagination(limit=40, status="All"):
@@ -249,7 +249,7 @@ class TestOrdersSorting:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("All items sorted by date")
-    def test_date_sorting(self, api):
+    def test_item_sorting_by_date(self, api):
         actual_dates = []
 
         for item, page in api.online_orders.get_items_with_pagination(limit=40, status="All"):
@@ -269,7 +269,7 @@ class TestOnlineOrdersImage:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Each picture from orders isn't broken")
-    def test_each_image_parallel(self, api, expected_data):
+    def test_image_is_not_broken(self, api, expected_data):
         # # The 'with' construct will wait for all threads to complete before exiting.
         with ThreadPoolExecutor(max_workers=10) as executor:
             for item, page in api.online_orders.get_items_with_pagination(limit=40, status="All"):
@@ -307,7 +307,7 @@ class TestOrderPrice:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Each order price more than 0")
-    def test_order_price(self, api):
+    def test_item_price_param(self, api):
         for item, page  in api.online_orders.get_items_with_pagination(limit=40, status="All"):
             with allure.step(f"For item ID: {item.id} check item.price more than 0"):
                 check.greater(item.price, 0, f"Item {item.id} has invalid price: {item.price}")
@@ -317,7 +317,7 @@ class TestQuantityParam:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Quantity param in each item more than 0")
-    def test_qnt_param(self, api):
+    def test_item_qnt_param(self, api):
         for item, page  in api.online_orders.get_items_with_pagination(limit=40, status="All"):
             with allure.step(f"For item ID: {item.id} check item.quantity more than 0"):
                 check.greater(item.quantity, 0, f"Item {item.id} has invalid quantity: {item.quantity}")
@@ -327,7 +327,7 @@ class TestGoodsAndImageConsistency:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Qnt param in each item equal qnt images")
-    def test_qnt_param_equal_image_qnt(self, api):
+    def test_item_qnt_param_equal_image_qnt(self, api):
         for item, page  in api.online_orders.get_items_with_pagination(limit=40, status="All"):
             with allure.step(f"For item ID: {item.id} check item.quantity param equal qnt images"):
                 check.equal(

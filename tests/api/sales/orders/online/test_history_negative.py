@@ -21,7 +21,7 @@ class TestInvalidStatusHandling:
     ]
 
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Checking response code and message with invalid status = : {inputs[status]}")
+    @allure.title("Checking response code and problem details with invalid status = : {inputs[status]}")
     @pytest.mark.parametrize("inputs", negative_status_data)
     def test_invalid_status_returns_400(self, api, inputs):
         response = api.online_orders.get_items(
