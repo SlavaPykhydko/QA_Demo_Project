@@ -6,6 +6,7 @@ from src.common.logger import get_logger
 from requests import Response, Session
 from requests.exceptions import HTTPError, JSONDecodeError
 from src.common.mixins.assertions import AssertionsMixin
+from utils.report_helper import attach_curl
 
 
 class BaseClient(AssertionsMixin):
@@ -40,6 +41,8 @@ class BaseClient(AssertionsMixin):
         response = None
         try:
             response = self.session.request(method, url, **kwargs)
+            # Attaching cURL to allure report
+            attach_curl(response)
             # Trying to make the successful response looks good-looking
             try:
                 res_json = response.json()
