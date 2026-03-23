@@ -1,3 +1,4 @@
+import allure
 import pytest
 from requests import Session
 
@@ -131,6 +132,10 @@ def user_session(base_session, request, cfg):
     user_type = getattr(request, "param", UserType.WITH_HISTORY)
 
     user = UserFactory.get_user(user_type, cfg)
+
+    # МАГИЯ: Перезаписываем отображение параметра в Allure
+    # Мы берем объект user и вызываем его __repr__
+    allure.dynamic.parameter("user_session", repr(user))
 
     session = base_session
 
