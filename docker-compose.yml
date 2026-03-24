@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  api-tests:
+    build: .
+    # Мапим переменные окружения. Docker Compose возьмет их из системы (куда их положит GH Actions)
+    environment:
+      - BASE_URL_PROD=${BASE_URL_PROD}
+      - X_API_KEY_PROD=${X_API_KEY_PROD}
+      - URL_PREFIX_PROD=${URL_PREFIX_PROD}
+      - USER_PHONE_NUMBER_PROD=${USER_PHONE_NUMBER_PROD}
+      - USER_PASSWORD_PROD=${USER_PASSWORD_PROD}
+      - EMPTY_USER_PHONE_NUMBER_PROD=${EMPTY_USER_PHONE_NUMBER_PROD}
+      - EMPTY_USER_PASSWORD_PROD=${EMPTY_USER_PASSWORD_PROD}
+      - DB_HOST_PROD=${DB_HOST_PROD}
+      - DB_PORT_PROD=${DB_PORT_PROD}
+      - DB_USER_PROD=${DB_USER_PROD}
+      - DB_PASSWORD_PROD=${DB_PASSWORD_PROD}
+      - DB_NAME_PROD=${DB_NAME_PROD}
+      - BASE_URL_STAGE=${BASE_URL_STAGE}
+      - X_API_KEY_STAGE=${X_API_KEY_STAGE}
+      - URL_PREFIX_STAGE=${URL_PREFIX_STAGE}
+      - USER_PHONE_STAGE=${USER_PHONE_STAGE}
+      - USER_PASS_STAGE=${USER_PASS_STAGE}
+      - EMPTY_USER_PHONE_STAGE=${EMPTY_USER_PHONE_STAGE}
+      - EMPTY_USER_PASS_STAGE=${EMPTY_USER_PASS_STAGE}
+      - DB_HOST_STAGE=${DB_HOST_STAGE}
+      - DB_PORT_STAGE=${DB_PORT_STAGE}
+      - DB_USER_STAGE=${DB_USER_STAGE}
+      - DB_PASSWORD_STAGE=${DB_PASSWORD_STAGE}
+      - DB_NAME_STAGE=${DB_NAME_STAGE}
+      - FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true
+    volumes:
+      - ./allure-results:/app/allure-results
+    # Команда запуска (можно менять параметры здесь)
+    command: >
+      sh -c "pytest -m smoke --env=prod --alluredir=allure-results --junitxml=report_smoke.xml -n 2 &&
+             pytest -m 'regression and not smoke' --env=prod --alluredir=allure-results --junitxml=report_regression.xml -n 2 &&
+             pytest -m performance --env=prod --alluredir=allure-results --junitxml=report_performance.xml -n 2"

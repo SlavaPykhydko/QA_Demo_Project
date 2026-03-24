@@ -20,19 +20,8 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          cache: 'pip' # turned on cashing dependencies from requirements.txt file
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      - name: Build Docker Image
+        run: docker compose build
 
       - name: Run API Tests
         env:
@@ -71,9 +60,7 @@ jobs:
           DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
           DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
         run: |
-          pytest -m smoke --env=prod --alluredir=allure-results --junitxml=report_smoke.xml -n 2
-          pytest -m "regression and not smoke" --env=prod --alluredir=allure-results --junitxml=report_regression.xml -n 2
-          pytest -m performance --env=prod --alluredir=allure-results --junitxml=report_performance.xml -n 2
+          docker compose up --exit-code-from api-tests
 
       - name: Upload Allure Results
         if: always()
