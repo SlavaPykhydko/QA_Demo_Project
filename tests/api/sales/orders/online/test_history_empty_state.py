@@ -6,7 +6,7 @@ from src.common.user_accounts import UserType
 # All tests in this file will use USER_EMPTY
 # Allure grouping for all file
 pytestmark = [
-    pytest.mark.parametrize("user_session", [UserType.EMPTY], indirect=True),
+    pytest.mark.parametrize("user_session", [UserType.EMPTY], indirect=True, ids=[f"UserType: {UserType.EMPTY.value}"]),
     pytest.mark.empty_state,
     pytest.mark.regression,
     allure.epic("Sales & Orders"),
@@ -24,7 +24,7 @@ class TestSchemeEmptyState:
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check contract with status: {inputs[status]}")  # Dynamic title
     @pytest.mark.parametrize("inputs", test_data)
-    def test_scheme_empty_state(self, api, inputs, user_session):
+    def test_scheme_empty_state(self, api, inputs):
         parsed_data = api.online_orders.get_parsed_items(
             page=0,
             limit=40,

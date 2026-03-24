@@ -133,8 +133,8 @@ def user_session(base_session, request, cfg):
 
     user = UserFactory.get_user(user_type, cfg)
 
-    # Rewriting represent user in Allure
-    allure.dynamic.parameter("user_session", repr(user))
+    # # Rewriting represent user in Allure
+    # allure.dynamic.parameter("user_session", repr(user))
 
     session = base_session
 
