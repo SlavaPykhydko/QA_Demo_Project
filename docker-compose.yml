@@ -32,8 +32,9 @@ services:
       - FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true
     volumes:
       - ./allure-results:/app/allure-results
+      - ./junit-reports:/app/junit-reports
     # Команда запуска (можно менять параметры здесь)
     command: >
-      sh -c "pytest -m smoke --env=prod --alluredir=allure-results --junitxml=allure-results/report_smoke.xml --clean-alluredir -n 2 &&
-             pytest -m 'regression and not smoke' --env=prod --alluredir=allure-results --junitxml=allure-results/report_regression.xml -n 2 &&
-             pytest -m performance --env=prod --alluredir=allure-results --junitxml=allure-results/report_performance.xml -n 2"
+      sh -c "pytest -m smoke --env=prod --alluredir=allure-results --clean-alluredir --junitxml=junit-reports/report_smoke.xml -n 2 &&
+             pytest -m 'regression and not smoke' --env=prod --alluredir=allure-results --junitxml=junit-reports/report_regression.xml -n 2 &&
+             pytest -m performance --env=prod --alluredir=allure-results --junitxml=junit-reports/report_performance.xml -n 2"

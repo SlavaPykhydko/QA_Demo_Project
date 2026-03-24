@@ -120,7 +120,7 @@ jobs:
           stats = {'total': 0, 'failures': 0, 'errors': 0, 'skipped': 0, 'passed': 0}
           
           # Find all files that start with report_ and end with .xml 
-          files = glob.glob('allure-results/report_*.xml')
+          files = glob.glob('junit-reports/report_*.xml')
           
           if not files:
               print("No report files found!")
