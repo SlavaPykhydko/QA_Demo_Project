@@ -133,8 +133,7 @@ def user_session(base_session, request, cfg):
 
     user = UserFactory.get_user(user_type, cfg)
 
-    # МАГИЯ: Перезаписываем отображение параметра в Allure
-    # Мы берем объект user и вызываем его __repr__
+    # Rewriting represent user in Allure
     allure.dynamic.parameter("user_session", repr(user))
 
     session = base_session
