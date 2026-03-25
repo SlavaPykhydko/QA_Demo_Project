@@ -166,18 +166,18 @@ class TestOnlineOrdersFilterStatus:
 
 
     # Creating mapping: what status is requested -> the list available statuses in the response
-    status_mapping = [
-        ("All", ["received", "canceled"]),  # For All are allowed both
+    order_status_mapping = [
+        ("All", ["received", "canceled", "assembling"]),  # For All are allowed both
         ("Done", ["received"]),
         ("Cancel", ["canceled"]),
     ]
 
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Check each item from items has correct status with input status: {requested_status}")
-    @pytest.mark.parametrize("requested_status, allowed_statuses", status_mapping)
+    @allure.title("Check each item from items has correct orderStatus and status params with input status: {requested_status}")
+    @pytest.mark.parametrize("requested_status, allowed_statuses", order_status_mapping)
     def test_each_item_has_correct_status(self, api, requested_status, allowed_statuses):
-        status_ua = ["отримано", "скасовано"]
+        status_ua = ["отримано", "скасовано", "в обробці"]
 
         for item, page in api.online_orders.get_items_with_pagination(limit=40, status=requested_status):
             with allure.step(f"For item ID: {item.id} check item.orderStatus is one of the {allowed_statuses}"):
@@ -186,18 +186,34 @@ class TestOnlineOrdersFilterStatus:
                     f"Page {page}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
                     f"Expected one of: {allowed_statuses}"
                 )
-            with allure.step(f"For item ID: {item.id} check item.statusGroup is one of the {allowed_statuses}"):
-                check.is_in(
-                    item.statusGroup.lower(), allowed_statuses,
-                    f"Page {page}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
-                    f"Expected one of: {allowed_statuses}"
-                )
             with allure.step(f"For item ID: {item.id} check item.status in UA lang on of the {status_ua}"):
                 check.is_in(
                     item.status.lower(), status_ua,
                     f"Page {page}: Item ID {item.id} has wrong status '{item.status}'. "
                     f"Expected one of: {status_ua}"
                 )
+
+    status_group_mapping = [
+        ("All", ["received", "canceled", "in_processing"]),  # For All are allowed both
+        ("Done", ["received"]),
+        ("Cancel", ["canceled"]),
+    ]
+
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Check each item from items has correct statusGroup param with input status: {requested_status}")
+    @pytest.mark.parametrize("requested_status, allowed_statuses", status_group_mapping)
+    def test_each_item_has_correct_status_group(self, api, requested_status, allowed_statuses):
+        status_ua = ["отримано", "скасовано", "в обробці"]
+
+        for item, page in api.online_orders.get_items_with_pagination(limit=40, status=requested_status):
+            with allure.step(f"For item ID: {item.id} check item.statusGroup is one of the {allowed_statuses}"):
+                check.is_in(
+                    item.statusGroup.lower(), allowed_statuses,
+                    f"Page {page}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
+                    f"Expected one of: {allowed_statuses}"
+                )
+
 
 
 class TestQntAllItemsViaPagination:
