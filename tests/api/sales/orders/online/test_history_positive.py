@@ -18,6 +18,7 @@ class TestScheme:
         ({"status": "All"}),
         ({"status": "Done"}),
         ({"status": "Cancel"})
+        # ({"status": "Active"}),
     ]
 
     @pytest.mark.smoke
@@ -31,7 +32,7 @@ class TestScheme:
             status=inputs["status"])
 
         with allure.step(f"Check items lengths more or equal 1 "):
-            check.greater( len(parsed_data.items), 1, "List of items must be >= 1")
+            check.greater_equal( len(parsed_data.items), 1, "List of items must be >= 1")
         with allure.step(f"Check totalPages more 0 "):
             check.greater(parsed_data.totalPages, 0, "totalPages param must be > 0")
 
@@ -119,13 +120,16 @@ class TestListInfo:
         res_cancel_orders = api.online_orders.get_items(page=0, limit=40, status="Cancel")
         total_count_cancel_orders = api.online_orders._get_json_value(res_cancel_orders, "totalCount")
 
+        res_cancel_orders = api.online_orders.get_items(page=0, limit=40, status="Active")
+        total_count_active_orders = api.online_orders._get_json_value(res_cancel_orders, "totalCount")
+
         with allure.step(f"Check from DB all = done + cancel"):
             check.equal(db_orders_counts["all"],
-                        db_orders_counts["done"] + db_orders_counts["cancel"],
+                        db_orders_counts["done"] + db_orders_counts["cancel"] + db_orders_counts["active"],
                         "Some of the count from db is wrong")
         with allure.step(f"Check from response all = done + cancel"):
             check.equal(total_count_all_orders,
-                        total_count_done_orders + total_count_cancel_orders,
+                        total_count_done_orders + total_count_cancel_orders + total_count_active_orders,
                         "Some of the count from response is wrong")
 
 

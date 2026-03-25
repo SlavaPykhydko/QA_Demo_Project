@@ -36,7 +36,7 @@ class FakeDBClient(BaseDBClient):
     # It's a temporary mock unless we have access to real DB
     def get_online_orders_counts(self):
         # Imitation reply from DB
-        return {"all": 22, "done": 19, "cancel": 2}
+        return {"all": 22, "done": 19, "cancel": 2, "active": 1}
 
     def get_online_orders_from_history_table(self):
         # It's a temporary mock unless we have access to real DB
