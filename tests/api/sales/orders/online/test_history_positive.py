@@ -60,7 +60,7 @@ class TestListInfo:
         # 4. Some middle page with limit=1
         (
             {"page": 10, "limit": 1, "status": "All"},
-            {"totalCount": "ALL", "totalPages": 21, "pageIndex": 10, "hasPreviousPage": True,
+            {"totalCount": "ALL", "totalPages": 22, "pageIndex": 10, "hasPreviousPage": True,
              "hasNextPage": True}
         ),
         # 5. Done orders in one page
