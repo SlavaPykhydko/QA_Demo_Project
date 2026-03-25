@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   api-tests:
-    build: .
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
     # Мапим переменные окружения. Docker Compose возьмет их из системы (куда их положит GH Actions)
     environment:
       - BASE_URL_PROD=${BASE_URL_PROD}

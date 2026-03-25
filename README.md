@@ -79,6 +79,10 @@ docker compose build
 
 Runs all test groups (Smoke, Regression, Performance) defined in docker-compose.yml
 ```
+docker compose up
+```
+For choosing specific env and threads quantity 
+```
 TARGET_ENV=stage THREADS=4 docker compose up
 ```
 To run specific markers or files, use the run command
