@@ -6,6 +6,7 @@
 - **Language:** Python
 - **Testing Framework:** Pytest (xdist, pytest-check)
 - **Validation:** Pydantic, JMESPath
+- **Containerization:** Docker, Docker Compose
 - **Infrastructure:** GitHub Actions, Telegram Bot API
 - **Reporting:** Allure Reports
 
@@ -38,6 +39,10 @@
 - **JUnit XML Aggregation:** Скрипт для консолідації даних із декількох звітів у єдине зведення.
 - **Telegram Feedback:** Миттєва відправка агрегованої статистики прогону в месенджер.
 
+### 🐳 Docker-infrastructure
+- **Full isolation:** Проект повністю контейнеризовано, що дозволяє уникнути проблем "it works on my machine and doesn't work on other machine".
+- **Instant Sync (Hot-Reload):** Завдяки налаштованим Volumes, будь-які зміни в коді тесту у вашій IDE миттєво з'являються в контейнері. Не потрібно перезбирати образ після кожного виправленого рядка коду.
+
 ### 📊 Reporting & Analytics
 - **Step-by-step scenarios** — детальне відстеження логіки виконання тесту для легкого розуміння бізнес-процесів за допомогою декоратора @allure.step.
 - **Logs in attachments** — повна історія HTTP-взаємодій, що дозволяє миттєво діагностувати причини падіння.
@@ -56,28 +61,43 @@
 
 ### 🚀 How to Run
 
-- **1. Clone & Install**
+- **1. Clone Project**
 ```
-git clone [https://github.com/SlavaPykhydko/QA_Demo_Project](https://github.com/SlavaPykhydko/QA_Demo_Project)
+git clone https://github.com/SlavaPykhydko/QA_Demo_Project
 cd QA_Demo_Project
-python -m venv venv
-source venv/bin/activate  # venv\Scripts\activate for Windows
-pip install -r requirements.txt
 ```
 - **2. Configure Secrets**
 
  Create a .env file in the root based on .env.example and add your credentials.
-- **3. Run Tests**
+- **3. Build Image**
 
-Run Smoke tests on Stage
-```bash
-pytest -m smoke --env=stage --alluredir=allure-results
+Executed once on the first run or after changes to requirements.txt
 ```
-Run full Regression on Production with detailed logs
+docker compose build
 ```
-pytest -m regression --env=prod  --alluredir=allure-results -v -s
+- **4. Run Tests**
+
+Runs all test groups (Smoke, Regression, Performance) defined in docker-compose.yml
 ```
-- **4. Open Report**
+TARGET_ENV=stage THREADS=4 docker compose up
+```
+To run specific markers or files, use the run command
+```
+# Smoke tests only
+docker compose run --rm api-tests pytest -m smoke --env=prod -n 2
+
+# Regression tests only (excluding smoke)
+docker compose run --rm api-tests pytest -m "regression and not smoke"
+```
+- **5. Open Report**
+
+Results are automatically synchronized with your local allure-results folder. Simply generate the report:
 ```
 allure serve allure-results
+```
+- **6. Cleanup**
+
+Stop the containers and clean up temporary networks.
+```
+docker compose down
 ```
