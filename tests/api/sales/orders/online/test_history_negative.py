@@ -24,7 +24,7 @@ class TestInvalidStatusHandling:
     ]
 
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Checking response code and problem details with invalid status = : {inputs[status]}")
+    @allure.title("Checking response code and problem details with invalid status: {inputs[status]}")
     @pytest.mark.parametrize("inputs", negative_status_data)
     def test_status_field_validation(self, api, inputs):
         response = api.online_orders.get_items(
@@ -63,7 +63,7 @@ class TestInvalidPageHandling:
     ]
 
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.title("Checking response code and problem details with invalid page = : {inputs[page]}")
+    @allure.title("Checking response code and problem details with invalid page: {inputs[page]}")
     @pytest.mark.parametrize("inputs", negative_page_data)
     def test_page_field_validation(self, api, inputs):
         response = api.online_orders.get_items(

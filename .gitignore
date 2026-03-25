@@ -44,6 +44,7 @@ screenshots/
 
 allure-results/
 allure-report/
+junit-reports/
 
 # ==============================
 # Logs
