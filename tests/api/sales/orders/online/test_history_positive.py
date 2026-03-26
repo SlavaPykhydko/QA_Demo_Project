@@ -171,7 +171,7 @@ class TestOnlineOrdersFilterStatus:
 
     # Creating mapping: what status is requested -> the list available statuses in the response
     order_status_mapping = [
-        ("All", ["received", "canceled", "assembling"]),  # For All are allowed both
+        ("All", ["received", "canceled", "assembling", "readyforpickup"]),  # For All are allowed both
         ("Done", ["received"]),
         ("Cancel", ["canceled"]),
     ]
@@ -181,7 +181,7 @@ class TestOnlineOrdersFilterStatus:
     @allure.title("Check each item from items has correct orderStatus and status params with input status: {requested_status}")
     @pytest.mark.parametrize("requested_status, allowed_statuses", order_status_mapping)
     def test_each_item_has_correct_status(self, api, requested_status, allowed_statuses):
-        status_ua = ["отримано", "скасовано", "в обробці"]
+        status_ua = ["отримано", "скасовано", "в обробці", "готове до видачі"]
 
         for item, page in api.online_orders.get_items_with_pagination(limit=40, status=requested_status):
             with allure.step(f"For item ID: {item.id} check item.orderStatus is one of the {allowed_statuses}"):
@@ -198,7 +198,7 @@ class TestOnlineOrdersFilterStatus:
                 )
 
     status_group_mapping = [
-        ("All", ["received", "canceled", "in_processing"]),  # For All are allowed both
+        ("All", ["received", "canceled", "in_processing","ready_for_receive"]),  # For All are allowed both
         ("Done", ["received"]),
         ("Cancel", ["canceled"]),
     ]
@@ -208,8 +208,6 @@ class TestOnlineOrdersFilterStatus:
     @allure.title("Check each item from items has correct statusGroup param with input status: {requested_status}")
     @pytest.mark.parametrize("requested_status, allowed_statuses", status_group_mapping)
     def test_each_item_has_correct_status_group(self, api, requested_status, allowed_statuses):
-        status_ua = ["отримано", "скасовано", "в обробці"]
-
         for item, page in api.online_orders.get_items_with_pagination(limit=40, status=requested_status):
             with allure.step(f"For item ID: {item.id} check item.statusGroup is one of the {allowed_statuses}"):
                 check.is_in(
