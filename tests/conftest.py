@@ -180,4 +180,10 @@ def user_session(base_session, request, cfg):
 # --- Layer #3 The main control  ---
 @pytest.fixture(scope="module")
 def api(user_session, cfg):
+    """Return a module-scoped `ApiClient` configured with auth session and env config.
+
+    This fixture is the top-level API entry point for tests: `user_session`
+    provides authenticated headers/session context, and `cfg` provides the
+    selected environment settings.
+    """
     return ApiClient(session=user_session, config=cfg)
