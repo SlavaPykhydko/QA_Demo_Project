@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.config import DEFAULT_ENV_NAME
+from src.common.config import DEFAULT_ENV_NAME, envs
 from src.common.logger import get_logger
 
 # Root orchestration node: keep hooks here and load fixture modules as plugins.
@@ -15,11 +15,14 @@ report_logger = get_logger("TestReport")
 
 def pytest_addoption(parser):
     """ Registration -env flag in pytest."""
+    allowed_envs = sorted(name.lower() for name in envs.keys())
     parser.addoption(
         "--env",
         action="store",
-        default=DEFAULT_ENV_NAME,
-        help="Choose environment: PROD or STAGE"
+        default=DEFAULT_ENV_NAME.lower(),
+        type=str.lower,
+        choices=allowed_envs,
+        help=f"Choose environment: {', '.join(allowed_envs)}"
     )
 # Generating good-looking names for reports
 def pytest_make_parametrize_id(val, argname):
