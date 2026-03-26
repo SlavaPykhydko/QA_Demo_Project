@@ -12,3 +12,5 @@ pytest-xdist==3.8.0
 
 # Database
 SQLAlchemy==2.0.48
+
+responses==0.26.0

@@ -9,6 +9,11 @@ class Config:
     PLATFORM = "ios"
     MOBILE_VERSION = "4.9.2122"
 
+    # HTTP Client Settings
+    REQUEST_TIMEOUT = 10  # Секунди
+    RETRY_COUNT = 3  # Кількість повторів
+    BACKOFF_FACTOR = 1  # Коефіцієнт експоненціальної паузи
+
 class ProdConfig(Config):
     #Data for Production
     BASE_URL = os.getenv("BASE_URL_PROD")

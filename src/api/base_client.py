@@ -1,12 +1,15 @@
 import json
 import allure
 import jmespath
+import logging
 
 from src.common.logger import get_logger
 from requests import Response, Session
-from requests.exceptions import HTTPError, JSONDecodeError
+from requests.exceptions import HTTPError, JSONDecodeError, RequestException
 from src.common.mixins.assertions import AssertionsMixin
 from utils.report_helper import attach_curl
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 class BaseClient(AssertionsMixin):
@@ -16,6 +19,24 @@ class BaseClient(AssertionsMixin):
         self.full_url = f"{self.base_url}{self.api_version}"
         self.session = session if session else Session()
         self.logger = get_logger(self.__class__.__name__)
+
+        # Налаштування Retry Policy та Timeout
+        self.default_timeout = config.REQUEST_TIMEOUT
+        self.retry_count = config.RETRY_COUNT
+        self.backoff_factor = config.BACKOFF_FACTOR
+
+        self._setup_retry_policy()
+
+    def _setup_retry_policy(self):
+        """Налаштування автоматичних повторів для нестабільних з'єднань."""
+        retry_strategy = Retry(
+            total=self.retry_count,  # Кількість спроб
+            backoff_factor=self.backoff_factor,  # Пауза: 1s, 2s, 4s...
+            status_forcelist=[429, 500, 502, 503, 504],  # Коди, при яких варто спробувати ще раз
+            allowed_methods=["GET", "OPTIONS", "HEAD"]  # Ретрай тільки для безпечних (ідемпотентних) запитів
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        self.session.mount("https://", adapter)
 
     def _format_json(self, data):
         """Auxiliary method for transformation dict in good-looking string"""
@@ -27,6 +48,9 @@ class BaseClient(AssertionsMixin):
 
     def _request(self, method, endpoint, raise_for_status=True, **kwargs):
         url = f"{self.full_url}/{endpoint.lstrip('/')}"
+
+        # Додавання таймауту за замовчуванням, якщо він не переданий явно в тесті
+        kwargs.setdefault("timeout", self.default_timeout)
 
         # Adding session_id in all requests if it there is in session
         if hasattr(self.session, "api_session_id"):
@@ -53,18 +77,19 @@ class BaseClient(AssertionsMixin):
                 response.raise_for_status()
             return response
 
-        except HTTPError:
-            self._log_error(method, url, response, kwargs)
+        except (HTTPError, RequestException) as e:
+            # Обробляємо як HTTP помилки, так і помилки з'єднання/таймаути
+            self._log_error(method, url, response, kwargs, exception=e)
             raise
 
 
-    def _log_error(self, method, url, response, kwargs):
-        status = response.status_code if response is not None else "NO RESPONSE"
+    def _log_error(self, method, url, response, kwargs, exception=None):
+        status = response.status_code if response is not None else "NO RESPONSE / TIMEOUT"
         #Trying to make the Unsuccessful response (4xx, 5xx) looks good-looking
         try:
             error_body = self._format_json(response.json())
         except Exception:
-            error_body = response.text if response is not None else "Connection Error"
+            error_body = response.text if response is not None else str(exception)
 
         error_msg = (
             f"\n{'=' * 40} API ERROR {'=' * 40}\n"
