@@ -5,6 +5,7 @@ from time import perf_counter
 from uuid import uuid4
 
 from src.common.logger import clear_log_context, get_logger, set_log_context
+from src.common.sensitive_keys import SENSITIVE_KEYS
 from requests import Response, Session
 from requests.exceptions import HTTPError, JSONDecodeError, RequestException
 from src.common.mixins.assertions import AssertionsMixin
@@ -46,6 +47,19 @@ class BaseClient(AssertionsMixin):
         except (TypeError, ValueError):
             return str(data)
 
+    def _sanitize_for_log(self, data):
+        if isinstance(data, dict):
+            sanitized = {}
+            for key, value in data.items():
+                if str(key).lower() in SENSITIVE_KEYS:
+                    sanitized[key] = "[MASKED]"
+                else:
+                    sanitized[key] = self._sanitize_for_log(value)
+            return sanitized
+        if isinstance(data, list):
+            return [self._sanitize_for_log(item) for item in data]
+        return data
+
 
     def _request(self, method, endpoint, raise_for_status=True, **kwargs):
         url = f"{self.full_url}/{endpoint.lstrip('/')}"
@@ -64,7 +78,11 @@ class BaseClient(AssertionsMixin):
             params["session_id"] = self.session.api_session_id
             kwargs["params"] = params
 
-        self.logger.info(f"Sending {method} to {url} | Params: {kwargs.get('params')} | Body: {kwargs.get('json')}")
+        safe_params = self._sanitize_for_log(kwargs.get("params"))
+        safe_body = self._sanitize_for_log(kwargs.get("json"))
+        self.logger.info(
+            f"Sending {method} to {url} | Params: {safe_params} | Body: {safe_body}"
+        )
 
         response = None
         try:
@@ -100,10 +118,12 @@ class BaseClient(AssertionsMixin):
         except Exception:
             error_body = response.text if response is not None else str(exception)
 
+        safe_kwargs = self._sanitize_for_log(kwargs)
+
         error_msg = (
             f"\n{'=' * 40} API ERROR {'=' * 40}\n"
             f"URL: {method} {url}\n"
-            f"REQUEST KWARGS: {kwargs}\n"
+            f"REQUEST KWARGS: {safe_kwargs}\n"
             f"STATUS CODE: {status}\n"
             f"RESPONSE BODY: {error_body}\n"
             f"{'=' * 91}"

@@ -5,6 +5,7 @@ import re
 from pytest_check import check
 
 from src.common.logger import get_log_context
+from src.common.sensitive_keys import SENSITIVE_KEYS
 
 
 def _build_context_meta(response=None, duration_ms=None):
@@ -54,8 +55,6 @@ def attach_curl(response, duration_ms=None):
     request = response.request
     url = request.url
 
-    # 1. Список ключей, которые мы хотим скрыть
-    SENSITIVE_KEYS = ['x-fuser-id', 'authorization', 'token', 'x-api-key', 'session_id', 'cookie']
 
     # 2. Маскируем данные в URL (Query Parameters)
     # Ищем в URL паттерны типа session_id=abc12345 и заменяем на [MASKED]
