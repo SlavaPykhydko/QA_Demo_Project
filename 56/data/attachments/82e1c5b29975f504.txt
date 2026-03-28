@@ -1,0 +1,7 @@
+INFO     OnlineOrdersAPI:base_client.py:39 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': -1, 'Limit': 40, 'Status': 'All', 'session_id': 'vUILIYPP5vSl5siL1xd4hibZgdhX68tq5ijJ5497'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:49 Response JSON:
+{
+    "errorCode": 500,
+    "errorName": "",
+    "errorMessage": "Response status code does not indicate success: 422 (Unprocessable Entity)."
+}

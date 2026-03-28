@@ -1,0 +1,14 @@
+INFO OnlineOrdersAPI:base_client.py:67 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidPageHandling::test_page_field_validation[page_as_random_string] user=with_history req=3e49d3dc Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 'Unknown', 'Limit': 40, 'Status': 'All', 'session_id': '2UNWTXtbmKkHnU6d1PulLbDpRqhypPT9vyR64a32'} | Body: None
+INFO OnlineOrdersAPI:base_client.py:78 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidPageHandling::test_page_field_validation[page_as_random_string] user=with_history req=3e49d3dc Response JSON:
+{
+    "errors": {
+        "Page": [
+            "The value 'Unknown' is not valid for Page."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-1a25bb60608ced8adf66319f5d2feea7-3a299d488616b74f-00"
+}
+INFO OnlineOrdersAPI:base_client.py:84 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidPageHandling::test_page_field_validation[page_as_random_string] user=with_history req=3e49d3dc Request completed with status=400 in 124ms

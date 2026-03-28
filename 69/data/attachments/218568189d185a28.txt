@@ -1,0 +1,48 @@
+INFO     OnlineOrdersAPI:base_client.py:39 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': 'Cancel', 'session_id': 'NQAPptcSCdbag2p7B8iC4MBL3ushwUP1guG5606a'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:49 Response JSON:
+{
+    "items": [
+        {
+            "id": 49105259,
+            "name": "49105259",
+            "price": 487.57,
+            "totalBonus": 0.0,
+            "createdOn": "2025-06-20T00:00:00",
+            "orderStatus": "Canceled",
+            "status": "Скасовано",
+            "statusGroup": "canceled",
+            "seller": "Епіцентр К",
+            "quantity": 2,
+            "type": "Online",
+            "deliveryId": 45,
+            "goods": [
+                "https://cdn.27.ua/190/93/11/6853393_2.jpeg",
+                "https://cdn.27.ua/190/1a/fb/137979_4.jpeg"
+            ]
+        },
+        {
+            "id": 47250679,
+            "name": "47250679",
+            "price": 2837.0,
+            "totalBonus": 0.0,
+            "createdOn": "2025-04-15T00:00:00",
+            "orderStatus": "Canceled",
+            "status": "Скасовано",
+            "statusGroup": "canceled",
+            "seller": "Епіцентр К",
+            "quantity": 3,
+            "type": "Online",
+            "deliveryId": 45,
+            "goods": [
+                "https://cdn.27.ua/190/b0/c3/7844035_1.jpeg",
+                "https://cdn.27.ua/190/9e/e3/6921955_2.jpeg",
+                "https://cdn.27.ua/190/de/09/122377_2.jpeg"
+            ]
+        }
+    ],
+    "pageIndex": 0,
+    "totalPages": 1,
+    "totalCount": 2,
+    "hasPreviousPage": false,
+    "hasNextPage": false
+}

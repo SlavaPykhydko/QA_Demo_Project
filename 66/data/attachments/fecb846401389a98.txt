@@ -1,0 +1,13 @@
+INFO     OnlineOrdersAPI:base_client.py:39 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': '', 'Limit': 40, 'Status': 'All', 'session_id': 'Jx7PlST2HosEmo2eMuGgJOt7BzncGMpmADl46083'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:49 Response JSON:
+{
+    "errors": {
+        "Page": [
+            "The value '' is invalid."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-d27d8c764a00b48cd481c9548a193fe6-aae37825a4d813a4-00"
+}

@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw0",
+    "test_nodeid": "tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_null_byte]",
+    "user_type": "with_history",
+    "request_id": "2b0101a6",
+    "status_code": 400,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=%00&session_id=6miDYD3LKk4l6Yyzr2GmkgqcVU2tINoTt7xQ53a3",
+    "duration_ms": 143
+  },
+  "body": {
+    "errors": {
+      "Status": [
+        "The value '\u0000' is not valid for Status."
+      ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-94c05a3309371f2a8d4136e86017d4ef-9f7f807b62d21e55-00"
+  }
+}

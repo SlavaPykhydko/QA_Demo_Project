@@ -1,0 +1,8 @@
+INFO     OnlineOrdersAPI:base_client.py:67 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': -1, 'Limit': 40, 'Status': 'All', 'session_id': 'teADVSKIdvnTWYMP7fI6T01IxZy6ONH1Cjgi50f7'} | Body: None
+ERROR    OnlineOrdersAPI:base_client.py:110 
+======================================== API ERROR ========================================
+URL: GET https://mobile-api.epicentrk.ua/api/v2/sales/orders/online
+REQUEST KWARGS: {'params': {'Page': -1, 'Limit': 40, 'Status': 'All', 'session_id': 'teADVSKIdvnTWYMP7fI6T01IxZy6ONH1Cjgi50f7'}, 'timeout': 10}
+STATUS CODE: NO RESPONSE / TIMEOUT
+RESPONSE BODY: HTTPSConnectionPool(host='mobile-api.epicentrk.ua', port=443): Max retries exceeded with url: /api/v2/sales/orders/online?Page=-1&Limit=40&Status=All&session_id=teADVSKIdvnTWYMP7fI6T01IxZy6ONH1Cjgi50f7 (Caused by ResponseError('too many 500 error responses'))
+===========================================================================================

@@ -1,0 +1,13 @@
+INFO     OnlineOrdersAPI:base_client.py:39 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': True, 'Limit': 40, 'Status': 'All', 'session_id': 'F9AzXxL3395twyoKCxIw4AkFTM9XlDjuoEPV67aa'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:49 Response JSON:
+{
+    "errors": {
+        "Page": [
+            "The value 'True' is not valid for Page."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-45dd5a4d05062c1d8536f76c7960d5d4-c9014e40206c9b9d-00"
+}

@@ -1,0 +1,15 @@
+INFO     TestReport:conftest.py:141 Attempting login for: 380630754624
+INFO     TestReport:conftest.py:170 Successfully authenticated and session initialized.
+INFO     OnlineOrdersAPI:base_client.py:39 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': 'Unknown', 'session_id': 'XRrlPLSIj1hprnWtu0rERZ9sbmLxap0wahCi58c9'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:49 Response JSON:
+{
+    "errors": {
+        "Status": [
+            "The value 'Unknown' is not valid for Status."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-57e4fb65dc525549f8d83b112fd6f4ad-84adfda731685450-00"
+}

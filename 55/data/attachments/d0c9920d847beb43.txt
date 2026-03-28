@@ -1,0 +1,28 @@
+INFO     OnlineOrdersAPI:base_client.py:39 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 2, 'Limit': 10, 'Status': 'All', 'session_id': '2ChO2UyKDoA1MK60vvnnkBjYB7sQBmN4MCQo50ae'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:49 Response JSON:
+{
+    "items": [
+        {
+            "id": 39927773,
+            "name": "39927773",
+            "price": 161.46,
+            "totalBonus": 0.0,
+            "createdOn": "2024-10-04T00:00:00",
+            "orderStatus": "Received",
+            "status": "Отримано",
+            "statusGroup": "received",
+            "seller": "PLAMBO",
+            "quantity": 1,
+            "type": "Marketplace",
+            "deliveryId": 79,
+            "goods": [
+                "https://cdn.27.ua/sc--media--prod/default/e7/c1/79/e7c17926-f4e5-454d-8e1d-531bb242c802.jpg"
+            ]
+        }
+    ],
+    "pageIndex": 2,
+    "totalPages": 3,
+    "totalCount": 21,
+    "hasPreviousPage": true,
+    "hasNextPage": false
+}

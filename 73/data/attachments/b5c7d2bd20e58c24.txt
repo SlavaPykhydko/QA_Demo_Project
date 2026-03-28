@@ -1,0 +1,9 @@
+# env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_empty_state.py::TestSchemeEmptyState::test_scheme_empty_state[status_Cancel-UserType.EMPTY] user=empty req=1c8ecf31 status=200 duration_ms=192
+curl -X GET 'https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=Cancel&session_id=[MASKED]' \
+  -H 'x-api-key: [MASKED]' \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -H 'platform: ios' \
+  -H 'mobile-version: 4.9.2122' \
+  -H 'Authorization: [MASKED]' \
+  -H 'x-fuser-id: [MASKED]' \
+  -H 'Cookie: [MASKED]'

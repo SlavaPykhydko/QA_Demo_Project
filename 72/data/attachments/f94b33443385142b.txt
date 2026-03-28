@@ -1,0 +1,8 @@
+INFO OnlineOrdersAPI:base_client.py:67 env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidPageHandling::test_page_field_validation[page_as_negative_int_value] user=with_history req=b4e3df5d Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': -1, 'Limit': 40, 'Status': 'All', 'session_id': 'tPT5iuz4giqdT8gxyQATry5SUDlZSO6MnfRf4bb8'} | Body: None
+ERROR OnlineOrdersAPI:base_client.py:111 env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidPageHandling::test_page_field_validation[page_as_negative_int_value] user=with_history req=b4e3df5d 
+======================================== API ERROR ========================================
+URL: GET https://mobile-api.epicentrk.ua/api/v2/sales/orders/online
+REQUEST KWARGS: {'params': {'Page': -1, 'Limit': 40, 'Status': 'All', 'session_id': 'tPT5iuz4giqdT8gxyQATry5SUDlZSO6MnfRf4bb8'}, 'timeout': 10}
+STATUS CODE: NO RESPONSE / TIMEOUT
+RESPONSE BODY: HTTPSConnectionPool(host='mobile-api.epicentrk.ua', port=443): Max retries exceeded with url: /api/v2/sales/orders/online?Page=-1&Limit=40&Status=All&session_id=tPT5iuz4giqdT8gxyQATry5SUDlZSO6MnfRf4bb8 (Caused by ResponseError('too many 500 error responses'))
+===========================================================================================

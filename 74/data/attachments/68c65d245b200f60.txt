@@ -1,0 +1,16 @@
+INFO OnlineOrdersAPI:base_client.py:83 env=prod worker=gw0 test=test_history_negative.py::test_status_field_validation[status_as_numeric_string] user=with_history req=432174f1 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': '12345', 'session_id': '[MASKED]'} | Body: None
+
+INFO OnlineOrdersAPI:base_client.py:96 env=prod worker=gw0 test=test_history_negative.py::test_status_field_validation[status_as_numeric_string] user=with_history req=432174f1 Response JSON:
+{
+    "errors": {
+        "Status": [
+            "The value '12345' is invalid."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-fd83232921aae559f76a6704b3e66a1a-a984c2a16742b0c7-00"
+}
+
+INFO OnlineOrdersAPI:base_client.py:102 env=prod worker=gw0 test=test_history_negative.py::test_status_field_validation[status_as_numeric_string] user=with_history req=432174f1 Request completed with status=400 in 165ms

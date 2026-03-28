@@ -1,0 +1,12 @@
+INFO     TestReport:api_fixtures.py:37 Attempting login for: 380936777190
+INFO     TestReport:api_fixtures.py:64 Successfully authenticated and session initialized.
+INFO     OnlineOrdersAPI:base_client.py:39 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': 'Cancel', 'session_id': 'Fp0YcBlqrTZPmHRjyHpZnhMJKbN7uVQd0p6f51eb'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:49 Response JSON:
+{
+    "items": [],
+    "pageIndex": 0,
+    "totalPages": 0,
+    "totalCount": 0,
+    "hasPreviousPage": false,
+    "hasNextPage": false
+}

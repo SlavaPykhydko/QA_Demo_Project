@@ -1,0 +1,9 @@
+INFO OnlineOrdersAPI:base_client.py:83 env=prod worker=gw0 test=test_history_negative.py::test_page_field_validation[page_as_negative_int_value] user=with_history req=8fc17578 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': -1, 'Limit': 40, 'Status': 'All', 'session_id': '[MASKED]'} | Body: None
+
+ERROR OnlineOrdersAPI:base_client.py:131 env=prod worker=gw0 test=test_history_negative.py::test_page_field_validation[page_as_negative_int_value] user=with_history req=8fc17578 
+======================================== API ERROR ========================================
+URL: GET https://mobile-api.epicentrk.ua/api/v2/sales/orders/online
+REQUEST KWARGS: {'params': {'Page': -1, 'Limit': 40, 'Status': 'All', 'session_id': '[MASKED]'}, 'timeout': 10}
+STATUS CODE: NO RESPONSE / TIMEOUT
+RESPONSE BODY: HTTPSConnectionPool(host='mobile-api.epicentrk.ua', port=443): Max retries exceeded with url: /api/v2/sales/orders/online?Page=-1&Limit=40&Status=All&session_id=tC1LGBT6IBF80IRtA0wkMDmE4hyYz8vsr9ze6177 (Caused by ResponseError('too many 500 error responses'))
+===========================================================================================

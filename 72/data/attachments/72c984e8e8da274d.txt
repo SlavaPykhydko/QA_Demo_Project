@@ -1,0 +1,14 @@
+INFO OnlineOrdersAPI:base_client.py:67 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidPageHandling::test_page_field_validation[page_as_null_byte] user=with_history req=d897db54 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': '\x00', 'Limit': 40, 'Status': 'All', 'session_id': '2UNWTXtbmKkHnU6d1PulLbDpRqhypPT9vyR64a32'} | Body: None
+INFO OnlineOrdersAPI:base_client.py:78 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidPageHandling::test_page_field_validation[page_as_null_byte] user=with_history req=d897db54 Response JSON:
+{
+    "errors": {
+        "Page": [
+            "The value '\u0000' is not valid for Page."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-83f2532a44652e43680dbae9d706a63c-09b37c4a144e33b5-00"
+}
+INFO OnlineOrdersAPI:base_client.py:84 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidPageHandling::test_page_field_validation[page_as_null_byte] user=with_history req=d897db54 Request completed with status=400 in 126ms

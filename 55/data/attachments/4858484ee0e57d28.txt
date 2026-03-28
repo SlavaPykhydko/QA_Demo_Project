@@ -1,0 +1,12 @@
+INFO     TestReport:conftest.py:142 Attempting login for: 380936777190
+INFO     TestReport:conftest.py:171 Successfully authenticated and session initialized.
+INFO     OnlineOrdersAPI:base_client.py:39 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': 'Cancel', 'session_id': 'B2gq4F4Augr9duIgmO3o1zQlMgOTw6LMDXFh4dd1'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:49 Response JSON:
+{
+    "items": [],
+    "pageIndex": 0,
+    "totalPages": 0,
+    "totalCount": 0,
+    "hasPreviousPage": false,
+    "hasNextPage": false
+}

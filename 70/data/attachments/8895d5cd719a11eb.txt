@@ -1,0 +1,30 @@
+INFO     OnlineOrdersAPI:base_client.py:67 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 10, 'Limit': 1, 'Status': 'All', 'session_id': 'FNqkl6kxuuhBbLYVID4b0mYxTVHNK48Sv6Kf4a01'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:77 Response JSON:
+{
+    "items": [
+        {
+            "id": 49105259,
+            "name": "49105259",
+            "price": 487.57,
+            "totalBonus": 0.0,
+            "createdOn": "2025-06-20T00:00:00",
+            "orderStatus": "Canceled",
+            "status": "Скасовано",
+            "statusGroup": "canceled",
+            "seller": "Епіцентр К",
+            "quantity": 2,
+            "type": "Online",
+            "deliveryId": 45,
+            "goods": [
+                "https://cdn.27.ua/190/93/11/6853393_2.jpeg",
+                "https://cdn.27.ua/190/1a/fb/137979_4.jpeg"
+            ]
+        }
+    ],
+    "pageIndex": 10,
+    "totalPages": 22,
+    "totalCount": 22,
+    "hasPreviousPage": true,
+    "hasNextPage": true
+}
+INFO     OnlineOrdersAPI:base_client.py:83 Request completed with status=200 in 274ms

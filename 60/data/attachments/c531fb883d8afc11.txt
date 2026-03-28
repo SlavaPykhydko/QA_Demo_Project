@@ -1,0 +1,8 @@
+curl -X GET 'https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=All&session_id=nOSVfJFAsNmoe9hY2kc4HINXgDIB7tsHpxL55e9a' \
+  -H 'x-api-key: [MASKED]' \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -H 'platform: ios' \
+  -H 'mobile-version: 4.9.2122' \
+  -H 'Authorization: [MASKED]' \
+  -H 'x-fuser-id: [MASKED]' \
+  -H 'Cookie: __cf_bm=RQhaZsahOm75tuxAe0JwXRfvaiaPxrv0m4WJvZXBK1w-1774372171.7891078-1.0.1.1-kEUbfyy5508V9rji_mCMoO_THczN6ZfqvTFgr28BZQEawZOV3OMFovH5PecICm9EPuhqJ0mGstLJgwJxj7CxJwui3iDQ7aa3mnyaOcK7R73PvxPZDp8J3uLc1zC4PAVI'

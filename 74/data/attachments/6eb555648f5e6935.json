@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw1",
+    "test_nodeid": "test_history_negative.py::test_status_field_validation[status_as_deleted]",
+    "user_type": "with_history",
+    "request_id": "d62d4676",
+    "status_code": 400,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=Deleted&session_id=8uP4M8IE8eCOq1qpeoBkLDWRc6fWPMrKbzfy56f9",
+    "duration_ms": 166
+  },
+  "body": {
+    "errors": {
+      "Status": [
+        "The value 'Deleted' is not valid for Status."
+      ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-2a3f070f2561cc41142435ac314b0600-b359fd32210a088a-00"
+  }
+}

@@ -1,0 +1,30 @@
+INFO OnlineOrdersAPI:base_client.py:67 env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_positive.py::TestListInfo::test_list_info_params[page_10-limit_1-status_All-] user=with_history req=c34d17fa Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 10, 'Limit': 1, 'Status': 'All', 'session_id': '4uoDmJcQ0VovVU2UWUi8Z3mhydiEeQFIAthp5d44'} | Body: None
+INFO OnlineOrdersAPI:base_client.py:78 env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_positive.py::TestListInfo::test_list_info_params[page_10-limit_1-status_All-] user=with_history req=c34d17fa Response JSON:
+{
+    "items": [
+        {
+            "id": 49105259,
+            "name": "49105259",
+            "price": 487.57,
+            "totalBonus": 0.0,
+            "createdOn": "2025-06-20T00:00:00",
+            "orderStatus": "Canceled",
+            "status": "Скасовано",
+            "statusGroup": "canceled",
+            "seller": "Епіцентр К",
+            "quantity": 2,
+            "type": "Online",
+            "deliveryId": 45,
+            "goods": [
+                "https://cdn.27.ua/190/93/11/6853393_2.jpeg",
+                "https://cdn.27.ua/190/1a/fb/137979_4.jpeg"
+            ]
+        }
+    ],
+    "pageIndex": 10,
+    "totalPages": 22,
+    "totalCount": 22,
+    "hasPreviousPage": true,
+    "hasNextPage": true
+}
+INFO OnlineOrdersAPI:base_client.py:84 env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_positive.py::TestListInfo::test_list_info_params[page_10-limit_1-status_All-] user=with_history req=c34d17fa Request completed with status=200 in 274ms

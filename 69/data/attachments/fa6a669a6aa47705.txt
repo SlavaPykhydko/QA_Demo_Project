@@ -1,0 +1,15 @@
+INFO     TestReport:api_fixtures.py:37 Attempting login for: 380630754624
+INFO     TestReport:api_fixtures.py:64 Successfully authenticated and session initialized.
+INFO     OnlineOrdersAPI:base_client.py:39 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': '\x00', 'session_id': 'Hc2b3P9D5L6CiJISNW6cfsWeH1ul6oH88wNr4354'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:49 Response JSON:
+{
+    "errors": {
+        "Status": [
+            "The value '\u0000' is not valid for Status."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-1115b7cb291de40517752eff722115ae-9c1ec3a5dc188c62-00"
+}

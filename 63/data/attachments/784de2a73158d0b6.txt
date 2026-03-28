@@ -1,0 +1,13 @@
+INFO     OnlineOrdersAPI:base_client.py:39 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 'Unknown', 'Limit': 40, 'Status': 'All', 'session_id': 'OKsg4T5dnfwnISonxNb5pZgSXNlfrjFjnyi04fa1'} | Body: None
+INFO     OnlineOrdersAPI:base_client.py:49 Response JSON:
+{
+    "errors": {
+        "Page": [
+            "The value 'Unknown' is not valid for Page."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-d9da80d3f7463be07801ffc3088d8f3f-11fcfb0e07b0cc9a-00"
+}

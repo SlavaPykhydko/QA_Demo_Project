@@ -1,0 +1,11 @@
+INFO OnlineOrdersAPI:base_client.py:67 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_empty_state.py::TestSchemeEmptyState::test_scheme_empty_state[status_Done-UserType.EMPTY] user=empty req=52ff7995 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': 'Done', 'session_id': '5MBbsdyRxZsx2Iy9lCSbntWuTdiwHwvyEVSg5003'} | Body: None
+INFO OnlineOrdersAPI:base_client.py:78 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_empty_state.py::TestSchemeEmptyState::test_scheme_empty_state[status_Done-UserType.EMPTY] user=empty req=52ff7995 Response JSON:
+{
+    "items": [],
+    "pageIndex": 0,
+    "totalPages": 0,
+    "totalCount": 0,
+    "hasPreviousPage": false,
+    "hasNextPage": false
+}
+INFO OnlineOrdersAPI:base_client.py:84 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_empty_state.py::TestSchemeEmptyState::test_scheme_empty_state[status_Done-UserType.EMPTY] user=empty req=52ff7995 Request completed with status=200 in 157ms

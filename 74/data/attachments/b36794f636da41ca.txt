@@ -1,0 +1,16 @@
+INFO OnlineOrdersAPI:base_client.py:83 env=prod worker=gw1 test=test_history_negative.py::test_status_field_validation[status_as_boolean] user=with_history req=284abd09 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': True, 'session_id': '[MASKED]'} | Body: None
+
+INFO OnlineOrdersAPI:base_client.py:96 env=prod worker=gw1 test=test_history_negative.py::test_status_field_validation[status_as_boolean] user=with_history req=284abd09 Response JSON:
+{
+    "errors": {
+        "Status": [
+            "The value 'True' is not valid for Status."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-eced2f0fc3e083698605494e786e8271-b8824c596f1348ff-00"
+}
+
+INFO OnlineOrdersAPI:base_client.py:102 env=prod worker=gw1 test=test_history_negative.py::test_status_field_validation[status_as_boolean] user=with_history req=284abd09 Request completed with status=400 in 166ms

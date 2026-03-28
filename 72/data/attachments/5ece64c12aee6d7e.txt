@@ -1,0 +1,16 @@
+INFO TestReport:api_fixtures.py:38 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_int] user=with_history req=- Attempting login for: 380630754624
+INFO TestReport:api_fixtures.py:65 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_int] user=with_history req=- Successfully authenticated and session initialized.
+INFO OnlineOrdersAPI:base_client.py:67 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_int] user=with_history req=43663859 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': -1, 'session_id': '2UNWTXtbmKkHnU6d1PulLbDpRqhypPT9vyR64a32'} | Body: None
+INFO OnlineOrdersAPI:base_client.py:78 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_int] user=with_history req=43663859 Response JSON:
+{
+    "errors": {
+        "Status": [
+            "The value '-1' is invalid."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-c128ad36f7d9fcfee462deacb7940f92-c90b1c919f6d6e1a-00"
+}
+INFO OnlineOrdersAPI:base_client.py:84 env=prod worker=gw0 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_int] user=with_history req=43663859 Request completed with status=400 in 367ms

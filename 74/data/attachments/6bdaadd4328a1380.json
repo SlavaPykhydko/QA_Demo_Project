@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw1",
+    "test_nodeid": "test_history_negative.py::test_status_field_validation[status_as_random_string]",
+    "user_type": "with_history",
+    "request_id": "4f9a60c3",
+    "status_code": 400,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=Unknown&session_id=8uP4M8IE8eCOq1qpeoBkLDWRc6fWPMrKbzfy56f9",
+    "duration_ms": 492
+  },
+  "body": {
+    "errors": {
+      "Status": [
+        "The value 'Unknown' is not valid for Status."
+      ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-be372bdc4052deade062a365eece1015-f10e1d5c5295579c-00"
+  }
+}

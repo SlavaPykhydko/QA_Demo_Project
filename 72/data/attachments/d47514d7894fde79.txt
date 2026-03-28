@@ -1,0 +1,16 @@
+INFO TestReport:api_fixtures.py:38 env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_random_string] user=with_history req=- Attempting login for: 380630754624
+INFO TestReport:api_fixtures.py:65 env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_random_string] user=with_history req=- Successfully authenticated and session initialized.
+INFO OnlineOrdersAPI:base_client.py:67 env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_random_string] user=with_history req=85704bad Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': 'Unknown', 'session_id': 'tPT5iuz4giqdT8gxyQATry5SUDlZSO6MnfRf4bb8'} | Body: None
+INFO OnlineOrdersAPI:base_client.py:78 env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_random_string] user=with_history req=85704bad Response JSON:
+{
+    "errors": {
+        "Status": [
+            "The value 'Unknown' is not valid for Status."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-ec9912a9ca0cc45915eae5d7b478bea1-54b2d02a07b40d29-00"
+}
+INFO OnlineOrdersAPI:base_client.py:84 env=prod worker=gw1 test=tests/api/sales/orders/online/test_history_negative.py::TestInvalidStatusHandling::test_status_field_validation[status_as_random_string] user=with_history req=85704bad Request completed with status=400 in 146ms

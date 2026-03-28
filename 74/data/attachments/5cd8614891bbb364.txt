@@ -1,0 +1,16 @@
+INFO TestReport:api_fixtures.py:38 env=prod worker=gw0 test=test_history_empty_state.py::test_scheme_empty_state[status_All-UserType.EMPTY] user=empty req=- Attempting login for: 380936777190
+
+INFO TestReport:api_fixtures.py:65 env=prod worker=gw0 test=test_history_empty_state.py::test_scheme_empty_state[status_All-UserType.EMPTY] user=empty req=- Successfully authenticated and session initialized.
+INFO OnlineOrdersAPI:base_client.py:83 env=prod worker=gw0 test=test_history_empty_state.py::test_scheme_empty_state[status_All-UserType.EMPTY] user=empty req=9203b084 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': 'All', 'session_id': '[MASKED]'} | Body: None
+
+INFO OnlineOrdersAPI:base_client.py:96 env=prod worker=gw0 test=test_history_empty_state.py::test_scheme_empty_state[status_All-UserType.EMPTY] user=empty req=9203b084 Response JSON:
+{
+    "items": [],
+    "pageIndex": 0,
+    "totalPages": 0,
+    "totalCount": 0,
+    "hasPreviousPage": false,
+    "hasNextPage": false
+}
+
+INFO OnlineOrdersAPI:base_client.py:102 env=prod worker=gw0 test=test_history_empty_state.py::test_scheme_empty_state[status_All-UserType.EMPTY] user=empty req=9203b084 Request completed with status=200 in 282ms

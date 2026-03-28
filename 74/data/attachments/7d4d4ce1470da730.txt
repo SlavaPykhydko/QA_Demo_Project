@@ -1,0 +1,16 @@
+INFO OnlineOrdersAPI:base_client.py:83 env=prod worker=gw1 test=test_history_negative.py::test_status_field_validation[status_as_deleted] user=with_history req=d62d4676 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online | Params: {'Page': 0, 'Limit': 40, 'Status': 'Deleted', 'session_id': '[MASKED]'} | Body: None
+
+INFO OnlineOrdersAPI:base_client.py:96 env=prod worker=gw1 test=test_history_negative.py::test_status_field_validation[status_as_deleted] user=with_history req=d62d4676 Response JSON:
+{
+    "errors": {
+        "Status": [
+            "The value 'Deleted' is not valid for Status."
+        ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-2a3f070f2561cc41142435ac314b0600-b359fd32210a088a-00"
+}
+
+INFO OnlineOrdersAPI:base_client.py:102 env=prod worker=gw1 test=test_history_negative.py::test_status_field_validation[status_as_deleted] user=with_history req=d62d4676 Request completed with status=400 in 166ms
