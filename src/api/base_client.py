@@ -1,9 +1,10 @@
 import json
 import allure
 import jmespath
-import logging
+from time import perf_counter
+from uuid import uuid4
 
-from src.common.logger import get_logger
+from src.common.logger import clear_log_context, get_logger, set_log_context
 from requests import Response, Session
 from requests.exceptions import HTTPError, JSONDecodeError, RequestException
 from src.common.mixins.assertions import AssertionsMixin
@@ -48,6 +49,9 @@ class BaseClient(AssertionsMixin):
 
     def _request(self, method, endpoint, raise_for_status=True, **kwargs):
         url = f"{self.full_url}/{endpoint.lstrip('/')}"
+        request_id = kwargs.pop("request_id", uuid4().hex[:8])
+        set_log_context(request_id=request_id)
+        started_at = perf_counter()
 
         # Додавання таймауту за замовчуванням, якщо він не переданий явно в тесті
         kwargs.setdefault("timeout", self.default_timeout)
@@ -75,12 +79,16 @@ class BaseClient(AssertionsMixin):
                 self.logger.info(f"Response is not JSON. Text: {response.text[:200]}...")
             if raise_for_status:
                 response.raise_for_status()
+            elapsed_ms = int((perf_counter() - started_at) * 1000)
+            self.logger.info(f"Request completed with status={response.status_code} in {elapsed_ms}ms")
             return response
 
         except (HTTPError, RequestException) as e:
             # Обробляємо як HTTP помилки, так і помилки з'єднання/таймаути
             self._log_error(method, url, response, kwargs, exception=e)
             raise
+        finally:
+            clear_log_context("request_id")
 
 
     def _log_error(self, method, url, response, kwargs, exception=None):

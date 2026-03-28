@@ -1,7 +1,9 @@
+import os
+
 import pytest
 
 from src.common.config import DEFAULT_ENV_NAME, envs
-from src.common.logger import get_logger
+from src.common.logger import clear_log_context, get_logger, set_log_context
 
 # Root orchestration node: keep hooks here and load fixture modules as plugins.
 pytest_plugins = [
@@ -24,6 +26,18 @@ def pytest_addoption(parser):
         choices=allowed_envs,
         help=f"Choose environment: {', '.join(allowed_envs)}"
     )
+
+
+def pytest_configure(config):
+    env_name = config.getoption("--env")
+    worker_name = os.getenv("PYTEST_XDIST_WORKER", "main")
+    set_log_context(env=env_name, worker=worker_name)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    clear_log_context()
+
+
 # Generating good-looking names for reports
 def pytest_make_parametrize_id(val, argname):
     if argname == "inputs" and isinstance(val, dict):
@@ -35,6 +49,16 @@ def pytest_make_parametrize_id(val, argname):
         return ""
 
     return None
+
+
+def pytest_runtest_setup(item):
+    set_log_context(test_nodeid=item.nodeid)
+
+
+def pytest_runtest_teardown(item):
+    clear_log_context("test_nodeid")
+
+
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     # Running test

@@ -1,7 +1,42 @@
 import logging
 import os
 import sys
+from contextvars import ContextVar
 from datetime import datetime
+
+
+_LOG_CONTEXT: ContextVar[dict] = ContextVar("log_context", default={})
+_CONTEXT_KEYS = ("env", "worker", "test_nodeid", "user_type", "request_id")
+
+
+def set_log_context(**kwargs):
+    current = dict(_LOG_CONTEXT.get())
+    for key, value in kwargs.items():
+        if value is None:
+            current.pop(key, None)
+        else:
+            current[key] = value
+    _LOG_CONTEXT.set(current)
+
+
+def clear_log_context(*keys):
+    if not keys:
+        _LOG_CONTEXT.set({})
+        return
+
+    current = dict(_LOG_CONTEXT.get())
+    for key in keys:
+        current.pop(key, None)
+    _LOG_CONTEXT.set(current)
+
+
+class _ContextFilter(logging.Filter):
+    def filter(self, record):
+        context = _LOG_CONTEXT.get()
+        for key in _CONTEXT_KEYS:
+            value = context.get(key, "-")
+            setattr(record, key, value)
+        return True
 
 
 def get_logger(name):
@@ -11,9 +46,13 @@ def get_logger(name):
         logger.setLevel(logging.INFO)
 
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            "%(asctime)s - %(name)s - %(levelname)s - "
+            "env=%(env)s worker=%(worker)s test=%(test_nodeid)s "
+            "user=%(user_type)s req=%(request_id)s - %(message)s",
             datefmt='%Y-%m-%d %H:%M:%S'
         )
+
+        logger.addFilter(_ContextFilter())
 
         #set up output in stdout
         console_handler = logging.StreamHandler(sys.stdout)

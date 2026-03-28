@@ -2,7 +2,7 @@ import pytest
 from requests import Session
 
 from src.api.api_client import ApiClient
-from src.common.logger import get_logger
+from src.common.logger import clear_log_context, get_logger, set_log_context
 from src.common.user_accounts import UserFactory, UserType
 
 
@@ -31,6 +31,7 @@ def user_session(base_session, request, cfg):
     """Return an authorized session for a selected user type."""
     # getattr looks for 'param' in request; if absent, use default user
     user_type = getattr(request, "param", UserType.WITH_HISTORY)
+    set_log_context(user_type=user_type.value)
     user = UserFactory.get_user(user_type, cfg)
 
     session = base_session
@@ -69,6 +70,7 @@ def user_session(base_session, request, cfg):
     session.headers.pop("x-fuser-id", None)
     if hasattr(session, "api_session_id"):
         del session.api_session_id
+    clear_log_context("user_type")
 
 
 # --- Layer #3: Main API entry point ---
