@@ -8,7 +8,7 @@ from src.common.logger import clear_log_context, get_logger, set_log_context
 from requests import Response, Session
 from requests.exceptions import HTTPError, JSONDecodeError, RequestException
 from src.common.mixins.assertions import AssertionsMixin
-from utils.report_helper import attach_curl
+from utils.report_helper import attach_curl, attach_json
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -69,17 +69,18 @@ class BaseClient(AssertionsMixin):
         response = None
         try:
             response = self.session.request(method, url, **kwargs)
-            # Attaching cURL to allure report
-            attach_curl(response)
+            elapsed_ms = int((perf_counter() - started_at) * 1000)
+            # Attach request metadata and cURL representation to Allure.
+            attach_curl(response, duration_ms=elapsed_ms)
             # Trying to make the successful response looks good-looking
             try:
                 res_json = response.json()
                 self.logger.info(f"Response JSON:\n{self._format_json(res_json)}")
+                attach_json(res_json, name="API Response", response=response, duration_ms=elapsed_ms)
             except (JSONDecodeError, ValueError):
                 self.logger.info(f"Response is not JSON. Text: {response.text[:200]}...")
             if raise_for_status:
                 response.raise_for_status()
-            elapsed_ms = int((perf_counter() - started_at) * 1000)
             self.logger.info(f"Request completed with status={response.status_code} in {elapsed_ms}ms")
             return response
 

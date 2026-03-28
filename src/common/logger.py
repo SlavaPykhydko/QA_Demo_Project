@@ -30,6 +30,11 @@ def clear_log_context(*keys):
     _LOG_CONTEXT.set(current)
 
 
+def get_log_context():
+    """Return a copy of current structured logging context."""
+    return dict(_LOG_CONTEXT.get())
+
+
 class _ContextFilter(logging.Filter):
     def filter(self, record):
         context = _LOG_CONTEXT.get()

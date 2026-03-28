@@ -4,16 +4,50 @@ import allure
 import re
 from pytest_check import check
 
+from src.common.logger import get_log_context
 
-def attach_json(data, name="API Response"):
+
+def _build_context_meta(response=None, duration_ms=None):
+    context = get_log_context()
+    meta = {
+        "env": context.get("env", "-"),
+        "worker": context.get("worker", "-"),
+        "test_nodeid": context.get("test_nodeid", "-"),
+        "user_type": context.get("user_type", "-"),
+        "request_id": context.get("request_id", "-"),
+    }
+
+    if response is not None:
+        request = getattr(response, "request", None)
+        meta["status_code"] = getattr(response, "status_code", "-")
+        meta["method"] = getattr(request, "method", "-") if request else "-"
+        meta["url"] = getattr(request, "url", "-") if request else "-"
+
+    if duration_ms is not None:
+        meta["duration_ms"] = duration_ms
+
+    return meta
+
+
+def attach_json(data, name="API Response", response=None, duration_ms=None):
+    if hasattr(data, "model_dump"):
+        payload_data = data.model_dump()
+    else:
+        payload_data = data
+
+    attachment_payload = {
+        "meta": _build_context_meta(response=response, duration_ms=duration_ms),
+        "body": payload_data,
+    }
+
     allure.attach(
-        data.model_dump_json(indent=2),
+        json.dumps(attachment_payload, indent=2, ensure_ascii=False, default=str),
         name=name,
         attachment_type=allure.attachment_type.JSON
     )
 
 
-def attach_curl(response):
+def attach_curl(response, duration_ms=None):
     if not hasattr(response, 'request'):
         return
 
@@ -21,7 +55,7 @@ def attach_curl(response):
     url = request.url
 
     # 1. Список ключей, которые мы хотим скрыть
-    SENSITIVE_KEYS = ['x-fuser-id', 'Authorization', 'token', 'x-api-key']
+    SENSITIVE_KEYS = ['x-fuser-id', 'authorization', 'token', 'x-api-key', 'session_id', 'cookie']
 
     # 2. Маскируем данные в URL (Query Parameters)
     # Ищем в URL паттерны типа session_id=abc12345 и заменяем на [MASKED]
@@ -30,8 +64,20 @@ def attach_curl(response):
         pattern = rf"({key}=)([^&]+)"
         url = re.sub(pattern, r"\1[MASKED]", url)
 
+    # Mask query params using case-insensitive replacement.
+    url = re.sub(r"(?i)(session_id=)([^&]+)", r"\1[MASKED]", url)
+
     # 3. Базовая команда с маскированным URL
     command = f"curl -X {request.method} '{url}'"
+
+    # 3.1 Add context metadata so Allure attachment matches console/file logs.
+    meta = _build_context_meta(response=response, duration_ms=duration_ms)
+    context_line = (
+        f"# env={meta['env']} worker={meta['worker']} test={meta['test_nodeid']} "
+        f"user={meta['user_type']} req={meta['request_id']} "
+        f"status={meta.get('status_code', '-')} duration_ms={meta.get('duration_ms', '-')}"
+    )
+    command = f"{context_line}\n{command}"
 
     # 4. Добавляем заголовки с маскировкой
     ignored_headers = ['User-Agent', 'Accept-Encoding', 'Connection', 'Accept']
@@ -40,7 +86,7 @@ def attach_curl(response):
             continue
 
         # Если заголовок чувствительный — маскируем
-        display_value = "[MASKED]" if any(sk.lower() in k.lower() for sk in SENSITIVE_KEYS) else v
+        display_value = "[MASKED]" if any(sk in k.lower() for sk in SENSITIVE_KEYS) else v
         command += f" \\\n  -H '{k}: {display_value}'"
 
     # 5. Добавляем тело (Body) - там тоже могут быть токены
@@ -48,8 +94,9 @@ def attach_curl(response):
         try:
             body_str = request.body.decode('utf-8') if isinstance(request.body, bytes) else str(request.body)
             # Маскируем и в теле (если там JSON)
-            for key in SENSITIVE_KEYS:
-                body_str = re.sub(rf'("{key}":\s*")[^"]+(")', r'\1[MASKED]\2', body_str)
+            body_str = re.sub(r'(?i)("password"\s*:\s*")[^"]+(")', r'\1[MASKED]\2', body_str)
+            body_str = re.sub(r'(?i)("token"\s*:\s*")[^"]+(")', r'\1[MASKED]\2', body_str)
+            body_str = re.sub(r'(?i)("session_id"\s*:\s*")[^"]+(")', r'\1[MASKED]\2', body_str)
 
             # Форматируем JSON для красоты
             body_json = json.loads(body_str)
