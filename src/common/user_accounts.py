@@ -10,10 +10,16 @@ class UserAccount:
         self.login = login
         self.password = password
 
+    @property
+    def masked_login(self) -> str:
+        """Return login with last 2 characters replaced by asterisks."""
+        if len(self.login) <= 2:
+            return "**"
+        return self.login[:-2] + "**"
+
     def __repr__(self):
         """It will be shown in the logs during a crash and in reports"""
-        return (f"User(login='{self.login}', "
-                f"password='[MASKED]'")
+        return f"User(login='{self.masked_login}', password='[MASKED]')"
 
 class UserFactory:
     @staticmethod

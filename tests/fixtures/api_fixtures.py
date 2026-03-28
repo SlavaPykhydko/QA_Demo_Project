@@ -35,7 +35,7 @@ def user_session(base_session, request, cfg):
     user = UserFactory.get_user(user_type, cfg)
 
     session = base_session
-    report_logger.info(f"Attempting login for: {user.login}")
+    report_logger.info(f"Attempting login for: {user.masked_login}")
 
     login_payload = {"login": user.login, "password": user.password}
     login_res = session.post(f"{cfg.BASE_URL}{cfg.API_VERSION}/auth/basic", json=login_payload)
