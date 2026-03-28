@@ -41,6 +41,13 @@ class _ContextFilter(logging.Filter):
         for key in _CONTEXT_KEYS:
             value = context.get(key, "-")
             setattr(record, key, value)
+
+        # Append a blank separator line after each entry so logs are easier
+        # to scan in console, log files, and the Allure `log` attachment.
+        # Runs at logger level → affects ALL handlers including pytest capture.
+        if isinstance(record.msg, str) and not record.msg.endswith("\n"):
+            record.msg = record.msg + "\n"
+
         return True
 
 

@@ -15,6 +15,17 @@ pytest_plugins = [
 # Creating logger for fixture/reports
 report_logger = get_logger("TestReport")
 
+
+def _short_test_nodeid(nodeid: str) -> str:
+    """Convert full pytest nodeid to a concise `file::test[param]` form."""
+    parts = nodeid.split("::")
+    if len(parts) < 2:
+        return nodeid
+
+    file_name = parts[0].rsplit("/", 1)[-1]
+    test_part = parts[-1]
+    return f"{file_name}::{test_part}"
+
 def pytest_addoption(parser):
     """ Registration -env flag in pytest."""
     allowed_envs = sorted(name.lower() for name in envs.keys())
@@ -52,7 +63,7 @@ def pytest_make_parametrize_id(val, argname):
 
 
 def pytest_runtest_setup(item):
-    set_log_context(test_nodeid=item.nodeid)
+    set_log_context(test_nodeid=_short_test_nodeid(item.nodeid))
 
 
 def pytest_runtest_teardown(item):
