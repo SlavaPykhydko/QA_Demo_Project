@@ -4,6 +4,13 @@ import pytest_check as check
 import requests
 from concurrent.futures import ThreadPoolExecutor
 
+from data.online_orders_positive_data import (
+    LIST_INFO_DATA,
+    ORDER_STATUS_MAPPING,
+    STATUS_DATA,
+    STATUS_GROUP_MAPPING,
+)
+
 # Now ALL tests in this file are automatically labeled 'positive' and 'regression'
 pytestmark = [
     pytest.mark.positive,
@@ -14,17 +21,10 @@ pytestmark = [
 ]
 
 class TestScheme:
-    test_data = [
-        ({"status": "All"}),
-        ({"status": "Done"}),
-        ({"status": "Cancel"})
-        # ({"status": "Active"}),
-    ]
-
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check contract with status: {inputs[status]}")  # Dynamic title
-    @pytest.mark.parametrize("inputs", test_data)
+    @pytest.mark.parametrize("inputs", STATUS_DATA)
     def test_scheme(self, api, inputs):
         parsed_data = api.online_orders.get_parsed_items(
             page=0,
@@ -37,49 +37,11 @@ class TestScheme:
             check.greater(parsed_data.totalPages, 0, "totalPages param must be > 0")
 
 class TestListInfo:
-    # Defining test data (input parameters, expected results)
-    test_data = [
-        # 1. All orders in one page
-        (
-            {"page": 0, "limit": 40, "status": "All"},
-            {"totalCount": "ALL", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
-        ),
-        # 2. The first page with limit=10
-        pytest.param(
-            {"page": 0, "limit": 10, "status": "All"},
-            {"totalCount": "ALL", "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
-            marks=[pytest.mark.xfail(reason="BUG: Total count is wrong", strict=True),
-            allure.issue("#Link to Bug #1", "Total count is wrong"),
-            allure.description("⚠️ Expected Bug: Total count is wrong. Look at task  #1"),],
-            id="page_0_limit_10_status=All-BUG",
-        ),
-        # 3. The last page with limit=10
-        (
-            {"page": 2, "limit": 10, "status": "All"},
-            {"totalCount": "ALL", "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False}
-        ),
-        # 4. Some middle page with limit=1
-        (
-            {"page": 10, "limit": 1, "status": "All"},
-            {"totalCount": "ALL", "totalPages": 22, "pageIndex": 10, "hasPreviousPage": True,
-             "hasNextPage": True}
-        ),
-        # 5. Done orders in one page
-        (
-            {"page": 0, "limit": 40, "status": "Done"},
-            {"totalCount": "DONE", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
-        ),
-        # 6. Cancel orders in one page
-        (
-            {"page": 0, "limit": 40, "status": "Cancel"},
-            {"totalCount": "CANCEL", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False}
-        )
-    ]
 
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check list info params with inputs: {inputs}")
-    @pytest.mark.parametrize("inputs, expected", test_data)
+    @pytest.mark.parametrize("inputs, expected", LIST_INFO_DATA)
     def test_list_info_params(self, api, inputs, expected, expected_data):
         marker_total_count = expected["totalCount"]
         expected_total_count = getattr(expected_data, marker_total_count)
@@ -150,15 +112,9 @@ class TestItemType:
 
 
 class TestOnlineOrdersFilterStatus:
-    test_data = [
-        ({"status": "All"}),
-        ({"status": "Done"}),
-        ({"status": "Cancel"})
-    ]
-
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check quantity items with status: {inputs[status]}")
-    @pytest.mark.parametrize("inputs", test_data)
+    @pytest.mark.parametrize("inputs", STATUS_DATA)
     def test_quantity_items_for_each_status(self, api, inputs):
         data = api.online_orders.get_parsed_items(
             page=0,
@@ -169,17 +125,11 @@ class TestOnlineOrdersFilterStatus:
                         "The number of items is not equal totalCount from response")
 
 
-    # Creating mapping: what status is requested -> the list available statuses in the response
-    order_status_mapping = [
-        ("All", ["received", "canceled", "assembling", "readyforpickup"]),  # For All are allowed both
-        ("Done", ["received"]),
-        ("Cancel", ["canceled"]),
-    ]
 
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check each item from items has correct orderStatus and status params with input status: {requested_status}")
-    @pytest.mark.parametrize("requested_status, allowed_statuses", order_status_mapping)
+    @pytest.mark.parametrize("requested_status, allowed_statuses", ORDER_STATUS_MAPPING)
     def test_each_item_has_correct_status(self, api, requested_status, allowed_statuses):
         status_ua = ["отримано", "скасовано", "в обробці", "готове до видачі"]
 
@@ -197,16 +147,11 @@ class TestOnlineOrdersFilterStatus:
                     f"Expected one of: {status_ua}"
                 )
 
-    status_group_mapping = [
-        ("All", ["received", "canceled", "in_processing","ready_for_receive"]),  # For All are allowed both
-        ("Done", ["received"]),
-        ("Cancel", ["canceled"]),
-    ]
 
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check each item from items has correct statusGroup param with input status: {requested_status}")
-    @pytest.mark.parametrize("requested_status, allowed_statuses", status_group_mapping)
+    @pytest.mark.parametrize("requested_status, allowed_statuses", STATUS_GROUP_MAPPING)
     def test_each_item_has_correct_status_group(self, api, requested_status, allowed_statuses):
         for item, page in api.online_orders.get_items_with_pagination(limit=40, status=requested_status):
             with allure.step(f"For item ID: {item.id} check item.statusGroup is one of the {allowed_statuses}"):
@@ -215,7 +160,6 @@ class TestOnlineOrdersFilterStatus:
                     f"Page {page}: Item ID {item.id} has wrong status '{item.statusGroup}'. "
                     f"Expected one of: {allowed_statuses}"
                 )
-
 
 
 class TestQntAllItemsViaPagination:

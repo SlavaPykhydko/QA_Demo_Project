@@ -1,6 +1,8 @@
 import allure
 import pytest
 import pytest_check as check
+
+from data.online_orders_positive_data import STATUS_DATA
 from src.common.user_accounts import UserType
 
 # All tests in this file will use USER_EMPTY
@@ -15,15 +17,10 @@ pytestmark = [
 ]
 
 class TestSchemeEmptyState:
-    test_data = [
-        ({"status": "All"}),
-        ({"status": "Done"}),
-        ({"status": "Cancel"})
-    ]
 
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check contract with status: {inputs[status]}")  # Dynamic title
-    @pytest.mark.parametrize("inputs", test_data)
+    @pytest.mark.parametrize("inputs", STATUS_DATA)
     def test_scheme_empty_state(self, api, inputs):
         parsed_data = api.online_orders.get_parsed_items(
             page=0,
@@ -34,4 +31,3 @@ class TestSchemeEmptyState:
             check.equal(len(parsed_data.items), 0, "List of items should be empty")
         with allure.step("Verifying that response returned 0 in totalPages"):
             check.equal(parsed_data.totalPages, 0, "totalPages should be 0")
-
