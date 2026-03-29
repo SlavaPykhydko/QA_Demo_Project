@@ -1,12 +1,13 @@
 import allure
 import pytest
-
+from src.common.enums.orders import Status, OrderStatus
 
 # Used in TestScheme and TestOnlineOrdersFilterStatus
 STATUS_DATA = [
-    pytest.param({"status": "All"}, id="status_All"),
-    pytest.param({"status": "Done"}, id="status_Done"),
-    pytest.param({"status": "Cancel"}, id="status_Cancel"),
+    pytest.param({"status": Status.ALL}, id="status_All"),
+    pytest.param({"status": Status.DONE}, id="status_Done"),
+    pytest.param({"status": Status.CANCEL}, id="status_Cancel"),
+    # pytest.param({"status": Status.ACTIVE}, id="status_Active")
 ]
 
 # Used in TestListInfo
@@ -51,9 +52,9 @@ LIST_INFO_DATA = [
 
 # Used in TestOnlineOrdersFilterStatus.test_each_item_has_correct_status
 ORDER_STATUS_MAPPING = [
-    ("All", ["received", "canceled", "assembling", "readyforpickup"]),
-    ("Done", ["received"]),
-    ("Cancel", ["canceled"]),
+    (Status.ALL, [OrderStatus.RECEIVED, OrderStatus.CANCELED, OrderStatus.ASSEMBLING, OrderStatus.READY_FOR_PICKUP]),
+    (Status.DONE, [OrderStatus.RECEIVED]),
+    (Status.CANCEL, [OrderStatus.CANCELED]),
 ]
 
 # Used in TestOnlineOrdersFilterStatus.test_each_item_has_correct_status_group

@@ -10,6 +10,7 @@ from data.online_orders_positive_data import (
     STATUS_DATA,
     STATUS_GROUP_MAPPING,
 )
+from src.common.enums.orders import StatusUA
 
 # Now ALL tests in this file are automatically labeled 'positive' and 'regression'
 pytestmark = [
@@ -131,20 +132,20 @@ class TestOnlineOrdersFilterStatus:
     @allure.title("Check each item from items has correct orderStatus and status params with input status: {requested_status}")
     @pytest.mark.parametrize("requested_status, allowed_statuses", ORDER_STATUS_MAPPING)
     def test_each_item_has_correct_status(self, api, requested_status, allowed_statuses):
-        status_ua = ["отримано", "скасовано", "в обробці", "готове до видачі"]
+        allowed_statuses_ua = [s.value for s in StatusUA]
 
         for item, page in api.online_orders.get_items_with_pagination(limit=40, status=requested_status):
             with allure.step(f"For item ID: {item.id} check item.orderStatus is one of the {allowed_statuses}"):
                 check.is_in(
-                    item.orderStatus.lower(), allowed_statuses,
+                    item.orderStatus, allowed_statuses,
                     f"Page {page}: Item ID {item.id} has wrong status '{item.orderStatus}'. "
                     f"Expected one of: {allowed_statuses}"
                 )
-            with allure.step(f"For item ID: {item.id} check item.status in UA lang on of the {status_ua}"):
+            with allure.step(f"For item ID: {item.id} check item.status in UA lang on of the {allowed_statuses_ua}"):
                 check.is_in(
-                    item.status.lower(), status_ua,
+                    item.status, allowed_statuses_ua,
                     f"Page {page}: Item ID {item.id} has wrong status '{item.status}'. "
-                    f"Expected one of: {status_ua}"
+                    f"Expected one of: {allowed_statuses_ua}"
                 )
 
 
