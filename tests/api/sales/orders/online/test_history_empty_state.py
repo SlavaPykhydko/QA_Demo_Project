@@ -2,6 +2,7 @@ import allure
 import pytest
 import pytest_check as check
 
+from data.online_orders_constants import LIMIT_40
 from data.online_orders_positive_data import STATUS_DATA
 from src.common.user_accounts import UserType
 
@@ -24,7 +25,7 @@ class TestSchemeEmptyState:
     def test_scheme_empty_state(self, api, inputs):
         parsed_data = api.online_orders.get_parsed_items(
             page=0,
-            limit=40,
+            limit=LIMIT_40,
             status=inputs["status"])
 
         with allure.step("Verifying that response returned 0 items"):

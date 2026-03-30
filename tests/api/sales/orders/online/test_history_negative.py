@@ -2,6 +2,7 @@ import allure
 import pytest
 import pytest_check as check
 
+from data.online_orders_constants import LIMIT_40
 from data.online_orders_negative_data import NEGATIVE_PAGE_DATA, NEGATIVE_STATUS_DATA
 from src.common.enums.orders import Status
 
@@ -21,7 +22,7 @@ class TestInvalidStatusHandling:
     def test_status_field_validation(self, api, inputs):
         response = api.online_orders.get_items(
             page=0,
-            limit=40,
+            limit=LIMIT_40,
             status=inputs["status"],
             raise_for_status=False)
 
@@ -48,7 +49,7 @@ class TestInvalidPageHandling:
     def test_page_field_validation(self, api, inputs):
         response = api.online_orders.get_items(
             page=inputs["page"],
-            limit=40,
+            limit=LIMIT_40,
             status=Status.ALL,
             raise_for_status=False)
 

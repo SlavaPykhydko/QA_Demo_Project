@@ -1,2 +1,3 @@
 ALLOWED_IMAGE_EXTENSIONS = (".jpg", ".jpeg")
+LIMIT_40 = 40
 
