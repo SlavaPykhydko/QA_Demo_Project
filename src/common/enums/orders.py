@@ -6,6 +6,16 @@ class OrderStatus(str, Enum):
     ASSEMBLING = "Assembling"
     READY_FOR_PICKUP = "ReadyForPickup"
 
+    @property
+    def ukrainian(self):
+        mapping = {
+            OrderStatus.RECEIVED: StatusUA.RECEIVED,
+            OrderStatus.CANCELED: StatusUA.CANCELED,
+            OrderStatus.ASSEMBLING: StatusUA.IN_PROCESSING,
+            OrderStatus.READY_FOR_PICKUP: StatusUA.READY_FOR_RECEIVE
+        }
+        return mapping.get(self)
+
     # Цей метод каже Python: "Коли мене хочуть надрукувати як текст — показуй тільки значення"
     def __str__(self):
         return str(self.value)

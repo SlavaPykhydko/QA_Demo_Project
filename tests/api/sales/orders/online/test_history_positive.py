@@ -144,7 +144,7 @@ class TestOnlineOrdersFilterStatus:
                 )
             with allure.step(f"For item ID: {item.id} check item.status in UA lang on of the {allowed_statuses_ua}"):
                 check.is_in(
-                    item.status, allowed_statuses_ua,
+                    item.status, item.orderStatus.ukrainian.value,
                     f"Page {page}: Item ID {item.id} has wrong status '{item.status}'. "
                     f"Expected one of: {allowed_statuses_ua}"
                 )
