@@ -1,6 +1,6 @@
 import allure
 import pytest
-from src.common.enums.orders import Status, OrderStatus
+from src.common.enums.orders import Status, OrderStatus, StatusGroup
 
 # Used in TestScheme and TestOnlineOrdersFilterStatus
 STATUS_DATA = [
@@ -15,12 +15,12 @@ LIST_INFO_DATA = [
     # 1. All orders in one page
     (
         {"page": 0, "limit": 40, "status": "All"},
-        {"totalCount": "ALL", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False},
+        {"totalCount": "all", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False},
     ),
     # 2. The first page with limit=10 — known bug
     pytest.param(
         {"page": 0, "limit": 10, "status": "All"},
-        {"totalCount": "ALL", "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
+        {"totalCount": "all", "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
         marks=[
             pytest.mark.xfail(reason="BUG: Total count is wrong", strict=True),
             allure.issue("#Link to Bug #1", "Total count is wrong"),
@@ -31,22 +31,22 @@ LIST_INFO_DATA = [
     # 3. The last page with limit=10
     (
         {"page": 2, "limit": 10, "status": "All"},
-        {"totalCount": "ALL", "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False},
+        {"totalCount": "all", "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False},
     ),
     # 4. Some middle page with limit=1
     (
         {"page": 10, "limit": 1, "status": "All"},
-        {"totalCount": "ALL", "totalPages": 22, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True},
+        {"totalCount": "all", "totalPages": 22, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True},
     ),
     # 5. Done orders in one page
     (
         {"page": 0, "limit": 40, "status": "Done"},
-        {"totalCount": "DONE", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False},
+        {"totalCount": "done", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False},
     ),
     # 6. Cancel orders in one page
     (
         {"page": 0, "limit": 40, "status": "Cancel"},
-        {"totalCount": "CANCEL", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False},
+        {"totalCount": "cancel", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False},
     ),
 ]
 
@@ -59,8 +59,8 @@ ORDER_STATUS_MAPPING = [
 
 # Used in TestOnlineOrdersFilterStatus.test_each_item_has_correct_status_group
 STATUS_GROUP_MAPPING = [
-    ("All", ["received", "canceled", "in_processing", "ready_for_receive"]),
-    ("Done", ["received"]),
-    ("Cancel", ["canceled"]),
+    (Status.ALL, [StatusGroup.RECEIVED, StatusGroup.CANCELED, StatusGroup.IN_PROCESSING, StatusGroup.READY_FOR_RECEIVE]),
+    (Status.DONE, [StatusGroup.RECEIVED]),
+    (Status.CANCEL, [StatusGroup.CANCELED]),
 ]
 

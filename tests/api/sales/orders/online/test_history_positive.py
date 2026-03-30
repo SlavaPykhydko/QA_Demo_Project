@@ -3,6 +3,8 @@ import pytest
 import pytest_check as check
 import requests
 from concurrent.futures import ThreadPoolExecutor
+from data.online_orders_constants import ALLOWED_IMAGE_EXTENSIONS
+from src.common.enums.orders import StatusUA
 
 from data.online_orders_positive_data import (
     LIST_INFO_DATA,
@@ -10,7 +12,7 @@ from data.online_orders_positive_data import (
     STATUS_DATA,
     STATUS_GROUP_MAPPING,
 )
-from src.common.enums.orders import StatusUA
+
 
 # Now ALL tests in this file are automatically labeled 'positive' and 'regression'
 pytestmark = [
@@ -43,9 +45,8 @@ class TestListInfo:
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check list info params with inputs: {inputs}")
     @pytest.mark.parametrize("inputs, expected", LIST_INFO_DATA)
-    def test_list_info_params(self, api, inputs, expected, expected_data):
-        marker_total_count = expected["totalCount"]
-        expected_total_count = getattr(expected_data, marker_total_count)
+    def test_list_info_params(self, api, inputs, expected, db_orders_counts):
+        expected_total_count = db_orders_counts[expected["totalCount"]]
 
         response = api.online_orders.get_items(
             page=inputs["page"],
@@ -232,24 +233,24 @@ class TestOnlineOrdersImage:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Each picture from orders isn't broken")
-    def test_image_is_not_broken(self, api, expected_data):
+    def test_image_is_not_broken(self, api, cfg):
         # # The 'with' construct will wait for all threads to complete before exiting.
         with ThreadPoolExecutor(max_workers=10) as executor:
             for item, page in api.online_orders.get_items_with_pagination(limit=40, status="All"):
                 for url in item.goods:
                     with allure.step(f"For item ID {item.id} verify prefix and extension for: {url}"):
-                        if not url.startswith(expected_data.URL_PREFIX):
+                        if not url.startswith(cfg.URL_PREFIX):
                             check.is_true(
                                 False,
                                 f"Page {page}: Item ID {item.id} has invalid image prefix!\n"
                                 f"URL: {url}\n"
-                                f"Expected prefix: {expected_data.URL_PREFIX}")
+                                f"Expected prefix: {cfg.URL_PREFIX}")
                             continue
-                        if not url.lower().endswith(expected_data.ALLOWED_URL_EXTENSIONS):
+                        if not url.lower().endswith(ALLOWED_IMAGE_EXTENSIONS):
                             check.is_true(
                                 False,
                                 f"Page {page}: Item ID {item.id} has invalid extension. "
-                                f"URL: {url}. Expected one of: {expected_data.ALLOWED_URL_EXTENSIONS}")
+                                f"URL: {url}. Expected one of: {ALLOWED_IMAGE_EXTENSIONS}")
                             continue
                     # We send a heavy network check to the thread
                     executor.submit(self._check_single_url, url, item.id, page)
@@ -346,7 +347,8 @@ class TestDefaultsParams:
 
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Verify default 'Status' behavior (should default to 'All')")
-    def test_default_status_is_all(self, api, expected_data):
+    def test_default_status_is_all(self, api, db_orders_counts):
+        expected_count_all = db_orders_counts["all"]
         parsed_data = api.online_orders.get_parsed_items(
             page=0,
             limit=40
@@ -355,4 +357,4 @@ class TestDefaultsParams:
         with allure.step(f"Verify that items are returned (defaulting works)"):
             check.greater( len(parsed_data.items), 1, "Should return items even without explicit param Status")
         with allure.step(f"Verify that default param Status is status=All)"):
-            check.equal(parsed_data.totalCount, expected_data.ALL, "Default param Status must be status=All")
+            check.equal(parsed_data.totalCount, expected_count_all, "Default param Status must be status=All")

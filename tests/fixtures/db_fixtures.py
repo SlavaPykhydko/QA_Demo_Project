@@ -2,7 +2,6 @@ import pytest
 
 from src.database.db_client import FakeDBClient
 from src.models.orders.online_orders import OrderItem
-from tests.helpers.online_orders_expected_data import OnlineOrdersExpectedData
 
 
 @pytest.fixture(scope="session")
@@ -26,8 +25,4 @@ def db_online_orders_map(db):
     # 2. Transform to quick lookup map: {id: OrderItem}
     return {item["id"]: OrderItem(**item) for item in raw_data}
 
-
-@pytest.fixture(scope="session")
-def expected_data(db, cfg):
-    return OnlineOrdersExpectedData(db_client=db, config=cfg)
 
