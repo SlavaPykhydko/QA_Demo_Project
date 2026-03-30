@@ -14,12 +14,12 @@ STATUS_DATA = [
 LIST_INFO_DATA = [
     # 1. All orders in one page
     (
-        {"page": 0, "limit": 40, "status": "All"},
+        {"page": 0, "limit": 40, "status": Status.ALL},
         {"totalCount": "all", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False},
     ),
     # 2. The first page with limit=10 — known bug
     pytest.param(
-        {"page": 0, "limit": 10, "status": "All"},
+        {"page": 0, "limit": 10, "status": Status.ALL},
         {"totalCount": "all", "totalPages": 3, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": True},
         marks=[
             pytest.mark.xfail(reason="BUG: Total count is wrong", strict=True),
@@ -30,22 +30,22 @@ LIST_INFO_DATA = [
     ),
     # 3. The last page with limit=10
     (
-        {"page": 2, "limit": 10, "status": "All"},
+        {"page": 2, "limit": 10, "status": Status.ALL},
         {"totalCount": "all", "totalPages": 3, "pageIndex": 2, "hasPreviousPage": True, "hasNextPage": False},
     ),
     # 4. Some middle page with limit=1
     (
-        {"page": 10, "limit": 1, "status": "All"},
+        {"page": 10, "limit": 1, "status": Status.ALL},
         {"totalCount": "all", "totalPages": 22, "pageIndex": 10, "hasPreviousPage": True, "hasNextPage": True},
     ),
     # 5. Done orders in one page
     (
-        {"page": 0, "limit": 40, "status": "Done"},
+        {"page": 0, "limit": 40, "status": Status.DONE},
         {"totalCount": "done", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False},
     ),
     # 6. Cancel orders in one page
     (
-        {"page": 0, "limit": 40, "status": "Cancel"},
+        {"page": 0, "limit": 40, "status": Status.CANCEL},
         {"totalCount": "cancel", "totalPages": 1, "pageIndex": 0, "hasPreviousPage": False, "hasNextPage": False},
     ),
 ]

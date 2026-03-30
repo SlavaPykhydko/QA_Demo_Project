@@ -3,6 +3,7 @@ import allure
 import jmespath
 from time import perf_counter
 from uuid import uuid4
+from enum import Enum
 
 from src.common.logger import clear_log_context, get_logger, set_log_context
 from src.common.sensitive_keys import SENSITIVE_KEYS
@@ -48,16 +49,27 @@ class BaseClient(AssertionsMixin):
             return str(data)
 
     def _sanitize_for_log(self, data):
+        # 1. Якщо це Enum, одразу повертаємо його текстове значення
+        if isinstance(data, Enum):
+            return data.value
+
+        # 2. Якщо це словник (рекурсивно обробляємо ключі та значення)
         if isinstance(data, dict):
             sanitized = {}
             for key, value in data.items():
+                # Маскуємо сенситивні дані
                 if str(key).lower() in SENSITIVE_KEYS:
                     sanitized[key] = "[MASKED]"
                 else:
+                    # Рекурсивно чистимо значення (там може бути вкладений Enum або dict)
                     sanitized[key] = self._sanitize_for_log(value)
             return sanitized
+
+        # 3. Якщо це список (наприклад, список товарів або статусів)
         if isinstance(data, list):
             return [self._sanitize_for_log(item) for item in data]
+
+        # 4. Для всіх інших типів (int, float, str) повертаємо як є
         return data
 
 
