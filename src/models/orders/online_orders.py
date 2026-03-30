@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from typing import List, Annotated
 from datetime import datetime
 
-from src.common.enums.orders import OrderStatus, StatusGroup, Type, StatusUA
+from src.common.enums.orders import OrderStatus, StatusGroup, OrderType, StatusUA
 
 
 class OrderItem(BaseModel):
@@ -19,7 +19,7 @@ class OrderItem(BaseModel):
     statusGroup: StatusGroup
     seller: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
     quantity: int = Field(gt=0)
-    type: Type
+    type: OrderType
     deliveryId: int = Field(gt=0)
     goods: List[str]
 

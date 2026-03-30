@@ -3,6 +3,7 @@ import pytest
 import pytest_check as check
 
 from data.online_orders_negative_data import NEGATIVE_PAGE_DATA, NEGATIVE_STATUS_DATA
+from src.common.enums.orders import Status
 
 pytestmark = [
     pytest.mark.negative,
@@ -48,7 +49,7 @@ class TestInvalidPageHandling:
         response = api.online_orders.get_items(
             page=inputs["page"],
             limit=40,
-            status="All",
+            status=Status.ALL,
             raise_for_status=False)
 
         with allure.step("Check error message"):

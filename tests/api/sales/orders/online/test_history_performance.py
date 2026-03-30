@@ -3,6 +3,7 @@ import pytest
 import allure
 import pytest_check as check
 
+from src.common.enums.orders import Status
 from utils.report_helper import assert_performance_sla
 
 pytestmark = [
@@ -23,7 +24,7 @@ class TestPerformance:
 
         for i in range(1, self.ITERATIONS + 1):
             with allure.step(f"Iteration {i}: Requesting Online Orders"):
-                response = api.online_orders.get_items(page=0, limit=40, status='All')
+                response = api.online_orders.get_items(page=0, limit=40, status=Status.ALL)
 
                 check.equal(response.status_code, 200, f"Iteration {i} failed with status {response.status_code}")
 

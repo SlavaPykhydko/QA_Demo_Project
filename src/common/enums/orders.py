@@ -61,7 +61,7 @@ class StatusGroup(str, Enum):
     def __repr__(self):
         return str(self.value)
 
-class Type(str, Enum):
+class OrderType(str, Enum):
     ONLINE = "Online"
     MARKETPLACE = "Marketplace"
 
