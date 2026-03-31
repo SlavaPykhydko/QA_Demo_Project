@@ -28,6 +28,8 @@ jobs:
 
       - name: Run API Tests
         env:
+          GRAFANA_OTLP_ENDPOINT: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
+
           BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
           X_API_KEY_PROD: ${{ secrets.X_API_KEY_PROD }}
           URL_PREFIX_PROD: ${{ secrets.URL_PREFIX_PROD }}
@@ -63,7 +65,13 @@ jobs:
           DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
           DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
         run: |
-          docker compose up --exit-code-from api-tests
+          # Формируем заголовок: берем ID и Token, кодируем в Base64
+          # (Grafana ждет именно такой формат: Basic [ID:Token_в_base64])
+          AUTH_RAW="${{ secrets.GRAFANA_INSTANCE_ID }}:${{ secrets.GRAFANA_CLOUD_TOKEN }}"
+          AUTH_B64=$(echo -n "$AUTH_RAW" | base64 | tr -d '\n')
+          
+          # Передаем переменную в docker-compose
+          GRAFANA_AUTH_TOKEN=$AUTH_B64 docker compose up --exit-code-from api-tests
 
       - name: Upload Allure Results
         if: always()
