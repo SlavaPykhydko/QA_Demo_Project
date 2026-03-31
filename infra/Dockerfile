@@ -7,7 +7,7 @@ WORKDIR /app
 # 3. Копіюємо файл з залежностями (це робиться окремо для кешування)
 COPY requirements.txt .
 
-# 4. устанавливаем библиотеки 
+# 4. устанавливаем библиотеки
 #Эта команда сама просканирует твои установленные пакеты (pytest, requests) и доставит нужные дополнения для OpenTelemetry нужных версий.
 RUN pip install --no-cache-dir -r requirements.txt
 RUN opentelemetry-bootstrap -a install

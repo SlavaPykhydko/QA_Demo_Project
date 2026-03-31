@@ -11,6 +11,8 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=${GRAFANA_OTLP_ENDPOINT}
       - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic ${GRAFANA_AUTH_TOKEN}
       - OTEL_PYTHON_LOGGING_AUTO_INSTRUMENT=true
+      - TARGET_ENV=${TARGET_ENV}
+      - THREADS=${THREADS}
       - BASE_URL_PROD=${BASE_URL_PROD}
       - X_API_KEY_PROD=${X_API_KEY_PROD}
       - URL_PREFIX_PROD=${URL_PREFIX_PROD}
@@ -42,6 +44,6 @@ services:
       - ./junit-reports:/app/junit-reports
     # Команда запуска (можно менять параметры здесь)
     command: >
-      sh -c "opentelemetry-instrument pytest -m smoke --env=${TARGET_ENV:-prod} --alluredir=allure-results --clean-alluredir --junitxml=junit-reports/report_smoke.xml -n ${THREADS:-2} &&
-             opentelemetry-instrument pytest -m 'regression and not smoke' --env=${TARGET_ENV:-prod} --alluredir=allure-results --junitxml=junit-reports/report_regression.xml -n ${THREADS:-2} &&
-             opentelemetry-instrument pytest -m performance --env=${TARGET_ENV:-prod} --alluredir=allure-results --junitxml=junit-reports/report_performance.xml -n ${THREADS:-2}"
+      sh -c "opentelemetry-instrument pytest -m smoke --env=${TARGET_ENV:-prod} --alluredir=allure-results --clean-alluredir --junitxml=junit-reports/report_smoke.xml &&
+             opentelemetry-instrument pytest -m 'regression and not smoke' --env=${TARGET_ENV:-prod} --alluredir=allure-results --junitxml=junit-reports/report_regression.xml &&
+             opentelemetry-instrument pytest -m performance --env=${TARGET_ENV:-prod} --alluredir=allure-results --junitxml=junit-reports/report_performance.xml"
