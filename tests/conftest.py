@@ -1,15 +1,10 @@
 import os
+import logging
 
 import pytest
 
 from src.common.config import DEFAULT_ENV_NAME, envs
 from src.common.logger import clear_log_context, get_logger, set_log_context
-
-from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
 # Root orchestration node: keep hooks here and load fixture modules as plugins.
 pytest_plugins = [
@@ -21,32 +16,38 @@ pytest_plugins = [
 # Creating logger for fixture/reports
 report_logger = get_logger("TestReport")
 
+_LOG_ATTR_DEFAULTS = {
+    "env": "-",
+    "worker": "-",
+    "test_nodeid": "-",
+    "user_type": "-",
+    "request_id": "-",
+}
+_record_factory_installed = False
 
-@pytest.fixture(scope="session", autouse=True)
-def setup_telemetry():
-    # 1. Називаємо наш "сервіс" (твій фреймворк)
-    resource = Resource(attributes={
-        SERVICE_NAME: "python-api-tests"
-    })
 
-    # 2. Налаштовуємо провайдер
-    provider = TracerProvider(resource=resource)
+def _install_safe_log_record_factory():
+    """Prevent KeyError in pytest log formatting for third-party loggers."""
+    global _record_factory_installed
+    if _record_factory_installed:
+        return
 
-    # 3. Вказуємо куди відправляти дані (Jaeger OTLP endpoint)
-    # Якщо Jaeger у докері на тій же машині:
-    otlp_exporter = OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True)
+    previous_factory = logging.getLogRecordFactory()
 
-    # 4. Додаємо процесор для пакетної відправки
-    span_processor = BatchSpanProcessor(otlp_exporter)
-    provider.add_span_processor(span_processor)
+    def safe_factory(*args, **kwargs):
+        record = previous_factory(*args, **kwargs)
+        for key, default in _LOG_ATTR_DEFAULTS.items():
+            if not hasattr(record, key):
+                setattr(record, key, default)
+        return record
 
-    # 5. Робимо цей провайдер глобальним
-    trace.set_tracer_provider(provider)
+    logging.setLogRecordFactory(safe_factory)
+    _record_factory_installed = True
 
-    yield
 
-    # Очищуємо дані перед виходом
-    provider.shutdown()
+# NOTE: Do not configure TracerProvider here.
+# CI/local runs already use `opentelemetry-instrument`, which initializes
+# provider/exporters from environment variables.
 
 
 def _short_test_nodeid(nodeid: str) -> str:
@@ -73,6 +74,7 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+    _install_safe_log_record_factory()
     env_name = config.getoption("--env")
     worker_name = os.getenv("PYTEST_XDIST_WORKER", "main")
     set_log_context(env=env_name, worker=worker_name)
