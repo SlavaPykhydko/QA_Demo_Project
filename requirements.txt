@@ -14,14 +14,7 @@ pytest-xdist==3.8.0
 SQLAlchemy==2.0.48
 responses==0.26.0
 
-# Базовый стек OTel
 opentelemetry-api==1.40.0
 opentelemetry-sdk==1.40.0
 opentelemetry-exporter-otlp==1.40.0
-
-# Инструментация
-opentelemetry-instrumentation==0.61b0
-opentelemetry-instrumentation-requests==0.61b0
-opentelemetry-instrumentation-logging==0.61b0
-# Убираем жесткую версию для pytest, чтобы избежать конфликтов
-opentelemetry-instrumentation-pytest
+opentelemetry-distro==0.61b0
