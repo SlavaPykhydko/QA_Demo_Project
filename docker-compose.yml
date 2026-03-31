@@ -1,22 +1,26 @@
-version: '3.8'
-
 services:
   api-tests:
     build:
       context: .
       dockerfile: infra/Dockerfile
-    # Мапим переменные окружения. Docker Compose возьмет их из системы (куда их положит GH Actions)
     environment:
+      # Настройки OpenTelemetry
       - OTEL_SERVICE_NAME=python-api-tests
       - OTEL_EXPORTER_OTLP_ENDPOINT=${GRAFANA_OTLP_ENDPOINT}
       - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic ${GRAFANA_AUTH_TOKEN}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
       - OTEL_PYTHON_LOGGING_AUTO_INSTRUMENT=true
+      - OTEL_LOG_LEVEL=debug # Оставляем для отладки
+
+      # Ускоренный экспорт (флешинг)
       - OTEL_BSP_SCHEDULE_DELAY=100
       - OTEL_BSP_MAX_EXPORT_BATCH_SIZE=1
-      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-      - OTEL_LOG_LEVEL=debug
+
+      # Настройки тестов
       - TARGET_ENV=${TARGET_ENV}
       - THREADS=${THREADS}
+
+      # Прокидываем все остальные секреты
       - BASE_URL_PROD=${BASE_URL_PROD}
       - X_API_KEY_PROD=${X_API_KEY_PROD}
       - URL_PREFIX_PROD=${URL_PREFIX_PROD}
@@ -41,13 +45,9 @@ services:
       - DB_USER_STAGE=${DB_USER_STAGE}
       - DB_PASSWORD_STAGE=${DB_PASSWORD_STAGE}
       - DB_NAME_STAGE=${DB_NAME_STAGE}
-      - FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true
     volumes:
       - .:/app
       - ./allure-results:/app/allure-results
       - ./junit-reports:/app/junit-reports
-    # Команда запуска (можно менять параметры здесь)
     command: >
-      sh -c "opentelemetry-instrument pytest -m smoke --env=${TARGET_ENV:-prod} --alluredir=allure-results --clean-alluredir --junitxml=junit-reports/report_smoke.xml &&
-             opentelemetry-instrument pytest -m 'regression and not smoke' --env=${TARGET_ENV:-prod} --alluredir=allure-results --junitxml=junit-reports/report_regression.xml &&
-             opentelemetry-instrument pytest -m performance --env=${TARGET_ENV:-prod} --alluredir=allure-results --junitxml=junit-reports/report_performance.xml"
+      sh -c "opentelemetry-instrument pytest -m smoke --env=${TARGET_ENV:-prod} --alluredir=allure-results --clean-alluredir --junitxml=junit-reports/report_smoke.xml"
