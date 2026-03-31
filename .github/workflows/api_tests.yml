@@ -14,6 +14,50 @@ jobs:
   test-automation:
     runs-on: ubuntu-latest
 
+    env:
+      # --- Ссылаемся на Variables (твои TARGET_ENV и THREADS) ---
+      TARGET_ENV: ${{ vars.TARGET_ENV }}
+      THREADS: ${{ vars.THREADS }}
+
+      GRAFANA_INSTANCE_ID: ${{ secrets.GRAFANA_INSTANCE_ID }}
+      GRAFANA_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
+      GRAFANA_OTLP_ENDPOINT: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
+
+      BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
+      X_API_KEY_PROD: ${{ secrets.X_API_KEY_PROD }}
+      URL_PREFIX_PROD: ${{ secrets.URL_PREFIX_PROD }}
+
+      # User with history
+      USER_PHONE_NUMBER_PROD: ${{ secrets.USER_PHONE_NUMBER_PROD }}
+      USER_PASSWORD_PROD: ${{ secrets.USER_PASSWORD_PROD }}
+
+      # User with empty history
+      EMPTY_USER_PHONE_NUMBER_PROD: ${{ secrets.EMPTY_USER_PHONE_NUMBER_PROD }}
+      EMPTY_USER_PASSWORD_PROD: ${{ secrets.EMPTY_USER_PASSWORD_PROD }}
+
+      # Stage Environment
+      BASE_URL_STAGE: ${{ secrets.BASE_URL_STAGE }}
+      X_API_KEY_STAGE: ${{ secrets.X_API_KEY_STAGE }}
+      URL_PREFIX_STAGE: ${{ secrets.URL_PREFIX_STAGE }}
+      USER_PHONE_STAGE: ${{ secrets.USER_PHONE_STAGE }}
+      USER_PASS_STAGE: ${{ secrets.USER_PASS_STAGE }}
+      EMPTY_USER_PHONE_STAGE: ${{ secrets.EMPTY_USER_PHONE_STAGE }}
+      EMPTY_USER_PASS_STAGE: ${{ secrets.EMPTY_USER_PASS_STAGE }}
+
+      # Database PROD
+      DB_HOST_PROD: ${{ secrets.DB_HOST_PROD }}
+      DB_PORT_PROD: ${{ secrets.DB_PORT_PROD }}
+      DB_USER_PROD: ${{ secrets.DB_USER_PROD }}
+      DB_PASSWORD_PROD: ${{ secrets.DB_PASSWORD_PROD }}
+      DB_NAME_PROD: ${{ secrets.DB_NAME_PROD }}
+
+      # Database STAGE
+      DB_HOST_STAGE: ${{ secrets.DB_HOST_STAGE }}
+      DB_PORT_STAGE: ${{ secrets.DB_PORT_STAGE }}
+      DB_USER_STAGE: ${{ secrets.DB_USER_STAGE }}
+      DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
+      DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
+
     permissions:
       contents: write
       pages: write
@@ -27,57 +71,13 @@ jobs:
         run: docker compose build
 
       - name: Run API Tests
-        env:
-          # --- Ссылаемся на Variables (твои TARGET_ENV и THREADS) ---
-          TARGET_ENV: ${{ vars.TARGET_ENV }}
-          THREADS: ${{ vars.THREADS }}
-
-          GRAFANA_INSTANCE_ID: ${{ secrets.GRAFANA_INSTANCE_ID }}
-          GRAFANA_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
-          GRAFANA_OTLP_ENDPOINT: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
-
-          BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
-          X_API_KEY_PROD: ${{ secrets.X_API_KEY_PROD }}
-          URL_PREFIX_PROD: ${{ secrets.URL_PREFIX_PROD }}
-
-          # User with history
-          USER_PHONE_NUMBER_PROD: ${{ secrets.USER_PHONE_NUMBER_PROD }}
-          USER_PASSWORD_PROD: ${{ secrets.USER_PASSWORD_PROD }}
-
-          # User with empty history
-          EMPTY_USER_PHONE_NUMBER_PROD: ${{ secrets.EMPTY_USER_PHONE_NUMBER_PROD }}
-          EMPTY_USER_PASSWORD_PROD: ${{ secrets.EMPTY_USER_PASSWORD_PROD }}
-
-          # Stage Environment
-          BASE_URL_STAGE: ${{ secrets.BASE_URL_STAGE }}
-          X_API_KEY_STAGE: ${{ secrets.X_API_KEY_STAGE }}
-          URL_PREFIX_STAGE: ${{ secrets.URL_PREFIX_STAGE }}
-          USER_PHONE_STAGE: ${{ secrets.USER_PHONE_STAGE }}
-          USER_PASS_STAGE: ${{ secrets.USER_PASS_STAGE }}
-          EMPTY_USER_PHONE_STAGE: ${{ secrets.EMPTY_USER_PHONE_STAGE }}
-          EMPTY_USER_PASS_STAGE: ${{ secrets.EMPTY_USER_PASS_STAGE }}
-
-          # Database PROD
-          DB_HOST_PROD: ${{ secrets.DB_HOST_PROD }}
-          DB_PORT_PROD: ${{ secrets.DB_PORT_PROD }}
-          DB_USER_PROD: ${{ secrets.DB_USER_PROD }}
-          DB_PASSWORD_PROD: ${{ secrets.DB_PASSWORD_PROD }}
-          DB_NAME_PROD: ${{ secrets.DB_NAME_PROD }}
-
-          # Database STAGE
-          DB_HOST_STAGE: ${{ secrets.DB_HOST_STAGE }}
-          DB_PORT_STAGE: ${{ secrets.DB_PORT_STAGE }}
-          DB_USER_STAGE: ${{ secrets.DB_USER_STAGE }}
-          DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
-          DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
         run: |
           AUTH_RAW="${GRAFANA_INSTANCE_ID}:${GRAFANA_CLOUD_TOKEN}"
-          AUTH_B64=$(echo -n "$AUTH_RAW" | base64 | tr -d '\n')
+          AUTH_B64=$(echo -n "$AUTH_RAW" | base64 -w 0)
           
-          GRAFANA_AUTH_TOKEN=$AUTH_B64 \
-          TARGET_ENV=$TARGET_ENV \
-          THREADS=$THREADS \
-          docker compose up --exit-code-from api-tests
+          export GRAFANA_AUTH_TOKEN=$AUTH_B64
+          
+          docker compose up --build --exit-code-from api-tests
 
       - name: Upload Allure Results
         if: always()
