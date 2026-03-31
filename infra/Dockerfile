@@ -7,7 +7,8 @@ WORKDIR /app
 # 3. Копіюємо файл з залежностями (це робиться окремо для кешування)
 COPY requirements.txt .
 
-# 4. Встановлюємо бібліотеки
+# 4. Обновляем pip и устанавливаем библиотеки
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 5. Копіюємо весь проект у контейнер
