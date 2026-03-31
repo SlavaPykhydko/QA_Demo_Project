@@ -5,6 +5,12 @@ import pytest
 from src.common.config import DEFAULT_ENV_NAME, envs
 from src.common.logger import clear_log_context, get_logger, set_log_context
 
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+
 # Root orchestration node: keep hooks here and load fixture modules as plugins.
 pytest_plugins = [
     "tests.fixtures.config_fixtures",
@@ -14,6 +20,33 @@ pytest_plugins = [
 
 # Creating logger for fixture/reports
 report_logger = get_logger("TestReport")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_telemetry():
+    # 1. Називаємо наш "сервіс" (твій фреймворк)
+    resource = Resource(attributes={
+        SERVICE_NAME: "python-api-tests"
+    })
+
+    # 2. Налаштовуємо провайдер
+    provider = TracerProvider(resource=resource)
+
+    # 3. Вказуємо куди відправляти дані (Jaeger OTLP endpoint)
+    # Якщо Jaeger у докері на тій же машині:
+    otlp_exporter = OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True)
+
+    # 4. Додаємо процесор для пакетної відправки
+    span_processor = BatchSpanProcessor(otlp_exporter)
+    provider.add_span_processor(span_processor)
+
+    # 5. Робимо цей провайдер глобальним
+    trace.set_tracer_provider(provider)
+
+    yield
+
+    # Очищуємо дані перед виходом
+    provider.shutdown()
 
 
 def _short_test_nodeid(nodeid: str) -> str:
