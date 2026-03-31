@@ -181,10 +181,11 @@ class TestSellerConsistency:
     @allure.title("Check consistency seller with selling type")
     def test_seller_and_selling_type_consistency(self, api):
         expected_types = [t.value for t in OrderType]
+        seller_name = "епіцентр к"
 
         for item, page in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=Status.ALL):
             with allure.step(f"For item ID {item.id} check item.type is one of the {expected_types}"):
-                if item.seller.lower() == "епіцентр к":
+                if item.seller.lower() == seller_name:
                     (check.equal(item.type, OrderType.ONLINE),
                      f"For page='{page}' item type '{item.type}'or seller '{item.seller}' is wrong")
                 else:
@@ -198,6 +199,7 @@ class TestIdsUniqueness:
     @allure.title("All ids are unique")
     def test_ids_uniqueness(self, api):
         all_collected_ids = []
+        duplicates = {}
 
         for item, page in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=Status.ALL):
             # Adding ID from the current page to common list
