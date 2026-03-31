@@ -13,7 +13,12 @@ from src.common.mixins.assertions import AssertionsMixin
 from utils.report_helper import attach_curl, attach_json
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from opentelemetry import trace, propagate
+from opentelemetry.trace import format_trace_id
+from opentelemetry.trace import StatusCode
 
+# Отримуємо глобальний трасер
+tracer = trace.get_tracer(__name__)
 
 class BaseClient(AssertionsMixin):
     def __init__(self, config, session: Session = None):
@@ -74,52 +79,137 @@ class BaseClient(AssertionsMixin):
 
 
     def _request(self, method, endpoint, raise_for_status=True, **kwargs):
-        url = f"{self.full_url}/{endpoint.lstrip('/')}"
-        request_id = kwargs.pop("request_id", uuid4().hex[:8])
-        set_log_context(request_id=request_id)
-        started_at = perf_counter()
+        # Починаємо новий "Span" (етап) для кожного запиту
+        with tracer.start_as_current_span(f"HTTP {method} {endpoint}") as span:
+            url = f"{self.full_url}/{endpoint.lstrip('/')}"
 
-        # Додавання таймауту за замовчуванням, якщо він не переданий явно в тесті
-        kwargs.setdefault("timeout", self.default_timeout)
+            # Отримуємо Trace ID від OpenTelemetry (у форматі hex)
+            span_context = span.get_span_context()
+            trace_id = format_trace_id(span_context.trace_id)
 
-        # Adding session_id in all requests if it there is in session
-        if hasattr(self.session, "api_session_id"):
-            # extract current params from kwargs or creating an empty dict
-            params = kwargs.get("params", {})
-            #Adding our session_id
-            params["session_id"] = self.session.api_session_id
-            kwargs["params"] = params
+            # Оновлюємо твій лог-контекст існуючим Trace ID
+            # Тепер твій request_id у логах буде дорівнювати Trace ID
+            # request_id = kwargs.pop("request_id", uuid4().hex[:8])
+            set_log_context(request_id=trace_id)
 
-        safe_params = self._sanitize_for_log(kwargs.get("params"))
-        safe_body = self._sanitize_for_log(kwargs.get("json"))
-        self.logger.info(
-            f"Sending {method} to {url} | Params: {safe_params} | Body: {safe_body}"
-        )
+            # Додаємо W3C стандартні хедери (traceparent) до запиту автоматично
+            headers = kwargs.get("headers", {})
+            propagate.inject(headers)
+            kwargs["headers"] = headers
 
-        response = None
-        try:
-            response = self.session.request(method, url, **kwargs)
-            elapsed_ms = int((perf_counter() - started_at) * 1000)
-            # Attach request metadata and cURL representation to Allure.
-            attach_curl(response, duration_ms=elapsed_ms)
-            # Trying to make the successful response looks good-looking
+            started_at = perf_counter()
+
+            # Додавання таймауту за замовчуванням, якщо він не переданий явно в тесті
+            kwargs.setdefault("timeout", self.default_timeout)
+
+            # Adding session_id in all requests if it there is in session
+            if hasattr(self.session, "api_session_id"):
+                # extract current params from kwargs or creating an empty dict
+                params = kwargs.get("params", {})
+                #Adding our session_id
+                params["session_id"] = self.session.api_session_id
+                kwargs["params"] = params
+
+            # Готуємо безпечні дані для логів та Jaeger
+            safe_params = self._sanitize_for_log(kwargs.get("params"))
+            safe_body = self._sanitize_for_log(kwargs.get("json"))
+
+            # --- ДОДАЄМО ПАРАМЕТРИ В JAEGER ТУТ ---
+            if safe_params:
+                span.set_attribute("request.params", json.dumps(safe_params, ensure_ascii=False))
+            if safe_body:
+                span.set_attribute("request.body", json.dumps(safe_body, ensure_ascii=False))
+            # --------------------------------------
+
+            self.logger.info(
+                f"Sending {method} to {url} | Params: {safe_params} | Body: {safe_body}"
+            )
+
+            response = None
             try:
-                res_json = response.json()
-                self.logger.info(f"Response JSON:\n{self._format_json(res_json)}")
-                attach_json(res_json, name="API Response", response=response, duration_ms=elapsed_ms)
-            except (JSONDecodeError, ValueError):
-                self.logger.info(f"Response is not JSON. Text: {response.text[:200]}...")
-            if raise_for_status:
-                response.raise_for_status()
-            self.logger.info(f"Request completed with status={response.status_code} in {elapsed_ms}ms")
-            return response
+                response = self.session.request(method, url, **kwargs)
+                elapsed_ms = int((perf_counter() - started_at) * 1000)
+                # 1. Додаємо корисні теги (Attributes)
+                span.set_attribute("http.method", method)
+                span.set_attribute("http.url", url)
+                span.set_attribute("http.status_code", response.status_code)
 
-        except (HTTPError, RequestException) as e:
-            # Обробляємо як HTTP помилки, так і помилки з'єднання/таймаути
-            self._log_error(method, url, response, kwargs, exception=e)
-            raise
-        finally:
-            clear_log_context("request_id")
+                # --- ДОДАЄМО SUCCESS RESPONSE BODY В JAEGER ---
+                if response.status_code < 400:
+                    try:
+                        res_json = response.json()
+                        # Робимо рядок із JSON
+                        res_text = json.dumps(res_json, ensure_ascii=False)
+
+                        # Обмежуємо розмір (наприклад, до 3000 символів), щоб не перевантажувати Jaeger
+                        if len(res_text) > 3000:
+                            res_text = res_text[:3000] + "... [TRUNCATED FOR JAEGER]"
+
+                        # Додаємо як подію (Event), так само як ми робили для помилок
+                        span.add_event("api_response_data", attributes={
+                            "response.body": res_text
+                        })
+                    except (JSONDecodeError, ValueError):
+                        # Якщо це не JSON, беремо перші 500 символів тексту
+                        span.set_attribute("response.raw_text", response.text[:500])
+
+                # 2. Якщо статус код >= 400, позначаємо спан як помилку
+                if response.status_code >= 400:
+                    span.set_status(StatusCode.ERROR, description=response.reason)
+
+                    try:
+                        error_json = response.json()
+
+                        # 1. Витягуємо головний заголовок помилки (наприклад, "One or more validation errors occurred.")
+                        error_title = error_json.get("title", "Validation Error")
+
+                        # 2. Формуємо зручний текст із деталями помилок
+                        # Перетворюємо {"Status": ["The value '-1' is invalid."]} у зрозумілий рядок
+                        validation_details = ""
+                        if "errors" in error_json:
+                            details = []
+                            for field, messages in error_json["errors"].items():
+                                details.append(f"{field}: {', '.join(messages)}")
+                            validation_details = " | ".join(details)
+
+                        # 3. Додаємо подію в Jaeger з усіма деталями
+                        span.add_event("api_validation_failed", attributes={
+                            "error.title": error_title,
+                            "error.fields": validation_details,
+                            "error.full_response": json.dumps(error_json, ensure_ascii=False)
+                        })
+
+                        # Додатково можна винести title в атрибути для швидкого перегляду
+                        span.set_attribute("error.message", error_title)
+
+                    except Exception:
+                        # Якщо це не JSON або сталась помилка парсингу — пишемо сирий текст
+                        span.set_attribute("error.raw_payload", response.text[:500])
+
+                # --- ОСЬ ТУТ ДОДАЄМО ПОСИЛАННЯ НА JAEGER ---
+                # Ми додаємо його одразу, щоб воно було в Allure незалежно від успіху запиту
+                allure.dynamic.link(f"http://localhost:16686/trace/{trace_id}", name=f"🔎 Trace: {trace_id}")
+                # ------------------------------------------
+                # Attach request metadata and cURL representation to Allure.
+                attach_curl(response, duration_ms=elapsed_ms)
+                # Trying to make the successful response looks good-looking
+                try:
+                    res_json = response.json()
+                    self.logger.info(f"Response JSON:\n{self._format_json(res_json)}")
+                    attach_json(res_json, name="API Response", response=response, duration_ms=elapsed_ms)
+                except (JSONDecodeError, ValueError):
+                    self.logger.info(f"Response is not JSON. Text: {response.text[:200]}...")
+                if raise_for_status:
+                    response.raise_for_status()
+                self.logger.info(f"Request completed with status={response.status_code} in {elapsed_ms}ms")
+                return response
+
+            except (HTTPError, RequestException) as e:
+                # Обробляємо як HTTP помилки, так і помилки з'єднання/таймаути
+                self._log_error(method, url, response, kwargs, exception=e)
+                raise
+            finally:
+                clear_log_context("request_id")
 
 
     def _log_error(self, method, url, response, kwargs, exception=None):
