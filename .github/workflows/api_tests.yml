@@ -71,13 +71,9 @@ jobs:
           DB_PASSWORD_STAGE: ${{ secrets.DB_PASSWORD_STAGE }}
           DB_NAME_STAGE: ${{ secrets.DB_NAME_STAGE }}
         run: |
-          # 1. Формируем строку ID:TOKEN
-          # 2. Кодируем её в Base64
-          # 3. Записываем в переменную GRAFANA_AUTH_TOKEN, которую ждет docker-compose
           AUTH_RAW="${GRAFANA_INSTANCE_ID}:${GRAFANA_CLOUD_TOKEN}"
           AUTH_B64=$(echo -n "$AUTH_RAW" | base64 | tr -d '\n')
           
-          # Запускаем докер, передавая готовую строку авторизации
           GRAFANA_AUTH_TOKEN=$AUTH_B64 \
           TARGET_ENV=$TARGET_ENV \
           THREADS=$THREADS \
