@@ -107,11 +107,9 @@ class BaseClient(AssertionsMixin):
 
         span.set_attribute("test.env", os.environ.get("TARGET_ENV", "prod"))
         span.set_attribute("test.threads", os.environ.get("THREADS", "1"))
-        span.set_attribute("test.worker", os.environ.get("PYTEST_XDIST_WORKER", "master"))
+        span.set_attribute("test.worker", os.environ.get("PYTEST_XDIST_WORKER", "main"))
         span.set_attribute("test.nodeid", test_nodeid)
         span.set_attribute("test.user", str(test_user))
-        # Keep legacy attribute for backward compatibility in existing dashboards.
-        span.set_attribute("test.user_type", str(test_user))
 
         safe_params = self._sanitize_for_log(kwargs.get("params"))
         safe_body = self._sanitize_for_log(kwargs.get("json"))
