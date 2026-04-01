@@ -6,7 +6,7 @@ services:
     environment:
       # Настройки OpenTelemetry
       - OTEL_SERVICE_NAME=python-api-tests
-      - OTEL_EXPORTER_OTLP_ENDPOINT=${GRAFANA_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=${GRAFANA_OTLP_ENDPOINT}/v1/traces
       - OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic ${GRAFANA_AUTH_TOKEN}
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
       - OTEL_PYTHON_LOGGING_AUTO_INSTRUMENT=true
@@ -50,4 +50,8 @@ services:
       - ./allure-results:/app/allure-results
       - ./junit-reports:/app/junit-reports
     command: >
-      sh -c "opentelemetry-instrument pytest -m smoke --env=${TARGET_ENV:-prod} --alluredir=allure-results --clean-alluredir --junitxml=junit-reports/report_smoke.xml"
+      opentelemetry-instrument pytest -m smoke 
+            --env=${TARGET_ENV:-prod} 
+            --alluredir=allure-results 
+            --clean-alluredir 
+            --junitxml=junit-reports/report_smoke.xml
