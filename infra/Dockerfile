@@ -1,22 +1,22 @@
 FROM python:3.10-slim
 
-# Логи Python будут вылетать в консоль мгновенно
+# Логи будут выводиться сразу
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
-RUN pip install --upgrade pip
+# Обновляем инструменты сборки
+RUN pip install --upgrade pip setuptools wheel
 
+# Копируем только требования для установки
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Устанавливаем инструментацию. Если bootstrap капризничает,
-# ставим основные пакеты явно, но БЕЗ фиксации версии.
-RUN pip install opentelemetry-instrumentation-pytest \
-                opentelemetry-instrumentation-requests \
-                opentelemetry-instrumentation-logging
-
-# Финальный прогон для остальных зависимостей
+# --- СЕКРЕТНЫЙ ИНГРЕДИЕНТ ---
+# Вместо ручной установки пакетов, которые pip "не видит",
+# мы просим bootstrap поставить ВСЁ, что подходит под твои установленные библиотеки.
 RUN opentelemetry-bootstrap -a install
 
 COPY . .
+
+# Создаем папки для отчетов
 RUN mkdir -p allure-results junit-reports && chmod -R 777 allure-results junit-reports
