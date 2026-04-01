@@ -75,13 +75,14 @@ jobs:
           GRAFANA_INSTANCE_ID: ${{ secrets.GRAFANA_INSTANCE_ID }}
           GRAFANA_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
         run: |
-          # 1. Генерируем токен
           AUTH_RAW="${GRAFANA_INSTANCE_ID}:${GRAFANA_CLOUD_TOKEN}"
           AUTH_B64=$(echo -n "$AUTH_RAW" | base64 -w 0)
           
-          # 2. Запускаем Docker
-          # Мы ПЕРЕДАЕМ сгенерированный токен в окружение команды
-          GRAFANA_AUTH_TOKEN=$AUTH_B64 docker compose up --build --exit-code-from api-tests
+          # Передаем критические переменные прямо в docker compose
+          GRAFANA_AUTH_TOKEN=$AUTH_B64 \
+          OTEL_LOG_LEVEL=debug \
+          OTEL_PYTHON_LOGGING_AUTO_INSTRUMENT=true \
+          docker compose up --build --exit-code-from api-tests
 
       - name: Upload Allure Results
         if: always()

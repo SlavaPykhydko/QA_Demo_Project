@@ -51,7 +51,7 @@ services:
       - ./junit-reports:/app/junit-reports
     command: >
       opentelemetry-instrument pytest -m smoke 
-            --env=${TARGET_ENV:-prod} 
-            --alluredir=allure-results 
-            --clean-alluredir 
-            --junitxml=junit-reports/report_smoke.xml
+      --env=${TARGET_ENV:-prod} 
+      --alluredir=allure-results 
+      --clean-alluredir 
+      --junitxml=junit-reports/report_smoke.xml
