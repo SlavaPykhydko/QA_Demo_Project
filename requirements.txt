@@ -20,3 +20,4 @@ opentelemetry-sdk==1.40.0
 opentelemetry-exporter-otlp==1.40.0
 opentelemetry-distro==0.61b0
 opentelemetry-instrumentation==0.61b0
+opentelemetry-instrumentation-requests
