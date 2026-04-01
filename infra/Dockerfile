@@ -15,6 +15,9 @@ COPY requirements.txt .
 # 5. Устанавливаем библиотеки и инструменты OpenTelemetry
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Явно ставим датчик для pytest, чтобы агент его точно увидел
+RUN pip install opentelemetry-instrumentation-pytest
+
 # КЛЮЧЕВОЙ МОМЕНТ:
 # Эта команда увидит, что у тебя установлен pytest и requests,
 # и сама скачает для них подходящие opentelemetry-instrumentation-* # (например, версии 0.51b0, которые совместимы с 0.61b0)
