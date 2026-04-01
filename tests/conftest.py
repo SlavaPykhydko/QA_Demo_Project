@@ -97,7 +97,7 @@ def pytest_configure(config):
     # Принудительно создаем новый провайдер, игнорируя старые
     provider = TracerProvider(resource=resource)
 
-    endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT")
+    endpoint = os.environ.get("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT")
     auth_token = os.environ.get("GRAFANA_AUTH_TOKEN")
 
     if endpoint and auth_token:
