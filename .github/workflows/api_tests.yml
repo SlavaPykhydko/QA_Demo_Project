@@ -79,16 +79,11 @@ jobs:
           GRAFANA_INSTANCE_ID: ${{ secrets.GRAFANA_INSTANCE_ID }}
           GRAFANA_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
         run: |
-          # 1. Генерируем токен
-          AUTH_RAW="${GRAFANA_INSTANCE_ID}:${GRAFANA_CLOUD_TOKEN}"
-          AUTH_B64=$(echo -n "$AUTH_RAW" | base64 -w 0)
+          AUTH_RAW="${{ secrets.GRAFANA_INSTANCE_ID }}:${{ secrets.GRAFANA_CLOUD_TOKEN }}"
+          export GRAFANA_AUTH_TOKEN=$(echo -n "$AUTH_RAW" | base64 -w 0)
           
-          # 2. ПРОВЕРКА (Диагностика): выведем ПЕРВЫЕ 3 символа токена для контроля (безопасно)
-          echo "Auth Token starting with: ${AUTH_B64:0:3}..."
-          
-          # 3. Запуск Docker с ПРИНУДИТЕЛЬНОЙ передачей переменной
-          # Важно: переменная должна стоять ПЕРЕД командой в той же строке!
-          GRAFANA_AUTH_TOKEN=$AUTH_B64 docker compose up --build --exit-code-from api-tests
+          # Теперь Docker точно её увидит и ворнинг исчезнет
+          docker compose up --build --exit-code-from api-tests
 
       - name: Upload Allure Results
         if: always()
