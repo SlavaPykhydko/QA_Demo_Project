@@ -101,7 +101,7 @@ def pytest_configure(config):
     auth_token = os.environ.get("GRAFANA_AUTH_TOKEN")
 
     if endpoint and auth_token:
-        url = f"{endpoint.rstrip('/')}/v1/traces"
+        url = f"{endpoint.rstrip('/')}"
         exporter = OTLPSpanExporter(
             endpoint=url,
             headers={"Authorization": f"Basic {auth_token}"}
