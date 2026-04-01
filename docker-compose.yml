@@ -11,6 +11,7 @@ services:
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
       - OTEL_PYTHON_LOGGING_AUTO_INSTRUMENT=true
       - OTEL_LOG_LEVEL=debug # Оставляем для отладки
+      - GRAFANA_AUTH_TOKEN=${GRAFANA_AUTH_TOKEN}
 
       # Ускоренный экспорт (флешинг)
       - OTEL_BSP_SCHEDULE_DELAY=100

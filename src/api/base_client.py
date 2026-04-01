@@ -170,7 +170,7 @@ class BaseClient(AssertionsMixin):
             # ДЕБАГ (удали потом): если в логах видишь "000...", значит даже так не подхватило
             if trace_id == "00000000000000000000000000000000":
                 print(f"\n⚠️ WARNING: Trace ID is still zero on worker {os.getenv('PYTEST_XDIST_WORKER')}")
-                
+
             self._inject_metadata(kwargs)
             self._record_span_attributes(span, kwargs)
 
