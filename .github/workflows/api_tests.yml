@@ -75,13 +75,18 @@ jobs:
           GRAFANA_INSTANCE_ID: ${{ secrets.GRAFANA_INSTANCE_ID }}
           GRAFANA_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
         run: |
+          # Генерация токена
           AUTH_RAW="${GRAFANA_INSTANCE_ID}:${GRAFANA_CLOUD_TOKEN}"
           AUTH_B64=$(echo -n "$AUTH_RAW" | base64 -w 0)
           
-          # Передаем критические переменные прямо в docker compose
-          GRAFANA_AUTH_TOKEN=$AUTH_B64 \
-          OTEL_LOG_LEVEL=debug \
-          OTEL_PYTHON_LOGGING_AUTO_INSTRUMENT=true \
+          # Явный экспорт для текущей сессии
+          export GRAFANA_AUTH_TOKEN=$AUTH_B64
+          
+          # ДИАГНОСТИКА: выведем в лог все OTEL переменные (без секретов)
+          echo "Checking OTel Config..."
+          printenv | grep OTEL || echo "OTEL variables are NOT set!"
+          
+          # Запуск с принудительным билдом без кэша (только для этого раза, чтобы проверить)
           docker compose up --build --exit-code-from api-tests
 
       - name: Upload Allure Results
