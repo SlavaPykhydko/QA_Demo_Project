@@ -211,126 +211,97 @@ class BaseClient(AssertionsMixin):
     #         finally:
     #             clear_log_context("request_id")
     def _request(self, method, endpoint, raise_for_status=True, **kwargs):
-        # 1. НЕ создаем новый спан через with tracer.start...
-        # А берем уже существующий, который за нас создал opentelemetry-instrument
-        span = trace.get_current_span()
-
         url = f"{self.full_url}/{endpoint.lstrip('/')}"
-        span_context = span.get_span_context()
-        trace_id = format_trace_id(span_context.trace_id)
 
-        set_log_context(request_id=trace_id)
+        # 1. Получаем текущий спан (от агента) или создаем свой, если контекст пуст
+        span = trace.get_current_span()
+        if not span.get_span_context().is_valid:
+            span = tracer.start_span(f"HTTP {method} {endpoint}")
 
+        # Используем span как контекстный менеджер
         with trace.use_span(span, end_on_exit=True):
-            url = f"{self.full_url}/{endpoint.lstrip('/')}"
-
-            # Получаем контекст для Trace ID
             span_context = span.get_span_context()
             trace_id = format_trace_id(span_context.trace_id)
 
-            # 1. Сеттим контекст логов
+            # Синхронизируем Trace ID с твоими логами
             set_log_context(request_id=trace_id)
 
-            # 2. Инъекция хедеров для трассировки (W3C Trace Context)
+            # Проброс заголовков трассировки (traceparent)
             headers = kwargs.get("headers", {})
             propagate.inject(headers)
             kwargs["headers"] = headers
 
-            # 3. ДОБАВЛЯЕМ КАСТОМНЫЕ ТЕГИ (Attributes)
-            # Берем их из окружения или параметров
-            span.set_attribute("test.env", os.environ.get("TARGET_ENV", "unknown"))
+            # 2. Кастомные атрибуты окружения
+            span.set_attribute("test.env", os.environ.get("TARGET_ENV", "prod"))
             span.set_attribute("test.threads", os.environ.get("THREADS", "1"))
-            # Если у тебя в self.session или kwargs есть тип юзера - добавим его
             if hasattr(self, "user_type"):
                 span.set_attribute("test.user_type", self.user_type)
 
-            started_at = perf_counter()
-            kwargs.setdefault("timeout", self.default_timeout)
-
-            # Обработка session_id
-            if hasattr(self.session, "api_session_id"):
-                params = kwargs.get("params", {})
-                params["session_id"] = self.session.api_session_id
-                kwargs["params"] = params
-
+            # Подготовка данных для логов и трейсов
             safe_params = self._sanitize_for_log(kwargs.get("params"))
             safe_body = self._sanitize_for_log(kwargs.get("json"))
 
-            # Логируем запрос в спан
-            # 2. Записываем атрибуты ПРЯМО в текущий span
             if safe_params:
-                span.set_attribute("custom.request.params", json.dumps(safe_params, ensure_ascii=False))
+                span.set_attribute("http.request.params", json.dumps(safe_params, ensure_ascii=False))
             if safe_body:
-                span.set_attribute("custom.request.body", json.dumps(safe_body, ensure_ascii=False))
+                span.set_attribute("http.request.body", json.dumps(safe_body, ensure_ascii=False))
 
-            self.logger.info(f"Sending {method} to {url} | Params: {safe_params} | Body: {safe_body}")
+            self.logger.info(f"Sending {method} to {url} | Params: {safe_params}")
 
+            started_at = perf_counter()
             response = None
+
             try:
+                # САМ ЗАПРОС
                 response = self.session.request(method, url, **kwargs)
                 elapsed_ms = int((perf_counter() - started_at) * 1000)
 
-                # Стандартные HTTP атрибуты
+                # Базовые атрибуты ответа
                 span.set_attribute("http.status_code", response.status_code)
-                span.set_attribute("http.response_time_ms", elapsed_ms)
+                span.set_attribute("http.duration_ms", elapsed_ms)
 
-                # --- ДОБАВЛЯЕМ RESPONSE BODY В ТРЕЙС (Grafana Event) ---
+                # 3. Обработка тела ответа (Capture Response Body)
                 if response.text:
                     try:
-                        # Если JSON - пишем красиво
                         res_payload = response.json()
                         res_text = json.dumps(res_payload, ensure_ascii=False, indent=2)
                     except:
-                        # Если нет - просто текст
                         res_text = response.text
 
-                    # Ограничение размера для Grafana (чтобы не было 413 Request Entity Too Large)
-                    if len(res_text) > 5000:
-                        res_text = res_text[:5000] + "\n... [TRUNCATED]"
-
-                    span.add_event("http.response.payload", attributes={"body": res_text})
-
-                # 3. Респонс тоже пишем в него же
-                if response.status_code < 400:
-                    # В Grafana лучше писать в атрибуты, если хочешь видеть в таблице,
-                    # или в Events, если это большой текст
-                    span.add_event("response_data", attributes={"body": response.text[:2000]})
-
-                # Обработка ошибок (>400)
-                if response.status_code >= 400:
-                    span.set_status(StatusCode.ERROR, description=f"HTTP {response.status_code}")
-                    # Добавляем детали ошибки в события
-                    span.add_event("error_details", attributes={
-                        "reason": response.reason,
-                        "content": response.text[:1000]
+                    # Добавляем тело ответа как Event (в Grafana вкладка Events)
+                    span.add_event("api_response", attributes={
+                        "body": res_text[:4000]  # Ограничение, чтобы не "раздувать" трейс
                     })
 
-                # --- ССЫЛКА НА GRAFANA В ALLURE ---
-                # Замени <YOUR_GRAFANA_URL> на адрес твоего дашборда (например slava.grafana.net)
+                # 4. Логика статусов (Success / Error)
+                if response.status_code >= 400:
+                    span.set_status(StatusCode.ERROR, description=f"HTTP {response.status_code}: {response.reason}")
+                    # Доп. инфо по ошибке
+                    span.set_attribute("error.type", "HTTPError")
+                else:
+                    span.set_status(StatusCode.OK)
+
+                # 5. Ссылка на Grafana для Allure
                 grafana_url = (
                     f"https://slava17puh.grafana.net/explore?left=%5B%22now-1h%22,%22now%22,%22Tempo%22,"
                     f"%7B%22query%22:%22{trace_id}%22%7D%5D"
                 )
                 allure.dynamic.link(grafana_url, name=f"📊 Grafana Trace: {trace_id}")
 
-                # Allure Attachments
+                # Стандартные аттачменты в Allure
                 attach_curl(response, duration_ms=elapsed_ms)
-                try:
-                    res_json = response.json()
-                    self.logger.info(f"Response JSON:\n{self._format_json(res_json)}")
-                    attach_json(res_json, name="API Response", response=response, duration_ms=elapsed_ms)
-                except:
-                    self.logger.info(f"Response is not JSON: {response.text[:200]}")
 
                 if raise_for_status:
                     response.raise_for_status()
 
                 return response
 
-            except (HTTPError, RequestException) as e:
+            except Exception as e:
+                # Если случился эксепшн (таймаут, разрыв связи)
                 span.record_exception(e)
                 span.set_status(StatusCode.ERROR, description=str(e))
-                self._log_error(method, url, response, kwargs, exception=e)
+                if hasattr(self, "_log_error"):
+                    self._log_error(method, url, response, kwargs, exception=e)
                 raise
             finally:
                 clear_log_context("request_id")
