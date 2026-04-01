@@ -131,10 +131,10 @@ class BaseClient(AssertionsMixin):
                 res_json = response.json()
                 span.add_event(
                     "api_response",
-                    attributes={"body": json.dumps(res_json, ensure_ascii=False)[:4000]},
+                    attributes={"body": json.dumps(res_json, indent=2, ensure_ascii=False)},
                 )
             except Exception:
-                span.add_event("api_response_raw", attributes={"body": response.text[:1000]})
+                span.add_event("api_response_raw", attributes={"body": response.text})
 
         if response.status_code >= 400:
             span.set_status(StatusCode.ERROR, description=f"Status {response.status_code}")
