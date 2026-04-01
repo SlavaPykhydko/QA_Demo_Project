@@ -49,12 +49,5 @@ services:
       - .:/app
       - ./allure-results:/app/allure-results
       - ./junit-reports:/app/junit-reports
-    command: >
-      - opentelemetry-instrument
-      - pytest
-      - -m
-      - smoke
-      - --env=${TARGET_ENV:-prod}
-      - --alluredir=allure-results
-      - --clean-alluredir
-      - --junitxml=junit-reports/report_smoke.xml
+    # Исправленная команда: без лишних дефисов и оболочек
+    command: opentelemetry-instrument pytest -m smoke --env=${TARGET_ENV:-prod} --alluredir=allure-results --clean-alluredir --junitxml=junit-reports/report_smoke.xml
