@@ -211,12 +211,15 @@ class BaseClient(AssertionsMixin):
     #         finally:
     #             clear_log_context("request_id")
     def _request(self, method, endpoint, raise_for_status=True, **kwargs):
-        # Вместо создания нового спана, получаем тот, который уже создала автоматика requests
-        # Если его нет (бывает при локальном запуске), создаем свой.
+        # 1. НЕ создаем новый спан через with tracer.start...
+        # А берем уже существующий, который за нас создал opentelemetry-instrument
         span = trace.get_current_span()
-        if not span.is_recording():
-            # Если автоматика не подхватила, стартуем вручную
-            span = tracer.start_span(f"HTTP {method} {endpoint}")
+
+        url = f"{self.full_url}/{endpoint.lstrip('/')}"
+        span_context = span.get_span_context()
+        trace_id = format_trace_id(span_context.trace_id)
+
+        set_log_context(request_id=trace_id)
 
         with trace.use_span(span, end_on_exit=True):
             url = f"{self.full_url}/{endpoint.lstrip('/')}"
@@ -254,10 +257,11 @@ class BaseClient(AssertionsMixin):
             safe_body = self._sanitize_for_log(kwargs.get("json"))
 
             # Логируем запрос в спан
+            # 2. Записываем атрибуты ПРЯМО в текущий span
             if safe_params:
-                span.set_attribute("http.request.params", json.dumps(safe_params, ensure_ascii=False))
+                span.set_attribute("custom.request.params", json.dumps(safe_params, ensure_ascii=False))
             if safe_body:
-                span.set_attribute("http.request.body", json.dumps(safe_body, ensure_ascii=False))
+                span.set_attribute("custom.request.body", json.dumps(safe_body, ensure_ascii=False))
 
             self.logger.info(f"Sending {method} to {url} | Params: {safe_params} | Body: {safe_body}")
 
@@ -285,6 +289,12 @@ class BaseClient(AssertionsMixin):
                         res_text = res_text[:5000] + "\n... [TRUNCATED]"
 
                     span.add_event("http.response.payload", attributes={"body": res_text})
+
+                # 3. Респонс тоже пишем в него же
+                if response.status_code < 400:
+                    # В Grafana лучше писать в атрибуты, если хочешь видеть в таблице,
+                    # или в Events, если это большой текст
+                    span.add_event("response_data", attributes={"body": response.text[:2000]})
 
                 # Обработка ошибок (>400)
                 if response.status_code >= 400:
