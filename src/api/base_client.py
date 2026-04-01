@@ -213,31 +213,24 @@ class BaseClient(AssertionsMixin):
     def _request(self, method, endpoint, raise_for_status=True, **kwargs):
         url = f"{self.full_url}/{endpoint.lstrip('/')}"
 
-        # 1. Получаем текущий спан или создаем валидный, чтобы не было "нулей"
-        span = trace.get_current_span()
-        if not span.get_span_context().is_valid:
-            span = tracer.start_span(f"HTTP {method} {endpoint}")
-
-        with trace.use_span(span, end_on_exit=True):
+        # Создаем ОДИН четкий спан-родитель
+        with tracer.start_as_current_span(f"HTTP {method} {endpoint}") as span:
             span_context = span.get_span_context()
             trace_id = format_trace_id(span_context.trace_id)
-
-            # Синхронизируем Trace ID с логами
             set_log_context(request_id=trace_id)
 
-            # Проброс заголовков трассировки
+            # Проброс заголовков
             headers = kwargs.get("headers", {})
             propagate.inject(headers)
             kwargs["headers"] = headers
 
-            # --- ВОЗВРАЩАЕМ SESSION_ID (Тот самый потерянный блок) ---
+            # --- SESSION_ID ---
             if hasattr(self.session, "api_session_id"):
                 params = kwargs.get("params", {})
                 params["session_id"] = self.session.api_session_id
                 kwargs["params"] = params
-            # -------------------------------------------------------
 
-            # Подготовка данных для атрибутов
+            # Теги окружения
             span.set_attribute("test.env", os.environ.get("TARGET_ENV", "prod"))
             span.set_attribute("test.threads", os.environ.get("THREADS", "1"))
             if hasattr(self, "user_type"):
@@ -251,48 +244,43 @@ class BaseClient(AssertionsMixin):
             if safe_body:
                 span.set_attribute("http.request.body", json.dumps(safe_body, ensure_ascii=False))
 
-            self.logger.info(f"Sending {method} to {url} | Params: {safe_params}")
+            self.logger.info(f"Sending {method} to {url}")
 
             started_at = perf_counter()
             kwargs.setdefault("timeout", self.default_timeout)
             response = None
 
             try:
-                # САМ ЗАПРОС
                 response = self.session.request(method, url, **kwargs)
                 elapsed_ms = int((perf_counter() - started_at) * 1000)
 
+                # --- ALLURE ATTACHMENTS (Возвращаем!) ---
+                attach_curl(response, duration_ms=elapsed_ms)
+
                 # Атрибуты ответа
                 span.set_attribute("http.status_code", response.status_code)
-                span.set_attribute("http.duration_ms", elapsed_ms)
 
-                # 3. Capture Response Body как Event
+                # Запись тела ответа в Трейс и в Allure
                 if response.text:
                     try:
-                        res_payload = response.json()
-                        res_text = json.dumps(res_payload, ensure_ascii=False, indent=2)
+                        res_json = response.json()
+                        # В Allure
+                        attach_json(res_json, name="API Response", response=response, duration_ms=elapsed_ms)
+                        # В Grafana (Event)
+                        span.add_event("api_response",
+                                       attributes={"body": json.dumps(res_json, ensure_ascii=False)[:4000]})
                     except:
-                        res_text = response.text
+                        span.add_event("api_response_raw", attributes={"body": response.text[:1000]})
 
-                    span.add_event("api_response", attributes={
-                        "body": res_text[:4000]
-                    })
-
-                # 4. Логика статусов
+                # Статус в Grafana
                 if response.status_code >= 400:
-                    span.set_status(StatusCode.ERROR, description=f"HTTP {response.status_code}")
+                    span.set_status(StatusCode.ERROR, description=f"Status {response.status_code}")
                 else:
                     span.set_status(StatusCode.OK)
 
-                # 5. Ссылка на Grafana для Allure
-                grafana_url = (
-                    f"https://slava17puh.grafana.net/explore?left=%5B%22now-1h%22,%22now%22,%22Tempo%22,"
-                    f"%7B%22query%22:%22{trace_id}%22%7D%5D"
-                )
+                # Ссылка для Allure
+                grafana_url = f"https://slava17puh.grafana.net/explore?left=%5B%22now-1h%22,%22now%22,%22Tempo%22,%7B%22query%22:%22{trace_id}%22%7D%5D"
                 allure.dynamic.link(grafana_url, name=f"📊 Grafana Trace: {trace_id}")
-
-                # Allure Attachments
-                attach_curl(response, duration_ms=elapsed_ms)
 
                 if raise_for_status:
                     response.raise_for_status()
