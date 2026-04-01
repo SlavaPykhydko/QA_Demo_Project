@@ -51,4 +51,4 @@ services:
       - ./allure-results:/app/allure-results
       - ./junit-reports:/app/junit-reports
     # Исправленная команда: без лишних дефисов и оболочек
-    command: pytest -m smoke -n ${THREADS} --env=${TARGET_ENV:-prod} --alluredir=allure-results --clean-alluredir --junitxml=junit-reports/report_smoke.xml
+    command: bash entrypoint.sh
