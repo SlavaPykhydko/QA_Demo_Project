@@ -98,11 +98,14 @@ def pytest_make_parametrize_id(val, argname):
 
 
 def pytest_runtest_setup(item):
-    set_log_context(test_nodeid=_short_test_nodeid(item.nodeid))
+    set_log_context(
+        test_nodeid=_short_test_nodeid(item.nodeid),
+        test_nodeid_full=item.nodeid,
+    )
 
 
 def pytest_runtest_teardown(item):
-    clear_log_context("test_nodeid")
+    clear_log_context("test_nodeid", "test_nodeid_full")
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
