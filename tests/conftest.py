@@ -5,6 +5,11 @@ import pytest
 
 from src.common.config import DEFAULT_ENV_NAME, envs
 from src.common.logger import clear_log_context, get_logger, set_log_context
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource
 
 # Root orchestration node: keep hooks here and load fixture modules as plugins.
 pytest_plugins = [
@@ -74,10 +79,44 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+    # 1. Твоя существующая логика логов
     _install_safe_log_record_factory()
-    env_name = config.getoption("--env")
+    env_name = config.getoption("--env") or os.getenv("TARGET_ENV", "prod")
     worker_name = os.getenv("PYTEST_XDIST_WORKER", "main")
     set_log_context(env=env_name, worker=worker_name)
+
+    # 2. Инициализация OpenTelemetry для воркеров
+    # Проверяем, не является ли текущий провайдер "пустышкой" (Proxy/NoOp)
+    # В новых процессах xdist он именно такой по умолчанию
+    current_provider = trace.get_tracer_provider()
+
+    if not hasattr(current_provider, "add_span_processor"):
+        resource = Resource.create({
+            "service.name": "python-api-tests",
+            "test.worker": worker_name,
+            "test.env": env_name
+        })
+
+        provider = TracerProvider(resource=resource)
+
+        # Берем данные из переменных окружения (те, что мы пробросили в Docker)
+        endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT")
+        auth_token = os.environ.get("GRAFANA_AUTH_TOKEN")
+
+        if endpoint and auth_token:
+            # Формируем корректный URL для OTLP HTTP экспортера
+            url = f"{endpoint.rstrip('/')}/v1/traces"
+
+            exporter = OTLPSpanExporter(
+                endpoint=url,
+                headers={"Authorization": f"Basic {auth_token}"}
+            )
+
+            # Добавляем процессор для отправки спанов пачками
+            provider.add_span_processor(BatchSpanProcessor(exporter))
+
+            # Устанавливаем этот провайдер как глобальный для текущего процесса-воркера
+            trace.set_tracer_provider(provider)
 
 
 def pytest_sessionfinish(session, exitstatus):
