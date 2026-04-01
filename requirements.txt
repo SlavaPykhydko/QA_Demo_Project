@@ -14,7 +14,15 @@ pytest-xdist==3.8.0
 SQLAlchemy==2.0.48
 responses==0.26.0
 
+# --- OpenTelemetry Stack ---
+# Основные библиотеки (API/SDK)
 opentelemetry-api==1.40.0
 opentelemetry-sdk==1.40.0
 opentelemetry-exporter-otlp==1.40.0
 opentelemetry-distro==0.61b0
+
+# Инструментация (Датчики, которые будут "ловить" данные)
+# Без этих трех пакетов агент opentelemetry-instrument будет работать "вхолостую"
+opentelemetry-instrumentation-pytest==0.61b0
+opentelemetry-instrumentation-requests==0.61b0
+opentelemetry-instrumentation-logging==0.61b0
