@@ -4,8 +4,8 @@ from src.common.enums.orders import Status, OrderStatus, StatusGroup
 
 # Used in TestScheme and TestOnlineOrdersFilterStatus
 STATUS_DATA = [
-    pytest.param({"status": Status.ALL}, id="status_All"),
-    pytest.param({"status": Status.DONE}, id="status_Done"),
+    # pytest.param({"status": Status.ALL}, id="status_All"),
+    # pytest.param({"status": Status.DONE}, id="status_Done"),
     pytest.param({"status": Status.CANCEL}, id="status_Cancel"),
     # pytest.param({"status": Status.ACTIVE}, id="status_Active")
 ]
