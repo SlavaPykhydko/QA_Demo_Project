@@ -6,11 +6,11 @@ import pytest
 from src.common.config import DEFAULT_ENV_NAME, envs
 from src.common.logger import clear_log_context, get_logger, set_log_context
 from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.sdk.trace import TracerProvider, SpanLimits
 
 # Root orchestration node: keep hooks here and load fixture modules as plugins.
 pytest_plugins = [
@@ -101,6 +101,22 @@ def pytest_configure(config):
     auth_token = os.environ.get("GRAFANA_AUTH_TOKEN")
 
     if endpoint and auth_token:
+        # Создаем объект лимитов вручную.
+        # 65535 символов обычно хватает для большинства логов.
+        limits = SpanLimits(max_attribute_value_length=65535)
+
+        resource = Resource.create({
+            "service.name": os.environ.get("OTEL_SERVICE_NAME", "python-api-tests"),
+            "test.worker": worker_name,
+            "test.env": env_name
+        })
+
+        # Передаем лимиты прямо в конструктор
+        provider = TracerProvider(
+            resource=resource,
+            span_limits=limits  # ВОТ ТУТ МЫ ИХ ПРИНУДИТЕЛЬНО ПРИМЕНЯЕМ
+        )
+
         url = f"{endpoint.rstrip('/')}"
         exporter = OTLPSpanExporter(
             endpoint=url,

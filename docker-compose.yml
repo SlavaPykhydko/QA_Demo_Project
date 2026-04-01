@@ -13,11 +13,6 @@ services:
       - OTEL_LOG_LEVEL=debug # Оставляем для отладки
       - GRAFANA_AUTH_TOKEN=${GRAFANA_AUTH_TOKEN}
 
-      # Увеличиваем лимит длины атрибутов (в байтах).
-      # 65535 — это стандартный предел для многих систем (64 КБ).
-      - OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT=65535
-      - OTEL_EVENT_ATTRIBUTE_VALUE_LENGTH_LIMIT=65535
-
       # Ускоренный экспорт (флешинг)
       - OTEL_BSP_SCHEDULE_DELAY=100
       - OTEL_BSP_MAX_EXPORT_BATCH_SIZE=1
