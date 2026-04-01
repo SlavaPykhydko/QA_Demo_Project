@@ -16,10 +16,13 @@ from urllib3.util.retry import Retry
 from opentelemetry import trace, propagate
 from opentelemetry.trace import Span, format_trace_id, StatusCode
 
-# Отримуємо глобальний трасер
-tracer = trace.get_tracer(__name__)
-
 class BaseClient(AssertionsMixin):
+
+    @property
+    def tracer(self):
+        """Динамически получаем актуальный трейсер."""
+        return trace.get_tracer(__name__)
+
     def __init__(self, config, session: Session = None):
         self.base_url = config.BASE_URL
         self.api_version = config.API_VERSION
@@ -161,8 +164,13 @@ class BaseClient(AssertionsMixin):
         url = f"{self.full_url}/{endpoint.lstrip('/')}"
 
         # Main orchestration flow: telemetry -> request -> reporting -> status handling.
-        with tracer.start_as_current_span(f"HTTP {method} {endpoint}") as span:
+        with self.tracer.start_as_current_span(f"HTTP {method} {endpoint}") as span:
             trace_id = self._prepare_telemetry(span)
+
+            # ДЕБАГ (удали потом): если в логах видишь "000...", значит даже так не подхватило
+            if trace_id == "00000000000000000000000000000000":
+                print(f"\n⚠️ WARNING: Trace ID is still zero on worker {os.getenv('PYTEST_XDIST_WORKER')}")
+                
             self._inject_metadata(kwargs)
             self._record_span_attributes(span, kwargs)
 
