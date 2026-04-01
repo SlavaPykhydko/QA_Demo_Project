@@ -31,6 +31,8 @@ _LOG_ATTR_DEFAULTS = {
 }
 _record_factory_installed = False
 
+# Глобальная переменная для корректного закрытия трейсера
+_otel_provider = None
 
 def _install_safe_log_record_factory():
     """Prevent KeyError in pytest log formatting for third-party loggers."""
@@ -80,58 +82,65 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
-    # Твои логи
+    global _otel_provider
+
+    # 1. Твои логи (установка контекста)
     _install_safe_log_record_factory()
     env_name = config.getoption("--env") or os.getenv("TARGET_ENV", "prod")
     worker_name = os.getenv("PYTEST_XDIST_WORKER", "main")
     set_log_context(env=env_name, worker=worker_name)
 
-    # --- ЯДЕРНАЯ ИНИЦИАЛИЗАЦИЯ ---
-    # Создаем ресурс
-    resource = Resource.create({
-        "service.name": "python-api-tests",
-        "test.worker": worker_name,
-        "test.env": env_name
-    })
-
-    # Принудительно создаем новый провайдер, игнорируя старые
-    provider = TracerProvider(resource=resource)
-
+    # 2. Получение переменных окружения из docker-compose
     endpoint = os.environ.get("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT")
     auth_token = os.environ.get("GRAFANA_AUTH_TOKEN")
+    service_name = os.environ.get("OTEL_SERVICE_NAME", "python-api-tests")
 
+    # 3. Инициализация OpenTelemetry, если есть куда и как слать данные
     if endpoint and auth_token:
-        # Создаем объект лимитов вручную.
-        # 65535 символов обычно хватает для большинства логов.
+        # Устанавливаем лимиты на длину атрибутов (чтобы body не резался на 4кб)
         limits = SpanLimits(max_attribute_value_length=65535)
 
+        # Создаем ресурс один раз
         resource = Resource.create({
-            "service.name": os.environ.get("OTEL_SERVICE_NAME", "python-api-tests"),
+            "service.name": service_name,
             "test.worker": worker_name,
             "test.env": env_name
         })
 
-        # Передаем лимиты прямо в конструктор
-        provider = TracerProvider(
+        # Создаем провайдер с лимитами и ресурсом
+        _otel_provider = TracerProvider(
             resource=resource,
-            span_limits=limits  # ВОТ ТУТ МЫ ИХ ПРИНУДИТЕЛЬНО ПРИМЕНЯЕМ
+            span_limits=limits
         )
 
-        url = f"{endpoint.rstrip('/')}"
+        # Настраиваем экспортер (endpoint уже содержит /v1/traces из docker-compose)
         exporter = OTLPSpanExporter(
-            endpoint=url,
+            endpoint=endpoint,
             headers={"Authorization": f"Basic {auth_token}"}
         )
-        provider.add_span_processor(BatchSpanProcessor(exporter))
 
-        # Устанавливаем принудительно
-        trace.set_tracer_provider(provider)
+        # Добавляем процессор
+        _otel_provider.add_span_processor(BatchSpanProcessor(exporter))
 
-        # САМОЕ ВАЖНОЕ: Включаем перехват запросов requests вручную
-        # Так как мы убрали opentelemetry-instrument из консоли
+        # Устанавливаем провайдер как глобальный
+        trace.set_tracer_provider(_otel_provider)
+
+        # Включаем авто-инструментирование запросов requests
         RequestsInstrumentor().instrument()
 
-    print(f"OTEL DEBUG: Worker {worker_name} initialized with endpoint {endpoint}")
+        print(f"\n✅ [OTEL SUCCESS] Worker {worker_name}: Tracing initialized. Endpoint: {endpoint}")
+    else:
+        print(f"\n⚠️ [OTEL SKIP] Worker {worker_name}: Tracing not configured. Missing endpoint or token.")
+
+
+def pytest_unconfigure(config):
+    """Принудительная отправка трейсов перед закрытием воркера."""
+    global _otel_provider
+    if _otel_provider:
+        worker_name = os.getenv("PYTEST_XDIST_WORKER", "main")
+        print(f"\n🚀 [OTEL] Worker {worker_name}: Flushing spans to Grafana...")
+        _otel_provider.shutdown()
+        print(f"✅ [OTEL] Worker {worker_name}: Done.")
 
 
 def pytest_sessionfinish(session, exitstatus):
