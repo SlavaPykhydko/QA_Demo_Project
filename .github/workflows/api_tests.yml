@@ -19,8 +19,6 @@ jobs:
       TARGET_ENV: ${{ vars.TARGET_ENV }}
       THREADS: ${{ vars.THREADS }}
 
-      GRAFANA_INSTANCE_ID: ${{ secrets.GRAFANA_INSTANCE_ID }}
-      GRAFANA_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
       GRAFANA_OTLP_ENDPOINT: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
 
       BASE_URL_PROD: ${{ secrets.BASE_URL_PROD }}
@@ -71,25 +69,19 @@ jobs:
         run: docker compose build
 
       - name: Run API Tests
+        env:
+          # GitHub автоматически подставит сюда всё из env джобы,
+          # но мы добавим генерацию токена прямо здесь
+          GRAFANA_INSTANCE_ID: ${{ secrets.GRAFANA_INSTANCE_ID }}
+          GRAFANA_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
         run: |
-          # 1. Формируем заголовок авторизации
-          # base64 -w 0 гарантирует отсутствие переносов строк
+          # 1. Генерируем токен
           AUTH_RAW="${GRAFANA_INSTANCE_ID}:${GRAFANA_CLOUD_TOKEN}"
           AUTH_B64=$(echo -n "$AUTH_RAW" | base64 -w 0)
           
-          # 2. Явно ЭКСПОРТИРУЕМ все переменные, которые нужны Docker Compose
-          # Это уберет ворнинги "variable is not set"
-          export GRAFANA_AUTH_TOKEN=$AUTH_B64
-          export GRAFANA_OTLP_ENDPOINT=$GRAFANA_OTLP_ENDPOINT
-          export TARGET_ENV=$TARGET_ENV
-          export THREADS=$THREADS
-          
-          # Экспортируем ключевые секреты (добавь остальные по аналогии, если нужно)
-          export BASE_URL_PROD=$BASE_URL_PROD
-          export DB_PASSWORD_PROD=$DB_PASSWORD_PROD
-          
-          # 3. Запускаем Docker. Флаг --build гарантирует свежий конфиг
-          docker compose up --build --exit-code-from api-tests
+          # 2. Запускаем Docker
+          # Мы ПЕРЕДАЕМ сгенерированный токен в окружение команды
+          GRAFANA_AUTH_TOKEN=$AUTH_B64 docker compose up --build --exit-code-from api-tests
 
       - name: Upload Allure Results
         if: always()
