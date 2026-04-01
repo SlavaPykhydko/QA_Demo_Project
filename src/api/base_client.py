@@ -167,10 +167,6 @@ class BaseClient(AssertionsMixin):
         with self.tracer.start_as_current_span(f"HTTP {method} {endpoint}") as span:
             trace_id = self._prepare_telemetry(span)
 
-            # ДЕБАГ (удали потом): если в логах видишь "000...", значит даже так не подхватило
-            if trace_id == "00000000000000000000000000000000":
-                print(f"\n⚠️ WARNING: Trace ID is still zero on worker {os.getenv('PYTEST_XDIST_WORKER')}")
-
             self._inject_metadata(kwargs)
             self._record_span_attributes(span, kwargs)
 
