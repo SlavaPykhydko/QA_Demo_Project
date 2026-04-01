@@ -20,9 +20,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # и сама скачает для них подходящие opentelemetry-instrumentation-* # (например, версии 0.51b0, которые совместимы с 0.61b0)
 RUN opentelemetry-bootstrap -a install
 
-# 7. Финальный bootstrap для подхвата остальных библиотек (urllib3 и т.д.)
-RUN opentelemetry-bootstrap -a install
-
 # 8. Копируем проект
 COPY . .
 
