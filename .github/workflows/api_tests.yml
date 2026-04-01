@@ -79,18 +79,13 @@ jobs:
           GRAFANA_INSTANCE_ID: ${{ secrets.GRAFANA_INSTANCE_ID }}
           GRAFANA_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
         run: |
-          # 1. Формируем токен авторизации
-          AUTH_RAW="${GRAFANA_INSTANCE_ID}:${GRAFANA_CLOUD_TOKEN}"
-          AUTH_B64=$(echo -n "$AUTH_RAW" | base64 -w 0)
+          # ... генерация токена ...
           
-          # 2. ДИАГНОСТИКА: Теперь она покажет правду, так как переменные в env джобы
-          echo "--- OTel Configuration Check ---"
-          echo "Endpoint: $GRAFANA_OTLP_ENDPOINT"
-          echo "Log Level: $OTEL_LOG_LEVEL"
-          
-          # 3. Запуск тестов
-          # Прокидываем сгенерированный токен напрямую в команду
-          GRAFANA_AUTH_TOKEN=$AUTH_B64 docker compose up --build --exit-code-from api-tests
+          # Запускаем с принудительным логированием самой обертки
+          GRAFANA_AUTH_TOKEN=$AUTH_B64 \
+          OTEL_LOG_LEVEL=debug \
+          OTEL_PYTHON_LOGGING_AUTO_INSTRUMENT=true \
+          docker compose up --build --exit-code-from api-tests
 
       - name: Upload Allure Results
         if: always()
