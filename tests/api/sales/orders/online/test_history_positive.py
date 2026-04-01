@@ -98,19 +98,19 @@ class TestScheme:
 #
 #
 #
-# class TestItemType:
-#     @pytest.mark.smoke
-#     @allure.severity(allure.severity_level.NORMAL)
-#     @allure.title("Item type belongs to one of the expected_types")
-#     def test_item_type(self, api):
-#         expected_types = [t.value for t in OrderType]
-#
-#         for item, page in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=Status.ALL):
-#             with allure.step(f"For tem ID: {item.id} check each item type is one of the expected_types {expected_types}"):
-#                 check.is_in(
-#                     item.type,
-#                     expected_types,
-#                      f"Page {page}: Item ID {item.id} has wrong type {item.type} Expected one of: {expected_types}")
+class TestItemType:
+    @pytest.mark.smoke
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.title("Item type belongs to one of the expected_types")
+    def test_item_type(self, api):
+        expected_types = [t.value for t in OrderType]
+
+        for item, page in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=Status.ALL):
+            with allure.step(f"For tem ID: {item.id} check each item type is one of the expected_types {expected_types}"):
+                check.is_in(
+                    item.type,
+                    expected_types,
+                     f"Page {page}: Item ID {item.id} has wrong type {item.type} Expected one of: {expected_types}")
 #
 #
 # class TestOnlineOrdersFilterStatus:
