@@ -72,6 +72,12 @@ jobs:
       - name: Build Docker Image
         run: docker compose build
 
+      - name: Check Vars
+        run: |
+          echo "VARS TARGET_ENV: ${{ vars.TARGET_ENV }}"
+          echo "VARS THREADS: ${{ vars.THREADS }}"
+          printenv | grep -E 'TARGET_ENV|THREADS'
+
       - name: Run API Tests
         env:
           # GitHub автоматически подставит сюда всё из env джобы,
@@ -82,6 +88,8 @@ jobs:
           AUTH_RAW="${{ secrets.GRAFANA_INSTANCE_ID }}:${{ secrets.GRAFANA_CLOUD_TOKEN }}"
           export GRAFANA_AUTH_TOKEN=$(echo -n "$AUTH_RAW" | base64 -w 0)
           
+          export TARGET_ENV=${{ vars.TARGET_ENV }}
+          export THREADS=${{ vars.THREADS }}
           # Теперь Docker точно её увидит и ворнинг исчезнет
           docker compose up --build --exit-code-from api-tests
 
