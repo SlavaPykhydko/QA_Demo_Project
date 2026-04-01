@@ -10,7 +10,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.sdk.trace import TracerProvider, SpanLimits
+from opentelemetry.sdk.trace import TracerProvider
 
 # Root orchestration node: keep hooks here and load fixture modules as plugins.
 pytest_plugins = [
@@ -95,25 +95,24 @@ def pytest_configure(config):
     auth_token = os.environ.get("GRAFANA_AUTH_TOKEN")
     service_name = os.environ.get("OTEL_SERVICE_NAME", "python-api-tests")
 
-    # 3. Инициализация OpenTelemetry, если есть куда и как слать данные
+    # 3. Инициализация OpenTelemetry
     if endpoint and auth_token:
-        # Устанавливаем лимиты на длину атрибутов (чтобы body не резался на 4кб)
-        limits = SpanLimits(max_attribute_value_length=65535)
+        # ПРИНУДИТЕЛЬНО устанавливаем лимиты через переменные окружения ВНУТРИ кода.
+        # Это сработает на ЛЮБОЙ версии SDK и не вызовет TypeError.
+        os.environ["OTEL_SPAN_ATTRIBUTE_VALUE_LENGTH_LIMIT"] = "65535"
+        os.environ["OTEL_EVENT_ATTRIBUTE_VALUE_LENGTH_LIMIT"] = "65535"
 
-        # Создаем ресурс один раз
+        # Создаем ресурс
         resource = Resource.create({
             "service.name": service_name,
             "test.worker": worker_name,
             "test.env": env_name
         })
 
-        # Создаем провайдер с лимитами и ресурсом
-        _otel_provider = TracerProvider(
-            resource=resource,
-            span_limits=limits
-        )
+        # Создаем провайдер БЕЗ передачи лимитов в конструктор (он сам подтянет их из os.environ выше)
+        _otel_provider = TracerProvider(resource=resource)
 
-        # Настраиваем экспортер (endpoint уже содержит /v1/traces из docker-compose)
+        # Настраиваем экспортер
         exporter = OTLPSpanExporter(
             endpoint=endpoint,
             headers={"Authorization": f"Basic {auth_token}"}
@@ -128,9 +127,9 @@ def pytest_configure(config):
         # Включаем авто-инструментирование запросов requests
         RequestsInstrumentor().instrument()
 
-        print(f"\n✅ [OTEL SUCCESS] Worker {worker_name}: Tracing initialized. Endpoint: {endpoint}")
+        print(f"\n✅ [OTEL SUCCESS] Worker {worker_name}: Tracing initialized. Limits: 64KB.")
     else:
-        print(f"\n⚠️ [OTEL SKIP] Worker {worker_name}: Tracing not configured. Missing endpoint or token.")
+        print(f"\n⚠️ [OTEL SKIP] Worker {worker_name}: Tracing not configured.")
 
 
 def pytest_unconfigure(config):
