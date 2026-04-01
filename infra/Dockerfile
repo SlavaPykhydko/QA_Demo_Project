@@ -20,6 +20,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # и сама скачает для них подходящие opentelemetry-instrumentation-* # (например, версии 0.51b0, которые совместимы с 0.61b0)
 RUN opentelemetry-bootstrap -a install
 
+# 2. Добавляем проверку: выведем список установленных плагинов OTel в лог билда
+RUN pip list | grep opentelemetry
+
 # 8. Копируем проект
 COPY . .
 
