@@ -213,31 +213,36 @@ class BaseClient(AssertionsMixin):
     def _request(self, method, endpoint, raise_for_status=True, **kwargs):
         url = f"{self.full_url}/{endpoint.lstrip('/')}"
 
-        # 1. Получаем текущий спан (от агента) или создаем свой, если контекст пуст
+        # 1. Получаем текущий спан или создаем валидный, чтобы не было "нулей"
         span = trace.get_current_span()
         if not span.get_span_context().is_valid:
             span = tracer.start_span(f"HTTP {method} {endpoint}")
 
-        # Используем span как контекстный менеджер
         with trace.use_span(span, end_on_exit=True):
             span_context = span.get_span_context()
             trace_id = format_trace_id(span_context.trace_id)
 
-            # Синхронизируем Trace ID с твоими логами
+            # Синхронизируем Trace ID с логами
             set_log_context(request_id=trace_id)
 
-            # Проброс заголовков трассировки (traceparent)
+            # Проброс заголовков трассировки
             headers = kwargs.get("headers", {})
             propagate.inject(headers)
             kwargs["headers"] = headers
 
-            # 2. Кастомные атрибуты окружения
+            # --- ВОЗВРАЩАЕМ SESSION_ID (Тот самый потерянный блок) ---
+            if hasattr(self.session, "api_session_id"):
+                params = kwargs.get("params", {})
+                params["session_id"] = self.session.api_session_id
+                kwargs["params"] = params
+            # -------------------------------------------------------
+
+            # Подготовка данных для атрибутов
             span.set_attribute("test.env", os.environ.get("TARGET_ENV", "prod"))
             span.set_attribute("test.threads", os.environ.get("THREADS", "1"))
             if hasattr(self, "user_type"):
                 span.set_attribute("test.user_type", self.user_type)
 
-            # Подготовка данных для логов и трейсов
             safe_params = self._sanitize_for_log(kwargs.get("params"))
             safe_body = self._sanitize_for_log(kwargs.get("json"))
 
@@ -249,6 +254,7 @@ class BaseClient(AssertionsMixin):
             self.logger.info(f"Sending {method} to {url} | Params: {safe_params}")
 
             started_at = perf_counter()
+            kwargs.setdefault("timeout", self.default_timeout)
             response = None
 
             try:
@@ -256,11 +262,11 @@ class BaseClient(AssertionsMixin):
                 response = self.session.request(method, url, **kwargs)
                 elapsed_ms = int((perf_counter() - started_at) * 1000)
 
-                # Базовые атрибуты ответа
+                # Атрибуты ответа
                 span.set_attribute("http.status_code", response.status_code)
                 span.set_attribute("http.duration_ms", elapsed_ms)
 
-                # 3. Обработка тела ответа (Capture Response Body)
+                # 3. Capture Response Body как Event
                 if response.text:
                     try:
                         res_payload = response.json()
@@ -268,16 +274,13 @@ class BaseClient(AssertionsMixin):
                     except:
                         res_text = response.text
 
-                    # Добавляем тело ответа как Event (в Grafana вкладка Events)
                     span.add_event("api_response", attributes={
-                        "body": res_text[:4000]  # Ограничение, чтобы не "раздувать" трейс
+                        "body": res_text[:4000]
                     })
 
-                # 4. Логика статусов (Success / Error)
+                # 4. Логика статусов
                 if response.status_code >= 400:
-                    span.set_status(StatusCode.ERROR, description=f"HTTP {response.status_code}: {response.reason}")
-                    # Доп. инфо по ошибке
-                    span.set_attribute("error.type", "HTTPError")
+                    span.set_status(StatusCode.ERROR, description=f"HTTP {response.status_code}")
                 else:
                     span.set_status(StatusCode.OK)
 
@@ -288,7 +291,7 @@ class BaseClient(AssertionsMixin):
                 )
                 allure.dynamic.link(grafana_url, name=f"📊 Grafana Trace: {trace_id}")
 
-                # Стандартные аттачменты в Allure
+                # Allure Attachments
                 attach_curl(response, duration_ms=elapsed_ms)
 
                 if raise_for_status:
@@ -297,7 +300,6 @@ class BaseClient(AssertionsMixin):
                 return response
 
             except Exception as e:
-                # Если случился эксепшн (таймаут, разрыв связи)
                 span.record_exception(e)
                 span.set_status(StatusCode.ERROR, description=str(e))
                 if hasattr(self, "_log_error"):
