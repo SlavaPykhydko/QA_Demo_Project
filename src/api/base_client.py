@@ -3,19 +3,18 @@ import allure
 import jmespath
 import os
 from time import perf_counter
-from uuid import uuid4
 from enum import Enum
+from typing import Any
 
 from src.common.logger import clear_log_context, get_logger, set_log_context
 from src.common.sensitive_keys import SENSITIVE_KEYS
 from requests import Response, Session
-from requests.exceptions import HTTPError, JSONDecodeError, RequestException
 from src.common.mixins.assertions import AssertionsMixin
 from utils.report_helper import attach_curl, attach_json
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from opentelemetry import trace, propagate
-from opentelemetry.trace import format_trace_id, StatusCode
+from opentelemetry.trace import Span, format_trace_id, StatusCode
 
 # Отримуємо глобальний трасер
 tracer = trace.get_tracer(__name__)
@@ -76,6 +75,76 @@ class BaseClient(AssertionsMixin):
 
         # 4. Для всіх інших типів (int, float, str) повертаємо як є
         return data
+
+    def _prepare_telemetry(self, span: Span) -> str:
+        """Extract trace id from current span and sync it with log context."""
+        span_context = span.get_span_context()
+        trace_id = format_trace_id(span_context.trace_id)
+        set_log_context(request_id=trace_id)
+        return trace_id
+
+    def _inject_metadata(self, kwargs: dict[str, Any]) -> None:
+        """Inject W3C headers and session_id into outgoing request metadata."""
+        headers = kwargs.get("headers", {})
+        propagate.inject(headers)
+        kwargs["headers"] = headers
+
+        if hasattr(self.session, "api_session_id"):
+            params = kwargs.get("params", {})
+            params["session_id"] = self.session.api_session_id
+            kwargs["params"] = params
+
+    def _record_span_attributes(self, span: Span, kwargs: dict[str, Any]) -> None:
+        """Record environment and sanitized request payload details on span."""
+        span.set_attribute("test.env", os.environ.get("TARGET_ENV", "prod"))
+        span.set_attribute("test.threads", os.environ.get("THREADS", "1"))
+        if hasattr(self, "user_type"):
+            span.set_attribute("test.user_type", self.user_type)
+
+        safe_params = self._sanitize_for_log(kwargs.get("params"))
+        safe_body = self._sanitize_for_log(kwargs.get("json"))
+
+        if safe_params:
+            span.set_attribute("http.request.params", json.dumps(safe_params, ensure_ascii=False))
+        if safe_body:
+            span.set_attribute("http.request.body", json.dumps(safe_body, ensure_ascii=False))
+
+    def _handle_response_telemetry(self, span: Span, response: Response) -> None:
+        """Record response status/body details and finalize span status."""
+        span.set_attribute("http.status_code", response.status_code)
+
+        if response.text:
+            try:
+                res_json = response.json()
+                span.add_event(
+                    "api_response",
+                    attributes={"body": json.dumps(res_json, ensure_ascii=False)[:4000]},
+                )
+            except Exception:
+                span.add_event("api_response_raw", attributes={"body": response.text[:1000]})
+
+        if response.status_code >= 400:
+            span.set_status(StatusCode.ERROR, description=f"Status {response.status_code}")
+        else:
+            span.set_status(StatusCode.OK)
+
+    def _report_to_allure(self, response: Response, trace_id: str, elapsed_ms: int) -> None:
+        """Attach request/response artifacts to Allure and add Grafana trace link."""
+        attach_curl(response, duration_ms=elapsed_ms)
+
+        if response.text:
+            try:
+                res_json = response.json()
+                attach_json(res_json, name="API Response", response=response, duration_ms=elapsed_ms)
+            except Exception:
+                pass
+
+        grafana_url = (
+            "https://slava17puh.grafana.net/explore?left=%5B%22now-1h%22,"
+            "%22now%22,%22Tempo%22,%7B%22query%22:%22"
+            f"{trace_id}%22%7D%5D"
+        )
+        allure.dynamic.link(grafana_url, name=f"📊 Grafana Trace: {trace_id}")
 
 
     # def _request(self, method, endpoint, raise_for_status=True, **kwargs):
@@ -213,36 +282,11 @@ class BaseClient(AssertionsMixin):
     def _request(self, method, endpoint, raise_for_status=True, **kwargs):
         url = f"{self.full_url}/{endpoint.lstrip('/')}"
 
-        # Создаем ОДИН четкий спан-родитель
+        # Main orchestration flow: telemetry -> request -> reporting -> status handling.
         with tracer.start_as_current_span(f"HTTP {method} {endpoint}") as span:
-            span_context = span.get_span_context()
-            trace_id = format_trace_id(span_context.trace_id)
-            set_log_context(request_id=trace_id)
-
-            # Проброс заголовков
-            headers = kwargs.get("headers", {})
-            propagate.inject(headers)
-            kwargs["headers"] = headers
-
-            # --- SESSION_ID ---
-            if hasattr(self.session, "api_session_id"):
-                params = kwargs.get("params", {})
-                params["session_id"] = self.session.api_session_id
-                kwargs["params"] = params
-
-            # Теги окружения
-            span.set_attribute("test.env", os.environ.get("TARGET_ENV", "prod"))
-            span.set_attribute("test.threads", os.environ.get("THREADS", "1"))
-            if hasattr(self, "user_type"):
-                span.set_attribute("test.user_type", self.user_type)
-
-            safe_params = self._sanitize_for_log(kwargs.get("params"))
-            safe_body = self._sanitize_for_log(kwargs.get("json"))
-
-            if safe_params:
-                span.set_attribute("http.request.params", json.dumps(safe_params, ensure_ascii=False))
-            if safe_body:
-                span.set_attribute("http.request.body", json.dumps(safe_body, ensure_ascii=False))
+            trace_id = self._prepare_telemetry(span)
+            self._inject_metadata(kwargs)
+            self._record_span_attributes(span, kwargs)
 
             self.logger.info(f"Sending {method} to {url}")
 
@@ -254,33 +298,8 @@ class BaseClient(AssertionsMixin):
                 response = self.session.request(method, url, **kwargs)
                 elapsed_ms = int((perf_counter() - started_at) * 1000)
 
-                # --- ALLURE ATTACHMENTS (Возвращаем!) ---
-                attach_curl(response, duration_ms=elapsed_ms)
-
-                # Атрибуты ответа
-                span.set_attribute("http.status_code", response.status_code)
-
-                # Запись тела ответа в Трейс и в Allure
-                if response.text:
-                    try:
-                        res_json = response.json()
-                        # В Allure
-                        attach_json(res_json, name="API Response", response=response, duration_ms=elapsed_ms)
-                        # В Grafana (Event)
-                        span.add_event("api_response",
-                                       attributes={"body": json.dumps(res_json, ensure_ascii=False)[:4000]})
-                    except:
-                        span.add_event("api_response_raw", attributes={"body": response.text[:1000]})
-
-                # Статус в Grafana
-                if response.status_code >= 400:
-                    span.set_status(StatusCode.ERROR, description=f"Status {response.status_code}")
-                else:
-                    span.set_status(StatusCode.OK)
-
-                # Ссылка для Allure
-                grafana_url = f"https://slava17puh.grafana.net/explore?left=%5B%22now-1h%22,%22now%22,%22Tempo%22,%7B%22query%22:%22{trace_id}%22%7D%5D"
-                allure.dynamic.link(grafana_url, name=f"📊 Grafana Trace: {trace_id}")
+                self._handle_response_telemetry(span, response)
+                self._report_to_allure(response, trace_id, elapsed_ms)
 
                 if raise_for_status:
                     response.raise_for_status()
