@@ -18,5 +18,9 @@ RUN opentelemetry-bootstrap -a install
 
 COPY . .
 
+# 2. ДЕЛАЕМ СКРИПТ ВЫПОЛНЯЕМЫМ
+# Это критически важный шаг, иначе Docker выдаст "Permission denied"
+RUN chmod +x entrypoint.sh
+
 # Создаем папки для отчетов
 RUN mkdir -p allure-results junit-reports && chmod -R 777 allure-results junit-reports
