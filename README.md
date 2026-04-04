@@ -7,6 +7,8 @@
 - **Testing Framework:** Pytest (xdist, pytest-check)
 - **Validation:** Pydantic, JMESPath
 - **Containerization:** Docker, Docker Compose
+- **Tracing:** OpenTelemetry SDK (Distributed Tracing)
+- **Storage & Visualization:** Grafana Cloud (Tempo)
 - **Infrastructure:** GitHub Actions, Telegram Bot API
 - **Reporting:** Allure Reports
 
@@ -51,6 +53,14 @@
 - **Smart Data Masking** — автоматичне маскування чутливих даних (session_id, tokens, passwords) у логах та звітах Allure.
 - **Jira Integration** — можливість додавати прямі посилання на баг-тікети за допомогою декоратора @allure.issue.
 - **Dynamic performance parameters** — візуалізація метрик швидкодії та автоматичний контроль виконання SLA безпосередньо у звіті.
+
+### 🔭 Observability & Distributed Tracing
+- **OpenTelemetry Integration** — Повна наскрізна видимість HTTP-запитів завдяки впровадженню OpenTelemetry SDK. Кожен тест тепер є частиною глобального трейсу системи.
+- **Trace Context Propagation** — Автоматична передача та синхронізація trace_id між тестами та мікросервісами, що дозволяє миттєво знаходити "корінь" проблеми в розподіленій архітектурі.
+- **Direct Deep Linking** — Динамічні посилання в Allure-звітах, що ведуть прямо на детальний Timeline конкретного трейсу в Grafana Cloud (Tempo).
+- **Parallel Tracing Stability** — Надійна ініціалізація та ізоляція передачі даних при паралельному запуску через pytest-xdist — кожен воркер працює як незалежний агент моніторингу.
+- **Rich Span Metadata** — Фіксація деталізованих івентів (Request/Response Body до 64KB) безпосередньо всередині спанів для аналізу стану системи без доступу до внутрішніх логів розробки.
+- **Graceful Data Delivery** — Гарантована відправка всіх накопичених трейсів перед завершенням роботи контейнера завдяки налаштованим механізмам flush та shutdown.
 
 ### 🤖 AI-Assisted Development
 - **Architectural optimization**
