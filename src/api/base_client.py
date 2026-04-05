@@ -20,7 +20,7 @@ class BaseClient(AssertionsMixin):
 
     @property
     def tracer(self):
-        """Динамически получаем актуальный трейсер."""
+        """Getting an actual tracer in dynamic"""
         return trace.get_tracer(__name__)
 
     def __init__(self, config, session: Session = None):
@@ -30,7 +30,7 @@ class BaseClient(AssertionsMixin):
         self.session = session if session else Session()
         self.logger = get_logger(self.__class__.__name__)
 
-        # Налаштування Retry Policy та Timeout
+        # Setting up Retry Policy and Timeout
         self.default_timeout = config.REQUEST_TIMEOUT
         self.retry_count = config.RETRY_COUNT
         self.backoff_factor = config.BACKOFF_FACTOR
@@ -38,7 +38,7 @@ class BaseClient(AssertionsMixin):
         self._setup_retry_policy()
 
     def _setup_retry_policy(self):
-        """Налаштування автоматичних повторів для нестабільних з'єднань."""
+        """Setting up auto retries for unstable connections"""
         retry_strategy = Retry(
             total=self.retry_count,  # Кількість спроб
             backoff_factor=self.backoff_factor,  # Пауза: 1s, 2s, 4s...
@@ -56,27 +56,27 @@ class BaseClient(AssertionsMixin):
             return str(data)
 
     def _sanitize_for_log(self, data):
-        # 1. Якщо це Enum, одразу повертаємо його текстове значення
+        #1. If it's Enum , return its text value
         if isinstance(data, Enum):
             return data.value
 
-        # 2. Якщо це словник (рекурсивно обробляємо ключі та значення)
+        #2. If it's Dict (process its keys and values recursively)
         if isinstance(data, dict):
             sanitized = {}
             for key, value in data.items():
-                # Маскуємо сенситивні дані
+                # Mask sensitive data
                 if str(key).lower() in SENSITIVE_KEYS:
                     sanitized[key] = "[MASKED]"
                 else:
-                    # Рекурсивно чистимо значення (там може бути вкладений Enum або dict)
+                    # Clean data recursively (there can be attached Enum or dict)
                     sanitized[key] = self._sanitize_for_log(value)
             return sanitized
 
-        # 3. Якщо це список (наприклад, список товарів або статусів)
+        # 3. If it's a list  (for example, products list or statuses list)
         if isinstance(data, list):
             return [self._sanitize_for_log(item) for item in data]
 
-        # 4. Для всіх інших типів (int, float, str) повертаємо як є
+        # 4. For others types (int, float, str) return it as is
         return data
 
     def _prepare_telemetry(self, span: Span) -> str:
