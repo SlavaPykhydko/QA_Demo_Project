@@ -55,6 +55,7 @@ ORDER_STATUS_MAPPING = [
     (Status.ALL, [OrderStatus.RECEIVED, OrderStatus.CANCELED, OrderStatus.ASSEMBLING, OrderStatus.READY_FOR_PICKUP]),
     (Status.DONE, [OrderStatus.RECEIVED]),
     (Status.CANCEL, [OrderStatus.CANCELED]),
+    # (Status.ACTIVE, [OrderStatus.ASSEMBLING, OrderStatus.READY_FOR_PICKUP]),
 ]
 
 # Used in TestOnlineOrdersFilterStatus.test_each_item_has_correct_status_group
@@ -62,5 +63,6 @@ STATUS_GROUP_MAPPING = [
     (Status.ALL, [StatusGroup.RECEIVED, StatusGroup.CANCELED, StatusGroup.IN_PROCESSING, StatusGroup.READY_FOR_RECEIVE]),
     (Status.DONE, [StatusGroup.RECEIVED]),
     (Status.CANCEL, [StatusGroup.CANCELED]),
+    # (Status.ACTIVE, [StatusGroup.IN_PROCESSING, StatusGroup.READY_FOR_RECEIVE]),
 ]
 

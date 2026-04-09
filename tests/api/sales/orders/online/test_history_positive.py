@@ -27,6 +27,7 @@ class TestScheme:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check contract with status: {inputs[status]}")  # Dynamic title
+    @allure.id("TC-SO-OH-PC-01")
     @pytest.mark.parametrize("inputs", STATUS_DATA)
     def test_scheme(self, api, inputs):
         parsed_data = api.online_orders.get_parsed_items(
@@ -44,6 +45,7 @@ class TestListInfo:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check list info params with inputs: {inputs}")
+    @allure.id("TC-SO-OH-PC-02")
     @pytest.mark.parametrize("inputs, expected", LIST_INFO_DATA)
     def test_list_info_params(self, api, inputs, expected, db_orders_counts):
         expected_total_count = db_orders_counts[expected["totalCount"]]
@@ -73,6 +75,7 @@ class TestListInfo:
 
 
     @allure.severity(allure.severity_level.NORMAL)
+    @allure.id ("TC-SO-OH-PC-03")
     @allure.title("Check sum of Done and Canceled orders:")
     def test_sum_done_cancel_active_orders(self, api, db_orders_counts):
         res_all_orders = api.online_orders.get_items(page=0, limit=LIMIT_40, status=Status.ALL)
@@ -102,11 +105,12 @@ class TestItemType:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Item type belongs to one of the expected_types")
+    @allure.id("TC-SO-OH-PC-04")
     def test_item_type(self, api):
         expected_types = [t.value for t in OrderType]
 
         for item, page in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=Status.ALL):
-            with allure.step(f"For tem ID: {item.id} check each item type is one of the expected_types {expected_types}"):
+            with allure.step(f"For item ID: {item.id} check each item type is one of the expected_types {expected_types}"):
                 check.is_in(
                     item.type,
                     expected_types,
@@ -116,6 +120,7 @@ class TestItemType:
 class TestOnlineOrdersFilterStatus:
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check quantity items with status: {inputs[status]}")
+    @allure.id("TC-SO-OH-PC-05")
     @pytest.mark.parametrize("inputs", STATUS_DATA)
     def test_quantity_items_for_each_status(self, api, inputs):
         data = api.online_orders.get_parsed_items(
@@ -131,6 +136,7 @@ class TestOnlineOrdersFilterStatus:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check each item from items has correct orderStatus and status params with input status: {requested_status}")
+    @allure.id("TC-SO-OH-PC-06")
     @pytest.mark.parametrize("requested_status, allowed_statuses", ORDER_STATUS_MAPPING)
     def test_each_item_has_correct_status(self, api, requested_status, allowed_statuses):
         allowed_statuses_ua = [s.value for s in StatusUA]
@@ -153,6 +159,7 @@ class TestOnlineOrdersFilterStatus:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check each item from items has correct statusGroup param with input status: {requested_status}")
+    @allure.id("TC-SO-OH-PC-07")
     @pytest.mark.parametrize("requested_status, allowed_statuses", STATUS_GROUP_MAPPING)
     def test_each_item_has_correct_status_group(self, api, requested_status, allowed_statuses):
         for item, page in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=requested_status):
