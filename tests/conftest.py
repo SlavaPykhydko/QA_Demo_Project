@@ -88,13 +88,6 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
-    # Прописуємо паттерн для TMS лінків (твоїх тест-кейсі) програмно
-    # Це обходить помилку "unrecognized arguments" в Docker/Linux
-    tms_pattern = "https://github.com/SlavaPykhydko/QA_Demo_Project/blob/main/tests/api/sales/orders/online/TEST-CASES.md#%s"
-
-    # Встановлюємо значення прямо в опції конфігурації
-    config.option.allure_link_tms_pattern = tms_pattern
-
     global _otel_provider
 
     # 1. Твои логи и контекст
