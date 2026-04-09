@@ -2,9 +2,9 @@ name: API Tests
 
 on:
   push:
-    branches: [ main, master, open_telemetry ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -119,6 +119,13 @@ jobs:
             ls -A | grep -vE '^[0-9]+$|history|index.html|last-history|favicon.ico|.nojekyll' | xargs rm -rf || true
             cd ..
           fi
+
+      - name: Set Allure Custom Links Pattern
+        if: always()
+        run: |
+          # Створюємо файл з налаштуваннями лінків у папці з результатами
+          # Якщо файл вже є, ми просто дописуємо в кінець
+          echo "allure.link.tms.pattern=https://github.com/SlavaPykhydko/QA_Demo_Project/blob/main/tests/api/sales/orders/online/TEST-CASES.md#%s" >> allure-results/environment.properties
 
       - name: Build Allure Report
         if: always()
