@@ -45,7 +45,7 @@ class TestListInfo:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check list info params with inputs: {inputs}")
-    @allure.testcase("TC-SO-OH-PC-02")
+    @allure.testcase("tc-so-oh-pc-02")
     @pytest.mark.parametrize("inputs, expected", LIST_INFO_DATA)
     def test_list_info_params(self, api, inputs, expected, db_orders_counts):
         expected_total_count = db_orders_counts[expected["totalCount"]]
