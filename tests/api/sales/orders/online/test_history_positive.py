@@ -175,6 +175,7 @@ class TestQntAllItemsViaPagination:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check sum qnt items from all pages")
+    @allure.id("TC-SO-OH-PC-08")
     def test_sum_qnt_items_from_all_pages(self, api, db_orders_counts):
         all_items = [item for item, page in api.online_orders.get_items_with_pagination(
             limit=LIMIT_40,
@@ -186,6 +187,7 @@ class TestQntAllItemsViaPagination:
 class TestSellerConsistency:
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Check consistency seller with selling type")
+    @allure.id("TC-SO-OH-PC-09")
     def test_seller_and_selling_type_consistency(self, api):
         expected_types = [t.value for t in OrderType]
         seller_name = "епіцентр к"
@@ -204,6 +206,7 @@ class TestIdsUniqueness:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("All ids are unique")
+    @allure.id("TC-SO-OH-PC-10")
     def test_ids_uniqueness(self, api):
         all_collected_ids = []
         duplicates = {}
@@ -222,6 +225,7 @@ class TestOrdersSorting:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("All items sorted by date")
+    @allure.id("TC-SO-OH-PC-11")
     def test_item_sorting_by_date(self, api):
         actual_dates = []
 
@@ -242,6 +246,7 @@ class TestOnlineOrdersImage:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Each picture from orders isn't broken")
+    @allure.id("TC-SO-OH-PC-12")
     def test_image_is_not_broken(self, api, cfg):
         # # The 'with' construct will wait for all threads to complete before exiting.
         with ThreadPoolExecutor(max_workers=10) as executor:
@@ -280,6 +285,7 @@ class TestOrderPrice:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Each order price more than 0")
+    @allure.id("TC-SO-OH-PC-13")
     def test_item_price_param(self, api):
         for item, page  in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=Status.ALL):
             with allure.step(f"For item ID: {item.id} check item.price more than 0"):
@@ -290,6 +296,7 @@ class TestQuantityParam:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Quantity param in each item more than 0")
+    @allure.id("TC-SO-OH-PC-14")
     def test_item_qnt_param(self, api):
         for item, page  in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=Status.ALL):
             with allure.step(f"For item ID: {item.id} check item.quantity more than 0"):
@@ -300,6 +307,7 @@ class TestGoodsAndImageConsistency:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Qnt param in each item equal qnt images")
+    @allure.id("TC-SO-OH-PC-15")
     def test_item_qnt_param_equal_image_qnt(self, api):
         for item, page  in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=Status.ALL):
             with allure.step(f"For item ID: {item.id} check item.quantity param equal qnt images"):
@@ -313,6 +321,7 @@ class TestIdAndNameConsistency:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Item name and id are similar")
+    @allure.id("TC-SO-OH-PC-16")
     def test_id_and_name_consistency(self, api):
         for item, page in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=Status.ALL):
             with allure.step(f"Check consistency for item ID: {item.id}"):
@@ -323,6 +332,7 @@ class TestOrderDataEqualDataFromDB:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Item Data from Response equal data from DB")
+    @allure.id("TC-SO-OH-PC-17")
     def test_order_data_equal_data_from_db(self, api, db_online_orders_map):
         for api_item, page in api.online_orders.get_items_with_pagination(limit=LIMIT_40, status=Status.CANCEL):
             db_item = db_online_orders_map[api_item.id]
@@ -356,6 +366,7 @@ class TestDefaultsParams:
 
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Verify default 'Status' behavior (should default to 'All')")
+    @allure.id("TC-SO-OH-PC-18")
     def test_default_status_is_all(self, api, db_orders_counts):
         expected_count_all = db_orders_counts["all"]
         parsed_data = api.online_orders.get_parsed_items(
