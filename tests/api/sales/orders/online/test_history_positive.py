@@ -75,7 +75,7 @@ class TestListInfo:
 
 
     @allure.severity(allure.severity_level.NORMAL)
-    @allure.testcase("TC-SO-OH-PC-03")
+    @allure.testcase("tc-so-oh-pc-03")
     @allure.title("Check sum of Done and Canceled orders:")
     def test_sum_done_cancel_active_orders(self, api, db_orders_counts):
         res_all_orders = api.online_orders.get_items(page=0, limit=LIMIT_40, status=Status.ALL)

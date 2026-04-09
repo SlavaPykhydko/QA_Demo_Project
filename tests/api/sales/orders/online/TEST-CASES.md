@@ -1,6 +1,6 @@
 # 📋 Test Case: Orders History Contract & Data Integrity
 
-**ID:** `TC-SO-OH-PC-01`  
+#### **ID:** `TC-SO-OH-PC-01`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -94,7 +94,7 @@ Verification of pagination metadata and list information accuracy. The test ensu
 
 # 📋 Test Case: Order Status Aggregation Consistency
 
-**ID:** `TC-SO-OH-PC-03`  
+#### **ID:**`TC-SO-OH-PC-03`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
