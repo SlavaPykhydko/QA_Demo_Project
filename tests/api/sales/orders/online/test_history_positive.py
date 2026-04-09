@@ -27,7 +27,7 @@ class TestScheme:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check contract with status: {inputs[status]}")  # Dynamic title
-    @allure.testcase("TC-SO-OH-PC-01")
+    @allure.testcase("id-tc-so-oh-pc-01")
     @pytest.mark.parametrize("inputs", STATUS_DATA)
     def test_scheme(self, api, inputs):
         parsed_data = api.online_orders.get_parsed_items(
