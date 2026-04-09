@@ -8,7 +8,6 @@ echo "🚀 Starting Test Suites..."
 # 1. Smoke Tests (Очищаем папку allure-results перед началом)
 echo "--- Running Smoke Tests ---"
 pytest -m smoke \
-    -p allure_pytest \
     --env=${TARGET_ENV:-prod} \
     --alluredir=allure-results \
     --clean-alluredir \
