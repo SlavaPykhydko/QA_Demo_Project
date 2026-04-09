@@ -157,7 +157,7 @@ class BaseClient(AssertionsMixin):
             "%22now%22,%22Tempo%22,%7B%22query%22:%22"
             f"{trace_id}%22%7D%5D"
         )
-        allure.dynamic.link(grafana_url, name=f"📊 Grafana Trace: {trace_id}")
+        allure.attach(grafana_url, name=f"📊 Grafana Trace: {trace_id}", attachment_type=allure.attachment_type.URI_LIST)
 
 
     def _request(self, method, endpoint, raise_for_status=True, **kwargs):
