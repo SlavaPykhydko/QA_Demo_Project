@@ -1,0 +1,9 @@
+curl -X GET 'https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=Cancel&session_id=[MASKED]' \
+  -H 'x-api-key: [MASKED]' \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -H 'platform: ios' \
+  -H 'mobile-version: 4.9.2122' \
+  -H 'Authorization: [MASKED]' \
+  -H 'x-fuser-id: [MASKED]' \
+  -H 'traceparent: 00-085c567ca481974dee1fee18c34cc041-0816b0f03360c04a-01' \
+  -H 'Cookie: [MASKED]'

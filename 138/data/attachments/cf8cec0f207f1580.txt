@@ -1,0 +1,12 @@
+INFO     TestReport:api_fixtures.py:38 Attempting login for: 3809367771**
+
+DEBUG    urllib3.connectionpool:connectionpool.py:1049 Starting new HTTPS connection (1): mobile-api.epicentrk.ua:443
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://mobile-api.epicentrk.ua:443 "POST /api/v2/auth/basic HTTP/1.1" 200 None
+DEBUG    urllib3.connectionpool:connectionpool.py:1049 Starting new HTTPS connection (1): otlp-gateway-prod-eu-west-2.grafana.net:443
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://mobile-api.epicentrk.ua:443 "GET /api/v2/auth/info/site-user HTTP/1.1" 200 None
+INFO     TestReport:api_fixtures.py:65 Successfully authenticated and session initialized.
+INFO     OnlineOrdersAPI:base_client.py:173 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online
+
+DEBUG    urllib3.connectionpool:connectionpool.py:1049 Starting new HTTPS connection (1): mobile-api.epicentrk.ua:443
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://otlp-gateway-prod-eu-west-2.grafana.net:443 "POST /otlp/v1/traces HTTP/1.1" 200 2
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://mobile-api.epicentrk.ua:443 "GET /api/v2/sales/orders/online?Page=0&Limit=40&Status=Cancel&session_id=1mxLb6HnPT4MAYduIQz59H2BixlowyAwqdIo6115 HTTP/1.1" 200 None

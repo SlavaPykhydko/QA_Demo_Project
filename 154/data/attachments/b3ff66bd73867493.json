@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw1",
+    "test_nodeid": "test_history_negative.py::test_page_field_validation[page_as_empty_string]",
+    "user_type": "with_history",
+    "request_id": "4965f0e19c037293a8199c7dc1045590",
+    "status_code": 400,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=&Limit=40&Status=All&session_id=FJ8q8kiOgzbXXHqbpIOBtNYoZsvPleZEhoHV44c2",
+    "duration_ms": 166
+  },
+  "body": {
+    "errors": {
+      "Page": [
+        "The value '' is invalid."
+      ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-4965f0e19c037293a8199c7dc1045590-1bc5ef8364034a20-01"
+  }
+}

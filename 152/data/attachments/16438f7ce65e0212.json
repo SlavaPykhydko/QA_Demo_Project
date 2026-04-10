@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw1",
+    "test_nodeid": "test_history_positive.py::test_list_info_params[page_2-limit_10-status_All-]",
+    "user_type": "with_history",
+    "request_id": "c265ee8d397e5ac5cd0b2dab85e94db2",
+    "status_code": 200,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=2&Limit=10&Status=All&session_id=RvTUSrcthsAS6WcuueEinx2b9pmXpl7whovX473d",
+    "duration_ms": 337
+  },
+  "body": {
+    "items": [
+      {
+        "id": 40610477,
+        "name": "40610477",
+        "price": 728.7,
+        "totalBonus": 0.0,
+        "createdOn": "2024-10-22T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "PLAMBO",
+        "quantity": 2,
+        "type": "Marketplace",
+        "deliveryId": 77,
+        "goods": [
+          "https://cdn.27.ua/sc--media--prod/default/e7/c1/79/e7c17926-f4e5-454d-8e1d-531bb242c802.jpg",
+          "https://cdn.27.ua/sc--media--prod/default/e7/c1/79/e7c17926-f4e5-454d-8e1d-531bb242c802.jpg"
+        ]
+      },
+      {
+        "id": 39927773,
+        "name": "39927773",
+        "price": 161.46,
+        "totalBonus": 0.0,
+        "createdOn": "2024-10-04T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "PLAMBO",
+        "quantity": 1,
+        "type": "Marketplace",
+        "deliveryId": 79,
+        "goods": [
+          "https://cdn.27.ua/sc--media--prod/default/e7/c1/79/e7c17926-f4e5-454d-8e1d-531bb242c802.jpg"
+        ]
+      }
+    ],
+    "pageIndex": 2,
+    "totalPages": 3,
+    "totalCount": 22,
+    "hasPreviousPage": true,
+    "hasNextPage": false
+  }
+}

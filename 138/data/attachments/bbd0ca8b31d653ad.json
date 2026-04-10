@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw1",
+    "test_nodeid": "test_history_negative.py::test_page_field_validation[page_as_null_byte]",
+    "user_type": "with_history",
+    "request_id": "49740c1ead9e056bb4ad2b88bb3efce7",
+    "status_code": 400,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=%00&Limit=40&Status=All&session_id=FRTy4B3bRCJ7DQEGBYneV3JNqWGsbr0KA7i04724",
+    "duration_ms": 146
+  },
+  "body": {
+    "errors": {
+      "Page": [
+        "The value '\u0000' is not valid for Page."
+      ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-49740c1ead9e056bb4ad2b88bb3efce7-76511d313e70f537-01"
+  }
+}

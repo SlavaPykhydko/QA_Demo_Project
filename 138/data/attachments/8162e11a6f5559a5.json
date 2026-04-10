@@ -1,0 +1,59 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw0",
+    "test_nodeid": "test_history_positive.py::test_order_data_equal_data_from_db",
+    "user_type": "with_history",
+    "request_id": "d9d6503e54e7c4d3f515f715b6b26a71",
+    "status_code": 200,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=Cancel&session_id=7hHuxCTV59Abi3ikBTPzqAG8N9x7enVTJAkN4fd2",
+    "duration_ms": 541
+  },
+  "body": {
+    "items": [
+      {
+        "id": 49105259,
+        "name": "49105259",
+        "price": 487.57,
+        "totalBonus": 0.0,
+        "createdOn": "2025-06-20T00:00:00",
+        "orderStatus": "Canceled",
+        "status": "Скасовано",
+        "statusGroup": "canceled",
+        "seller": "Епіцентр К",
+        "quantity": 2,
+        "type": "Online",
+        "deliveryId": 45,
+        "goods": [
+          "https://cdn.27.ua/190/93/11/6853393_2.jpeg",
+          "https://cdn.27.ua/190/1a/fb/137979_4.jpeg"
+        ]
+      },
+      {
+        "id": 47250679,
+        "name": "47250679",
+        "price": 2837.0,
+        "totalBonus": 0.0,
+        "createdOn": "2025-04-15T00:00:00",
+        "orderStatus": "Canceled",
+        "status": "Скасовано",
+        "statusGroup": "canceled",
+        "seller": "Епіцентр К",
+        "quantity": 3,
+        "type": "Online",
+        "deliveryId": 45,
+        "goods": [
+          "https://cdn.27.ua/190/b0/c3/7844035_1.jpeg",
+          "https://cdn.27.ua/190/9e/e3/6921955_2.jpeg",
+          "https://cdn.27.ua/190/de/09/122377_2.jpeg"
+        ]
+      }
+    ],
+    "pageIndex": 0,
+    "totalPages": 1,
+    "totalCount": 2,
+    "hasPreviousPage": false,
+    "hasNextPage": false
+  }
+}

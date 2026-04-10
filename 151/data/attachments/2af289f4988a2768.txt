@@ -1,0 +1,10 @@
+# env=prod worker=gw1 test=test_history_positive.py::test_image_is_not_broken user=with_history req=0e350cc72fa760c55be413fb168b1c61 status=200 duration_ms=1040
+curl -X GET 'https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=All&session_id=[MASKED]' \
+  -H 'x-api-key: [MASKED]' \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -H 'platform: ios' \
+  -H 'mobile-version: 4.9.2122' \
+  -H 'Authorization: [MASKED]' \
+  -H 'x-fuser-id: [MASKED]' \
+  -H 'traceparent: 00-0e350cc72fa760c55be413fb168b1c61-a2cbe12b7b8eef04-01' \
+  -H 'Cookie: [MASKED]'

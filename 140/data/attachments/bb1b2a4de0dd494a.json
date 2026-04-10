@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw1",
+    "test_nodeid": "test_history_negative.py::test_page_field_validation[page_as_random_string]",
+    "user_type": "with_history",
+    "request_id": "7c6b16c9cdf551d72773ad32d1a758da",
+    "status_code": 400,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=Unknown&Limit=40&Status=All&session_id=5TSdouZIRwXtVSx8BJOI35t4AemqAMHFASTO524d",
+    "duration_ms": 179
+  },
+  "body": {
+    "errors": {
+      "Page": [
+        "The value 'Unknown' is not valid for Page."
+      ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-7c6b16c9cdf551d72773ad32d1a758da-06652c5b586277ba-01"
+  }
+}

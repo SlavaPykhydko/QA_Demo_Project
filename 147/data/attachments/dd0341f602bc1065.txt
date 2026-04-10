@@ -1,0 +1,5 @@
+INFO     OnlineOrdersAPI:base_client.py:173 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online
+
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://otlp-gateway-prod-eu-west-2.grafana.net:443 "POST /otlp/v1/traces HTTP/1.1" 200 2
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://otlp-gateway-prod-eu-west-2.grafana.net:443 "POST /otlp/v1/traces HTTP/1.1" 200 2
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://mobile-api.epicentrk.ua:443 "GET /api/v2/sales/orders/online?Page=0&Limit=40&Status=All&session_id=TkhURgaAPwbusPHqsdfjpAUsXAMdNTFKiATc4291 HTTP/1.1" 200 None

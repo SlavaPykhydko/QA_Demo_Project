@@ -1,0 +1,10 @@
+# env=prod worker=gw0 test=test_history_empty_state.py::test_scheme_empty_state[status_Done-UserType.EMPTY] user=empty req=701a3bc8181f0818466c29c9cfc6cda1 status=200 duration_ms=179
+curl -X GET 'https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=Done&session_id=[MASKED]' \
+  -H 'x-api-key: [MASKED]' \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -H 'platform: ios' \
+  -H 'mobile-version: 4.9.2122' \
+  -H 'Authorization: [MASKED]' \
+  -H 'x-fuser-id: [MASKED]' \
+  -H 'traceparent: 00-701a3bc8181f0818466c29c9cfc6cda1-5c0cb54405b3b1f1-01' \
+  -H 'Cookie: [MASKED]'

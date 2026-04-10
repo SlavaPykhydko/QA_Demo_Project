@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw1",
+    "test_nodeid": "test_history_negative.py::test_status_field_validation[status_as_numeric_string]",
+    "user_type": "with_history",
+    "request_id": "1638693438864bc972658b89cdb30085",
+    "status_code": 400,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=12345&session_id=5TSdouZIRwXtVSx8BJOI35t4AemqAMHFASTO524d",
+    "duration_ms": 178
+  },
+  "body": {
+    "errors": {
+      "Status": [
+        "The value '12345' is invalid."
+      ]
+    },
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "traceId": "00-1638693438864bc972658b89cdb30085-c5f9ccb9b6970b99-01"
+  }
+}

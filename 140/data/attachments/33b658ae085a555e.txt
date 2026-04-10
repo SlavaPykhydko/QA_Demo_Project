@@ -1,0 +1,10 @@
+# env=prod worker=gw0 test=test_history_positive.py::test_scheme[status_Cancel] user=with_history req=3c871b8eaf715968266e2780038d8e1c status=200 duration_ms=358
+curl -X GET 'https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=Cancel&session_id=[MASKED]' \
+  -H 'x-api-key: [MASKED]' \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -H 'platform: ios' \
+  -H 'mobile-version: 4.9.2122' \
+  -H 'Authorization: [MASKED]' \
+  -H 'x-fuser-id: [MASKED]' \
+  -H 'traceparent: 00-3c871b8eaf715968266e2780038d8e1c-4c2f833285e5fad4-01' \
+  -H 'Cookie: [MASKED]'

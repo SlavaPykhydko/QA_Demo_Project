@@ -1,0 +1,9 @@
+curl -X GET 'https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=2&Limit=10&Status=All&session_id=[MASKED]' \
+  -H 'x-api-key: [MASKED]' \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -H 'platform: ios' \
+  -H 'mobile-version: 4.9.2122' \
+  -H 'Authorization: [MASKED]' \
+  -H 'x-fuser-id: [MASKED]' \
+  -H 'traceparent: 00-54fb19bbd59dd3b51b832de36819dc6d-75d0ccc222ac936c-01' \
+  -H 'Cookie: [MASKED]'

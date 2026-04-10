@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw0",
+    "test_nodeid": "test_history_empty_state.py::test_scheme_empty_state[status_All-UserType.EMPTY]",
+    "user_type": "empty",
+    "request_id": "f4af223228c3be163618e45d8bf01780",
+    "status_code": 200,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=All&session_id=652EjR9B5Z2uEUZBgAJ8xt1CZLOigzDAUUxQ4dea",
+    "duration_ms": 167
+  },
+  "body": {
+    "items": [],
+    "pageIndex": 0,
+    "totalPages": 0,
+    "totalCount": 0,
+    "hasPreviousPage": false,
+    "hasNextPage": false
+  }
+}

@@ -1,0 +1,3 @@
+INFO     OnlineOrdersAPI:base_client.py:173 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online
+
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://mobile-api.epicentrk.ua:443 "GET /api/v2/sales/orders/online?Page=0&Limit=40&Status=Cancel&session_id=3zrWa59Wk66GFEpQddtNm04QC3I3PsmAu7xZ5bbe HTTP/1.1" 200 None

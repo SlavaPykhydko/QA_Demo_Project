@@ -1,0 +1,10 @@
+# env=prod worker=gw1 test=test_history_negative.py::test_status_field_validation[status_as_random_string] user=with_history req=5e339eb4f8e0a81f83907f634b2d3ac6 status=400 duration_ms=200
+curl -X GET 'https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=40&Status=Unknown&session_id=[MASKED]' \
+  -H 'x-api-key: [MASKED]' \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -H 'platform: ios' \
+  -H 'mobile-version: 4.9.2122' \
+  -H 'Authorization: [MASKED]' \
+  -H 'x-fuser-id: [MASKED]' \
+  -H 'traceparent: 00-5e339eb4f8e0a81f83907f634b2d3ac6-4f037dd4f4024f86-01' \
+  -H 'Cookie: [MASKED]'

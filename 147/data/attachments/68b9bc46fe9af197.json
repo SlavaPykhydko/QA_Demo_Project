@@ -1,0 +1,193 @@
+{
+  "meta": {
+    "env": "prod",
+    "worker": "gw1",
+    "test_nodeid": "test_history_positive.py::test_list_info_params[page_0_limit_10_status=All-BUG]",
+    "user_type": "with_history",
+    "request_id": "ddab0ad5420f7f18990862f2662a2530",
+    "status_code": 200,
+    "method": "GET",
+    "url": "https://mobile-api.epicentrk.ua/api/v2/sales/orders/online?Page=0&Limit=10&Status=All&session_id=CrqMHGmtRHMVFuYw8PxUksiRqKMj5be9UScI46f4",
+    "duration_ms": 681
+  },
+  "body": {
+    "items": [
+      {
+        "id": 54592251,
+        "name": "54592251",
+        "price": 495.0,
+        "totalBonus": 0.0,
+        "createdOn": "2026-03-25T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "Епіцентр К",
+        "quantity": 1,
+        "type": "Online",
+        "deliveryId": 92,
+        "goods": [
+          "https://cdn.27.ua/190/e5/ce/1041870_3.jpeg"
+        ]
+      },
+      {
+        "id": 54124363,
+        "name": "54124363",
+        "price": 358.0,
+        "totalBonus": 0.0,
+        "createdOn": "2026-02-27T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "Епіцентр К",
+        "quantity": 1,
+        "type": "Online",
+        "deliveryId": 92,
+        "goods": [
+          "https://cdn.27.ua/190/2d/67/6892903_1.jpeg"
+        ]
+      },
+      {
+        "id": 53500443,
+        "name": "53500443",
+        "price": 443.0,
+        "totalBonus": 0.0,
+        "createdOn": "2026-01-23T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "Епіцентр К",
+        "quantity": 1,
+        "type": "Online",
+        "deliveryId": 40,
+        "goods": [
+          "https://cdn.27.ua/190/09/cf/264655_5.jpeg"
+        ]
+      },
+      {
+        "id": 52883944,
+        "name": "52883944",
+        "price": 430.2,
+        "totalBonus": 0.0,
+        "createdOn": "2025-12-23T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "Епіцентр К",
+        "quantity": 1,
+        "type": "Online",
+        "deliveryId": 92,
+        "goods": [
+          "https://cdn.27.ua/190/91/7b/168315_11.jpeg"
+        ]
+      },
+      {
+        "id": 52123429,
+        "name": "52123429",
+        "price": 273.6,
+        "totalBonus": 0.0,
+        "createdOn": "2025-11-22T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "Епіцентр К",
+        "quantity": 1,
+        "type": "Online",
+        "deliveryId": 92,
+        "goods": [
+          "https://cdn.27.ua/190/2d/67/6892903_1.jpeg"
+        ]
+      },
+      {
+        "id": 49640582,
+        "name": "49640582",
+        "price": 1025.0,
+        "totalBonus": 0.0,
+        "createdOn": "2025-07-07T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "Епіцентр К",
+        "quantity": 1,
+        "type": "Online",
+        "deliveryId": 45,
+        "goods": [
+          "https://cdn.27.ua/190/25/d5/9685_1.jpeg"
+        ]
+      },
+      {
+        "id": 49545435,
+        "name": "49545435",
+        "price": 248.71,
+        "totalBonus": 0.0,
+        "createdOn": "2025-07-03T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "Епіцентр К",
+        "quantity": 1,
+        "type": "Online",
+        "deliveryId": 45,
+        "goods": [
+          "https://cdn.27.ua/190/de/09/122377_2.jpeg"
+        ]
+      },
+      {
+        "id": 49330129,
+        "name": "49330129",
+        "price": 519.5,
+        "totalBonus": 0.0,
+        "createdOn": "2025-06-27T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "Епіцентр К",
+        "quantity": 2,
+        "type": "Online",
+        "deliveryId": 45,
+        "goods": [
+          "https://cdn.27.ua/190/4c/82/3886210_3.jpeg",
+          "https://cdn.27.ua/190/33/be/275390_5.jpeg"
+        ]
+      },
+      {
+        "id": 49272069,
+        "name": "49272069",
+        "price": 499.8,
+        "totalBonus": 0.0,
+        "createdOn": "2025-06-25T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "Епіцентр К",
+        "quantity": 1,
+        "type": "Online",
+        "deliveryId": 45,
+        "goods": [
+          "https://cdn.27.ua/190/4c/82/3886210_3.jpeg"
+        ]
+      },
+      {
+        "id": 49195325,
+        "name": "49195325",
+        "price": 269.6,
+        "totalBonus": 0.0,
+        "createdOn": "2025-06-23T00:00:00",
+        "orderStatus": "Received",
+        "status": "Отримано",
+        "statusGroup": "received",
+        "seller": "Епіцентр К",
+        "quantity": 1,
+        "type": "Online",
+        "deliveryId": 45,
+        "goods": [
+          "https://cdn.27.ua/190/33/be/275390_5.jpeg"
+        ]
+      }
+    ],
+    "pageIndex": 0,
+    "totalPages": 3,
+    "totalCount": 30,
+    "hasPreviousPage": false,
+    "hasNextPage": true
+  }
+}

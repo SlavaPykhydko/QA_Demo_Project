@@ -1,0 +1,3 @@
+INFO     OnlineOrdersAPI:base_client.py:173 Sending GET to https://mobile-api.epicentrk.ua/api/v2/sales/orders/online
+
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://mobile-api.epicentrk.ua:443 "GET /api/v2/sales/orders/online?Page=True&Limit=40&Status=All&session_id=ZK4j5tbynNat6AOSDgl3pUXETqZjZ6S5Ck2y5867 HTTP/1.1" 400 254
