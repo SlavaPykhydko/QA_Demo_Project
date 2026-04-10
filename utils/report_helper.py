@@ -37,8 +37,8 @@ def _attach_api_context_html(meta: dict):
                 <td style="padding: 5px 8px; border: 1px solid #d1d5da;">{meta.get('duration_ms', '-')} ms</td>
             </tr>
             <tr>
-                <td style="padding: 5px 8px; border: 1px solid #d1d5da;"><b>Request ID</b></td>
-                <td style="padding: 5px 8px; border: 1px solid #d1d5da;"><code style="font-size: 11px; color: #586069;">{meta.get('request_id', '-')}</code></td>
+                <td style="padding: 5px 8px; border: 1px solid #d1d5da;"><b>Trace ID</b></td>
+                <td style="padding: 5px 8px; border: 1px solid #d1d5da;"><code style="font-size: 11px; color: #586069;">{meta.get('trace_id', '-')}</code></td>
             </tr>
         </table>
     </div>
@@ -58,7 +58,7 @@ def _build_context_meta(response=None, duration_ms=None):
         "worker": context.get("worker", "-"),
         "test_nodeid": context.get("test_nodeid", "-"),
         "user_type": context.get("user_type", "-"),
-        "request_id": context.get("request_id", "-"),
+        "trace_id": context.get("trace_id", "-"),
     }
 
     if response is not None:

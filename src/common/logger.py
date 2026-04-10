@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 _LOG_CONTEXT: ContextVar[dict] = ContextVar("log_context", default={})
-_CONTEXT_KEYS = ("env", "worker", "test_nodeid", "user_type", "request_id")
+_CONTEXT_KEYS = ("env", "worker", "test_nodeid", "user_type", "trace_id")
 
 
 def set_log_context(**kwargs):
@@ -60,7 +60,7 @@ def get_logger(name):
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - "
             "env=%(env)s worker=%(worker)s test=%(test_nodeid)s "
-            "user=%(user_type)s req=%(request_id)s - %(message)s",
+            "user=%(user_type)s trace=%(trace_id)s - %(message)s",
             datefmt='%Y-%m-%d %H:%M:%S'
         )
 

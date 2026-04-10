@@ -33,7 +33,7 @@ _LOG_ATTR_DEFAULTS = {
     "worker": "-",
     "test_nodeid": "-",
     "user_type": "-",
-    "request_id": "-",
+    "trace_id": "-",
 }
 _record_factory_installed = False
 

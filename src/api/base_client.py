@@ -83,7 +83,7 @@ class BaseClient(AssertionsMixin):
         """Extract trace id from current span and sync it with log context."""
         span_context = span.get_span_context()
         trace_id = format_trace_id(span_context.trace_id)
-        set_log_context(request_id=trace_id)
+        set_log_context(trace_id=trace_id)
         return trace_id
 
     def _inject_metadata(self, kwargs: dict[str, Any]) -> None:
@@ -195,7 +195,7 @@ class BaseClient(AssertionsMixin):
                     self._log_error(method, url, response, kwargs, exception=e)
                 raise
             finally:
-                clear_log_context("request_id")
+                clear_log_context("trace_id")
 
     def _log_error(self, method, url, response, kwargs, exception=None):
         status = response.status_code if response is not None else "NO RESPONSE / TIMEOUT"
