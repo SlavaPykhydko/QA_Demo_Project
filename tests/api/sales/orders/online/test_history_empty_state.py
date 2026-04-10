@@ -5,6 +5,7 @@ import pytest_check as check
 from data.online_orders_constants import LIMIT_40
 from data.online_orders_positive_data import STATUS_DATA
 from src.common.user_accounts import UserType
+from utils.report_helper import github_tc
 
 # All tests in this file will use USER_EMPTY
 # Allure grouping for all file
@@ -22,6 +23,7 @@ class TestSchemeEmptyState:
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check contract with status: {inputs[status]}")  # Dynamic title
     @pytest.mark.parametrize("inputs", STATUS_DATA)
+    @github_tc("id-tc-so-oh-es-01")
     def test_scheme_empty_state(self, api, inputs):
         parsed_data = api.online_orders.get_parsed_items(
             page=0,

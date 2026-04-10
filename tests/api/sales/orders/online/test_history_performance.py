@@ -5,7 +5,7 @@ import pytest_check as check
 
 from data.online_orders_constants import LIMIT_40
 from src.common.enums.orders import Status
-from utils.report_helper import assert_performance_sla
+from utils.report_helper import assert_performance_sla, github_tc
 
 pytestmark = [
     pytest.mark.performance,
@@ -20,6 +20,7 @@ class TestPerformance:
 
     @allure.severity(allure.severity_level.MINOR)
     @allure.title(f"Performance SLA check: Average of {ITERATIONS} requests")
+    @github_tc("id-tc-so-oh-pf-01")
     def test_average_response_time(self, api):
         durations = []
 

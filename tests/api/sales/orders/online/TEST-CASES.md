@@ -659,3 +659,191 @@ Verification of the API's default behavior when the `status` parameter is omitte
 * **Test Class:** `TestDefaultsParams`
 * **Test Method:** `test_default_status_is_all`
 
+# 📋 Test Case: Orders History. Empty State Validation
+
+#### **ID:** `TC-SO-OH-ES-01`  
+**Epic:** Sales & Orders  
+**Feature:** Orders History  
+**Story:** Empty State Validation  
+**Severity:** 🔥 CRITICAL  
+**Tags:** `empty_state`, `regression`
+
+---
+
+## 🎯 Description
+Verification of the API behavior when an authorized user has no order history. The test ensures that the system correctly returns a valid response structure with empty data sets instead of errors or nulls for various statuses.
+
+## 🔑 Preconditions
+* Authorized user with **no** existing Order History (Empty State account).
+* The user should not have orders in any of the statuses: `ALL`, `DONE`, `CANCEL`, `ACTIVE`.
+
+## 🚀 Test Steps
+
+| # | Action                                                                                           | Expected Result |
+| :--- |:-------------------------------------------------------------------------------------------------| :--- |
+| 1 | Call GET endpoint `/sales/orders/online` with parameters: `page=0`, `limit=40`, `status={status}`. | HTTP status 200. Response structure is valid and matches the Pydantic model. |
+| 2 | Verify the length of the retrieved orders list (`items`).                                        | The list must be empty: **len(items) == 0**. |
+| 3 | Verify the value of the `totalPages` field.                                                      | The parameter value must be exactly **0**. |
+
+---
+
+## 📊 Test Data (Parametrization)
+
+The test is executed iteratively for the following status values:
+
+| Iteration ID    | Input Status    | Note               |
+|:----------------|:----------------|:-------------------|
+| `status_All`    | `Status.ALL`    | Empty list check   |
+| `status_Done`   | `Status.DONE`   | Empty list check   |
+| `status_Cancel` | `Status.CANCEL` | Empty list check   |
+| `status_Active` | `Status.Active` | Empty list check   |
+
+---
+
+## 🛠 Technical Implementation Details
+
+* **Test Class:** `TestSchemeEmptyState`
+* **Test Method:** `test_scheme_empty_state`
+* **User Context:** `UserType.EMPTY`
+
+# 📋 Test Case: Orders History. Invalid Status Handling
+
+#### **ID:** `TC-SO-OH-NC-01`  
+**Epic:** Sales & Orders  
+**Feature:** Orders History  
+**Story:** Negative checks  
+**Severity:** 🟢 NORMAL  
+**Tags:** `negative`, `regression`
+
+---
+
+## 🎯 Description
+Verification of the API's robustness when processing invalid values in the `status` query parameter. The test ensures that the system returns a proper error structure (RFC 7807 Problem Details) and a descriptive message instead of unhandled exceptions.
+
+## 🔑 Preconditions
+* Authorized user.
+
+## 🚀 Test Steps
+
+| # | Action                                                                                                | Expected Result |
+| :--- |:------------------------------------------------------------------------------------------------------| :--- |
+| 1 | Call GET endpoint `/sales/orders/online` with an invalid `status` value (see Test Data).               | HTTP status **400 Bad Request**. |
+| 2 | Locate the error message in the response body at JSON path: `errors.Status[0]`.                      | The error message is present and not null. |
+| 3 | Verify that the error message contains the original invalid value.                                   | The invalid input string is echoed in the error description. |
+| 4 | Verify that the error message follows the standard template.                                          | Message contains "is invalid" or "is not valid". |
+| 5 | Verify the overall error structure.                                                                   | The response matches the **Problem Details** schema. |
+
+---
+
+## 📊 Test Data (Parametrization)
+
+The test is executed for various "dirty" inputs:
+
+| Iteration ID             | Input Status | Expected Behavior                                     |
+|:-------------------------|:-------------|:------------------------------------------------------|
+| `status_as_random_string`| `"Unknown"`  | 400 Error: value is invalid                           |
+| `status_as_int`          | `-1`         | 400 Error: type mismatch/invalid value                |
+| `status_as_empty_string` | `""`         | 400 Error: empty value not allowed                    |
+| `status_as_numeric_string`| `"12345"`   | 400 Error: value is invalid                           |
+| `status_as_null_byte`    | `"\0"`       | 400 Error: handle special characters                  |
+| `status_as_boolean`      | `True`       | 400 Error: type mismatch                              |
+| `status_as_deleted`      | `"Deleted"`  | 400 Error: unauthorized/unsupported status            |
+
+---
+
+## 🛠 Technical Implementation Details
+
+* **Test Class:** `TestInvalidStatusHandling`
+* **Test Method:** `test_status_field_validation`
+
+# 📋 Test Case: Orders History Invalid Page Handling
+
+#### **ID:** `TC-SO-OH-NC-02`  
+**Epic:** Sales & Orders  
+**Feature:** Orders History  
+**Story:** Negative checks  
+**Severity:** 🟢 NORMAL  
+**Tags:** `negative`, `regression`
+
+---
+
+## 🎯 Description
+Validation of the API's resilience when processing invalid values in the `page` query parameter. The test ensures that the system correctly identifies malformed input and returns a structured 400 Bad Request response instead of an internal server error.
+
+## 🔑 Preconditions
+* Authorized user.
+
+## 🚀 Test Steps
+
+| # | Action                                                                                                | Expected Result |
+| :--- |:------------------------------------------------------------------------------------------------------| :--- |
+| 1 | Call GET endpoint `/sales/orders/online` with an invalid `page` value (see Test Data).                 | HTTP status **400 Bad Request**. |
+| 2 | Locate the error message in the response body at JSON path: `errors.Page[0]`.                        | The error message is present and not null. |
+| 3 | Verify that the error message contains the original invalid value.                                   | The invalid input string/value is echoed in the error description. |
+| 4 | Verify that the error message follows the standard template.                                          | Message contains "is invalid" or "is not valid". |
+| 5 | Verify the overall error structure.                                                                   | The response matches the **Problem Details** schema. |
+
+---
+
+## 📊 Test Data (Parametrization)
+
+The test checks various boundary and type-mismatch scenarios for the `page` parameter:
+
+| Iteration ID                | Input Page   | Expected Behavior / Notes                                      |
+|:----------------------------|:-------------|:---------------------------------------------------------------|
+| `page_as_random_string`     | `"Unknown"`  | 400 Error: value is invalid                                    |
+| `page_as_negative_int_value`| `-1`         | **KNOWN BUG:** Server currently returns 500 instead of 400. Marked as **XFAIL**. |
+| `page_as_empty_string`      | `""`         | 400 Error: empty value not allowed                             |
+| `page_as_null_byte`         | `"\0"`       | 400 Error: handle special characters                           |
+| `page_as_boolean`           | `True`       | 400 Error: type mismatch                                       |
+
+---
+
+## 🛠 Technical Implementation Details
+
+* **Test Class:** `TestInvalidPageHandling`
+* **Test Method:** `test_page_field_validation`
+
+# 📋 Test Case: Orders History Performance SLA Check
+
+#### **ID:** `TC-SO-OH-PF-01`  
+**Epic:** Sales & Orders  
+**Feature:** Orders History  
+**Story:** Performance checks  
+**Severity:** 🟢 MINOR  
+**Tags:** `performance`, `regression`
+
+---
+
+## 🎯 Description
+Benchmark test to ensure the "Orders History" endpoint responds within the acceptable Service Level Agreement (SLA). The test performs multiple iterations to calculate a stable average response time and prevent performance degradation.
+
+## 🔑 Preconditions
+* Authorized user with a standard amount of order history data.
+* Stable network connection to the environment.
+
+## 🚀 Test Steps
+
+| # | Action                                                                                                | Expected Result |
+| :--- |:------------------------------------------------------------------------------------------------------| :--- |
+| 1 | Perform **5 sequential iterations** of GET `/sales/orders/online` with: `page=0`, `limit=40`, `status=ALL`. | Each request returns HTTP 200. |
+| 2 | Add a **0.5s delay** (pacing) between iterations.                                                     | Prevents artificial "burst" load. |
+| 3 | Measure the `elapsed` time for each successful request.                                               | Time is captured for all 5 attempts. |
+| 4 | Calculate the average response time and compare it with the **SLA Threshold**.                        | **Average Time < 1.5 seconds**. |
+
+---
+
+## 📊 Performance Criteria (SLA)
+
+| Metric                   | Value         | Note                                         |
+|:-------------------------|:--------------|:---------------------------------------------|
+| **SLA Threshold** | **1.5s** | Maximum allowed average response time        |
+| **Iterations** | **5** | Sample size for averaging                    |
+| **Pacing (Sleep)** | **0.5s** | Interval between requests                    |
+
+---
+
+## 🛠 Technical Implementation Details
+
+* **Test Class:** `TestPerformance`
+* **Test Method:** `test_average_response_time`

@@ -5,6 +5,7 @@ import pytest_check as check
 from data.online_orders_constants import LIMIT_40
 from data.online_orders_negative_data import NEGATIVE_PAGE_DATA, NEGATIVE_STATUS_DATA
 from src.common.enums.orders import Status
+from utils.report_helper import github_tc
 
 pytestmark = [
     pytest.mark.negative,
@@ -19,6 +20,7 @@ class TestInvalidStatusHandling:
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Checking response code and problem details with invalid status: {inputs[status]}")
     @pytest.mark.parametrize("inputs", NEGATIVE_STATUS_DATA)
+    @github_tc("id-tc-so-oh-nc-01")
     def test_status_field_validation(self, api, inputs):
         response = api.online_orders.get_items(
             page=0,
@@ -46,6 +48,7 @@ class TestInvalidPageHandling:
     @allure.severity(allure.severity_level.NORMAL)
     @allure.title("Checking response code and problem details with invalid page: {inputs[page]}")
     @pytest.mark.parametrize("inputs", NEGATIVE_PAGE_DATA)
+    @github_tc("id-tc-so-oh-nc-02")
     def test_page_field_validation(self, api, inputs):
         response = api.online_orders.get_items(
             page=inputs["page"],
