@@ -718,7 +718,7 @@ The test is executed iteratively for the following status values:
 ---
 
 ## 🎯 Description
-Verification of the API's robustness when processing invalid values in the `status` query parameter. The test ensures that the system returns a proper error structure (RFC 7807 Problem Details) and a descriptive message instead of unhandled exceptions.
+Verification of the API's robustness when processing invalid values in the `status` query parameter. The test ensures that the system returns a proper error structure (RFC 9110 Problem Details) and a descriptive message instead of unhandled exceptions.
 
 ## 🔑 Preconditions
 * Authorized user.
