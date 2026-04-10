@@ -2,8 +2,8 @@ from statistics import mean
 import json
 import allure
 import re
+import functools
 from pytest_check import check
-
 from src.common.logger import get_log_context
 from src.common.sensitive_keys import SENSITIVE_KEYS
 
@@ -146,3 +146,13 @@ def link_to_case(case_id: str):
         name=case_id,
         link_type="tms"
     )
+
+def github_tc(case_id):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # Вызываем твой хелпер автоматически перед тестом
+            link_to_case(case_id)
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator

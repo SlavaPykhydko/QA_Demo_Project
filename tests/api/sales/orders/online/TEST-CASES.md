@@ -46,7 +46,7 @@ The test is executed iteratively for the following status values:
 
 # 📋 Test Case: Pagination & Metadata Validation (List Info)
 
-**ID:** `TC-SO-OH-PC-02`  
+#### **ID:** `TC-SO-OH-PC-02`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -94,7 +94,7 @@ Verification of pagination metadata and list information accuracy. The test ensu
 
 # 📋 Test Case: Order Status Aggregation Consistency
 
-#### **ID:**`TC-SO-OH-PC-03`  
+#### **ID:** `TC-SO-OH-PC-03`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -128,7 +128,7 @@ Validation of the mathematical consistency between aggregated order statuses. Th
 
 # 📋 Test Case: Order Type Classification Validation
 
-**ID:** `TC-SO-OH-PC-04`  
+#### **ID:** `TC-SO-OH-PC-04`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -162,7 +162,7 @@ Comprehensive verification of the `type` field for all items in the order histor
 
 # 📋 Test Case: Response Items Quantity Consistency
 
-**ID:** `TC-SO-OH-PC-05`  
+#### **ID:** `TC-SO-OH-PC-05`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -208,7 +208,7 @@ The test is executed for all statuses defined in `STATUS_DATA`:
 
 # 📋 Test Case: Order Status Mapping & Localization Consistency
 
-**ID:** `TC-SO-OH-PC-06`  
+#### **ID:** `TC-SO-OH-PC-06`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -253,7 +253,7 @@ Deep verification of status consistency and localization across all pages of the
 
 # 📋 Test Case: Order Status Group Classification
 
-**ID:** `TC-SO-OH-PC-07`  
+#### **ID:** `TC-SO-OH-PC-07`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -296,7 +296,7 @@ Validation of the `statusGroup` parameter consistency across all order history p
 
 # 📋 Test Case: Checking sum qnt items from all pages
 
-**ID:** `TC-SO-OH-PC-08`  
+#### **ID:** `TC-SO-OH-PC-08`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -329,7 +329,7 @@ A full data reconciliation check between the API and the Database. The test iter
 
 # 📋 Test Case: Seller Identity & Order Type Consistency
 
-**ID:** `TC-SO-OH-PC-09`  
+#### **ID:** `TC-SO-OH-PC-09`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -364,7 +364,7 @@ Verification of the logical mapping between the order's `seller` and its `type`.
 
 # 📋 Test Case: Global Order ID Uniqueness Across Pagination
 
-**ID:** `TC-SO-OH-PC-10`  
+#### **ID:** `TC-SO-OH-PC-10`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -396,7 +396,7 @@ Verification of the global uniqueness of Order IDs across the entire history dat
 
 # 📋 Test Case: Global Order Sorting (Newest First)
 
-**ID:** `TC-SO-OH-PC-11`  
+#### **ID:** `TC-SO-OH-PC-11`  
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -429,7 +429,7 @@ Verification of the chronological sorting of the order history. The test ensures
 
 # 📋 Test Case: Order Image Asset Integrity & Availability
 
-**ID:** `TC-SO-OH-PC-12`  
+#### **ID:** `TC-SO-OH-PC-12`    
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -464,7 +464,7 @@ Comprehensive verification of image assets for all items in the order history. T
 
 # 📋 Test Case: Order Price Positive Value Validation
 
-**ID:** `TC-SO-OH-PC-13`  
+#### **ID:** `TC-SO-OH-PC-13`    
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -496,7 +496,7 @@ Verification of the monetary value integrity for every order. This test iterates
 
 # 📋 Test Case: Order Item Quantity Validation
 
-**ID:** `TC-SO-OH-PC-14`  
+#### **ID:** `TC-SO-OH-PC-14`    
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -527,7 +527,7 @@ Verification of the quantity parameter for every item in the order history. This
 
 # 📋 Test Case: Product Quantity vs. Asset Count Consistency
 
-**ID:** `TC-SO-OH-PC-15`  
+#### **ID:** `TC-SO-OH-PC-15`    
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -560,7 +560,7 @@ Verification of the integrity between the declared item quantity and the number 
 
 # 📋 Test Case: Order ID & Name Identity Consistency
 
-**ID:** `TC-SO-OH-PC-16`  
+#### **ID:** `TC-SO-OH-PC-16`    
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -593,7 +593,7 @@ Verification of the identity mapping between the order's unique identifier (`id`
 
 # 📋 Test Case: API vs. Database Deep Data Reconciliation
 
-**ID:** `TC-SO-OH-PC-17`  
+#### **ID:** `TC-SO-OH-PC-17`    
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
@@ -628,7 +628,7 @@ End-to-end data integrity verification by performing a field-by-field comparison
 
 # 📋 Test Case: Default Status Parameter Validation
 
-**ID:** `TC-SO-OH-PC-18`  
+#### **ID:** `TC-SO-OH-PC-18`    
 **Epic:** Sales & Orders  
 **Feature:** Orders History  
 **Story:** Positive checks  
