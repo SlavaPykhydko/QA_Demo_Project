@@ -12,7 +12,7 @@ from data.online_orders_positive_data import (
     STATUS_DATA,
     STATUS_GROUP_MAPPING,
 )
-
+from utils.report_helper import link_to_case
 
 # Now ALL tests in this file are automatically labeled 'positive' and 'regression'
 pytestmark = [
@@ -27,9 +27,9 @@ class TestScheme:
     @pytest.mark.smoke
     @allure.severity(allure.severity_level.CRITICAL)
     @allure.title("Check contract with status: {inputs[status]}")  # Dynamic title
-    @allure.testcase("id-tc-so-oh-pc-01")
     @pytest.mark.parametrize("inputs", STATUS_DATA)
     def test_scheme(self, api, inputs):
+        link_to_case("id-tc-so-oh-pc-01")  # Викликаємо хелпер
         parsed_data = api.online_orders.get_parsed_items(
             page=0,
             limit=LIMIT_40,

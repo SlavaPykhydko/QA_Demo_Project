@@ -129,3 +129,20 @@ def assert_performance_sla(durations, sla_threshold):
             sla_threshold,
             f"Average response time is too high! Avg: {avg_time:.3f}s, Threshold: {sla_threshold}s"
         )
+
+
+def link_to_case(case_id: str):
+    """
+    Формує повне посилання на тест-кейс у GitHub.
+    Автоматично переводить ID у нижній регістр для роботи якорів GitHub.
+    """
+    base_url = "https://github.com/SlavaPykhydko/QA_Demo_Project/blob/main/tests/api/sales/orders/online/TEST-CASES.md"
+    # GitHub робить якоря (anchors) маленькими літерами
+    anchor = case_id.lower()
+
+    # Використовуємо dynamic.link, щоб зашити ПОВНИЙ URL у звіт
+    allure.dynamic.link(
+        url=f"{base_url}#{anchor}",
+        name=case_id,
+        link_type="tms"
+    )
