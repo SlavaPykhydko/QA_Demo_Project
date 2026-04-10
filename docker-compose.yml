@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: infra/Dockerfile
     environment:
-      - ALLURE_LINK_TMS_PATTERN=https://github.com/SlavaPykhydko/QA_Demo_Project/blob/main/tests/api/sales/orders/online/TEST-CASES.md#%s
+      - ALLURE_LINK_TMS_PATTERN=https://github.com/SlavaPykhydko/QA_Demo_Project/blob/main/tests/api/sales/orders/online/TEST-CASES.md#%%s
       # Настройки OpenTelemetry
       - OTEL_SERVICE_NAME=python-api-tests
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=${GRAFANA_OTLP_ENDPOINT}/v1/traces

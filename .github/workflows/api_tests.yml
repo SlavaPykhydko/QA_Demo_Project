@@ -123,9 +123,14 @@ jobs:
       - name: Set Allure Custom Links Pattern
         if: always()
         run: |
-          # Створюємо файл з налаштуваннями лінків у папці з результатами
-          # Якщо файл вже є, ми просто дописуємо в кінець
-          echo "allure.link.tms.pattern=https://github.com/SlavaPykhydko/QA_Demo_Project/blob/main/tests/api/sales/orders/online/TEST-CASES.md#%s" >> allure-results/environment.properties
+          # 2. Використовуємо sudo tee для запису. 
+          # Прапор -a означає append (дописати в кінець). 
+          # Одинарні лапки навколо URL захищають від обробки спецсимволів шелом.
+          echo 'allure.link.tms.pattern=https://github.com/SlavaPykhydko/QA_Demo_Project/blob/main/tests/api/sales/orders/online/TEST-CASES.md#%s' | sudo tee -a allure-results/environment.properties
+    
+          # 3. DEBUG: Перевіряємо, що записалося
+          echo "--- Checking file content ---"
+          sudo cat allure-results/environment.properties
 
       - name: Build Allure Report
         if: always()
