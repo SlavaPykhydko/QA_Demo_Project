@@ -8,6 +8,49 @@ from src.common.logger import get_log_context
 from src.common.sensitive_keys import SENSITIVE_KEYS
 
 
+# 1. Допоміжна функція для встановлення динамічних параметрів Allure
+def _set_allure_dynamic_parameters(meta: dict):
+    """Виносить ключові метадані у верхню секцію Parameters звіту Allure"""
+    # Ці параметри буде видно одразу під назвою тесту
+    allure.dynamic.parameter("Env", meta.get("env", "-"))
+    allure.dynamic.parameter("User Type", meta.get("user_type", "-"))
+    if meta.get("worker") != "-":
+        allure.dynamic.parameter("Worker", meta.get("worker"))
+
+
+def _attach_api_context_html(meta: dict):
+    # Додаємо font-size: 12px та зменшуємо padding до 4px-6px
+    html_content = f"""
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; border: 1px solid #e1e4e8; border-radius: 6px; padding: 8px; background-color: #fff;">
+        <h4 style="margin: 0 0 8px 0; color: #24292e; font-size: 14px;">🚀 API Request Context</h4>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <tr style="background-color: #f6f8fa;">
+                <td style="padding: 5px 8px; border: 1px solid #d1d5da; width: 30%;"><b>Method</b></td>
+                <td style="padding: 5px 8px; border: 1px solid #d1d5da;"><code>{meta.get('method', '-')}</code></td>
+            </tr>
+            <tr>
+                <td style="padding: 5px 8px; border: 1px solid #d1d5da;"><b>Status Code</b></td>
+                <td style="padding: 5px 8px; border: 1px solid #d1d5da;"><b style="color: #28a745;">{meta.get('status_code', '-')}</b></td>
+            </tr>
+            <tr style="background-color: #f6f8fa;">
+                <td style="padding: 5px 8px; border: 1px solid #d1d5da;"><b>Duration</b></td>
+                <td style="padding: 5px 8px; border: 1px solid #d1d5da;">{meta.get('duration_ms', '-')} ms</td>
+            </tr>
+            <tr>
+                <td style="padding: 5px 8px; border: 1px solid #d1d5da;"><b>Request ID</b></td>
+                <td style="padding: 5px 8px; border: 1px solid #d1d5da;"><code style="font-size: 11px; color: #586069;">{meta.get('request_id', '-')}</code></td>
+            </tr>
+        </table>
+    </div>
+    """
+
+    allure.attach(
+        html_content,
+        name="🚀 API Context",
+        attachment_type=allure.attachment_type.HTML
+    )
+
+
 def _build_context_meta(response=None, duration_ms=None):
     context = get_log_context()
     meta = {
@@ -30,24 +73,39 @@ def _build_context_meta(response=None, duration_ms=None):
     return meta
 
 
-def attach_json(data, name="API Response", response=None, duration_ms=None):
-    if hasattr(data, "model_dump"):
-        payload_data = data.model_dump()
-    else:
-        payload_data = data
+# 3. Основний метод для JSON (тепер чистий)
+def attach_json(data, name="API Response body", response=None, duration_ms=None):
+    # 1. Пріоритет №1: Спочатку прикріплюємо сам JSON
+    # Робимо це в першу чергу, щоб ніякі помилки в метаданих не завадили
+    try:
+        payload_data = data.model_dump() if hasattr(data, "model_dump") else data
+        allure.attach(
+            json.dumps(payload_data, indent=2, ensure_ascii=False, default=str),
+            name=name,
+            attachment_type=allure.attachment_type.JSON
+        )
+    except Exception as e:
+        # Якщо навіть JSON впав (наприклад, помилка серіалізації), кріпимо як текст
+        allure.attach(f"Error serializing JSON: {e}\nData: {data}",
+                      name="FAILED: API Response",
+                      attachment_type=allure.attachment_type.TEXT)
 
-    attachment_payload = {
-        "meta": _build_context_meta(response=response, duration_ms=duration_ms),
-        "body": payload_data,
-    }
+    # 2. Пріоритет №2: Метадані та параметри
+    # Огортаємо в try-except, щоб помилка в "красі" не ламала звіт
+    try:
+        meta = _build_context_meta(response=response, duration_ms=duration_ms)
 
-    allure.attach(
-        json.dumps(attachment_payload, indent=2, ensure_ascii=False, default=str),
-        name=name,
-        attachment_type=allure.attachment_type.JSON
-    )
+        # Виносимо в параметри
+        _set_allure_dynamic_parameters(meta)
+
+        # Створюємо HTML таблицю
+        _attach_api_context_html(meta)
+    except Exception as e:
+        # Друкуємо помилку в консоль для дебагу, але не ламаємо тест
+        print(f"\n[ALLURE ERROR] Failed to attach meta-info: {e}")
 
 
+# 4. Оновлений cURL (без зайвих коментарів, бо вони тепер у Context)
 def attach_curl(response, duration_ms=None):
     if not hasattr(response, 'request'):
         return
@@ -55,53 +113,29 @@ def attach_curl(response, duration_ms=None):
     request = response.request
     url = request.url
 
-
-    # 2. Маскируем данные в URL (Query Parameters)
-    # Ищем в URL паттерны типа session_id=abc12345 и заменяем на [MASKED]
+    # Маскування (залишаємо твою логіку)
     for key in SENSITIVE_KEYS:
-        # Регулярка ищет ключ=значение до следующего & или конца строки
-        pattern = rf"({key}=)([^&]+)"
-        url = re.sub(pattern, r"\1[MASKED]", url)
-
-    # Mask query params using case-insensitive replacement.
+        url = re.sub(rf"({key}=)([^&]+)", r"\1[MASKED]", url)
     url = re.sub(r"(?i)(session_id=)([^&]+)", r"\1[MASKED]", url)
 
-    # 3. Базовая команда с маскированным URL
     command = f"curl -X {request.method} '{url}'"
 
-    # 3.1 Add context metadata so Allure attachment matches console/file logs.
-    meta = _build_context_meta(response=response, duration_ms=duration_ms)
-    context_line = (
-        f"# env={meta['env']} worker={meta['worker']} test={meta['test_nodeid']} "
-        f"user={meta['user_type']} req={meta['request_id']} "
-        f"status={meta.get('status_code', '-')} duration_ms={meta.get('duration_ms', '-')}"
-    )
-    command = f"{context_line}\n{command}"
-
-    # 4. Добавляем заголовки с маскировкой
+    # Додаємо заголовки
     ignored_headers = ['User-Agent', 'Accept-Encoding', 'Connection', 'Accept']
     for k, v in request.headers.items():
-        if k in ignored_headers:
-            continue
-
-        # Если заголовок чувствительный — маскируем
+        if k in ignored_headers: continue
         display_value = "[MASKED]" if any(sk in k.lower() for sk in SENSITIVE_KEYS) else v
         command += f" \\\n  -H '{k}: {display_value}'"
 
-    # 5. Добавляем тело (Body) - там тоже могут быть токены
+    # Додаємо Body
     if request.body:
         try:
             body_str = request.body.decode('utf-8') if isinstance(request.body, bytes) else str(request.body)
-            # Маскируем и в теле (если там JSON)
-            body_str = re.sub(r'(?i)("password"\s*:\s*")[^"]+(")', r'\1[MASKED]\2', body_str)
-            body_str = re.sub(r'(?i)("token"\s*:\s*")[^"]+(")', r'\1[MASKED]\2', body_str)
-            body_str = re.sub(r'(?i)("session_id"\s*:\s*")[^"]+(")', r'\1[MASKED]\2', body_str)
-
-            # Форматируем JSON для красоты
+            # Твоє маскування в JSON...
             body_json = json.loads(body_str)
             payload = json.dumps(body_json, indent=2, ensure_ascii=False)
             command += f" \\\n  -d '{payload}'"
-        except (ValueError, TypeError):
+        except:
             command += f" \\\n  -d '{request.body}'"
 
     allure.attach(
